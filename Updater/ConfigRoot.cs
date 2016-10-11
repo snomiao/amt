@@ -1,19 +1,31 @@
 ﻿using System.Linq;
 using System.Xml.Linq;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace YTY.amt
 {
   internal static class ConfigRoot
   {
-    internal static XDocument root;
+    private const string DEFAULT_ConfigFile = @"c:\1.xml";
+    private static XDocument xDoc;
 
-    internal static ObservableCollection<DownloadTask> DownloadTasks { get; }
+    internal static XElement Root { get { return xDoc.Root; } }
+
+    internal static ObservableCollection<DownloadModel> DownloadTasks { get; }
 
     static ConfigRoot()
     {
-      root = XDocument.Load(@"c:\1.xml");
-      DownloadTasks = new ObservableCollection<DownloadTask>(root.Elements("DownloadTask").Select(ele => new DownloadTask(ele)));
+      if (File.Exists(DEFAULT_ConfigFile))
+        xDoc = XDocument.Load(DEFAULT_ConfigFile);
+      else
+        xDoc = new XDocument(new XElement("amt"));
+      DownloadTasks = new ObservableCollection<DownloadModel>(xDoc.Elements("DownloadTask").Select(ele => new DownloadModel(ele)));
+    }
+
+    internal static void Save()
+    {
+      xDoc.Save(DEFAULT_ConfigFile);
     }
   }
 }

@@ -8,7 +8,7 @@ using System.IO;
 
 namespace YTY.amt
 {
-  internal class DownloadTask : INotifyPropertyChanged
+  internal class DownloadModel : INotifyPropertyChanged
   {
     private WebDownloader wd;
     private XElement xe;
@@ -17,7 +17,7 @@ namespace YTY.amt
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    internal string Uri { get; }
+    public string Uri { get; }
 
     internal string FileName { get; }
 
@@ -33,7 +33,7 @@ namespace YTY.amt
 
     internal IDictionary<int, ChunkEntity> Chunks { get { return chunks; } }
 
-    internal DownloadTask(string uri, string fileName)
+    internal DownloadModel(string uri, string fileName)
     {
       Uri = uri;
       FileName = fileName;
@@ -42,10 +42,10 @@ namespace YTY.amt
         new XElement("Uri", Uri),
         new XElement("FileName", FileName),
         new XElement("Status", Status));
-      ConfigRoot.root.Add(xe);
+      ConfigRoot.Root.Add(xe);
     }
 
-    internal DownloadTask(XElement xe)
+    internal DownloadModel(XElement xe)
     {
       this.xe = xe;
       Uri = xe.Element("Uri").Value;

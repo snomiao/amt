@@ -9,7 +9,15 @@
         Height="350"
         Width="525"
         Loaded="Window_Loaded">
-  <Grid x:Name="gridMain">
-
-  </Grid>
+  <ListBox x:Name="lbxMain">
+    <ListBox.ItemTemplate>
+      <DataTemplate>
+        <StackPanel>
+        <TextBlock Text="{Binding Path=Uri}"></TextBlock>
+        <TextBlock Text="{Binding Path=FileName}"></TextBlock>
+          
+        </StackPanel>
+      </DataTemplate>
+    </ListBox.ItemTemplate>
+  </ListBox>
 </Window>
