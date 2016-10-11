@@ -52,6 +52,7 @@ namespace YTY
         try
         {
           var req = WebRequest.Create(Uri);
+          req.Timeout = 8000;
           req.Method = "HEAD";
           var resp = req.GetResponse() as HttpWebResponse;
           contentLength = resp.ContentLength;

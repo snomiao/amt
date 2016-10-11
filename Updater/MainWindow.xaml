@@ -9,15 +9,57 @@
         Height="350"
         Width="525"
         Loaded="Window_Loaded">
-  <ListBox x:Name="lbxMain">
-    <ListBox.ItemTemplate>
-      <DataTemplate>
-        <StackPanel>
-        <TextBlock Text="{Binding Path=Uri}"></TextBlock>
-        <TextBlock Text="{Binding Path=FileName}"></TextBlock>
-          
-        </StackPanel>
-      </DataTemplate>
-    </ListBox.ItemTemplate>
-  </ListBox>
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Resources.xaml"></ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="auto"></RowDefinition>
+      <RowDefinition Height="*"></RowDefinition>
+    </Grid.RowDefinitions>
+    <Button x:Name="btnStart"
+            Grid.Row="0"
+            Click="btnStart_Click">Start</Button>
+    <ListBox x:Name="lbxMain"
+             Grid.Row="1"
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel>
+            <TextBlock Text="{Binding Path=Uri}"></TextBlock>
+            <TextBlock Text="{Binding Path=FileName}"></TextBlock>
+            <TextBlock Text="{Binding Path=Status}"></TextBlock>
+            <ListBox ItemsSource="{Binding Path=Chunks}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal"></WrapPanel>
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                  <Setter Property="BorderThickness"
+                          Value="0">
+                  </Setter>
+                  <Setter Property="Padding" 
+                          Value="1"></Setter>
+                </Style>
+              </ListBox.ItemContainerStyle>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Rectangle Width="5"
+                             Height="5"
+                             Fill="{Binding Path=Value.Status, Converter={StaticResource chunkStatusToBrush}}"></Rectangle>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
 </Window>

@@ -19,9 +19,9 @@ namespace YTY.amt
 
     public string Uri { get; }
 
-    internal string FileName { get; }
+    public string FileName { get; }
 
-    internal DownloadTaskStatus Status
+    public DownloadTaskStatus Status
     {
       get { return status; }
       set
@@ -31,13 +31,21 @@ namespace YTY.amt
       }
     }
 
-    internal IDictionary<int, ChunkEntity> Chunks { get { return chunks; } }
+    public IDictionary<int, ChunkEntity> Chunks
+    {
+      get { return chunks; }
+      set
+      {
+        chunks = value;
+        OnPropertyChanged(nameof(Chunks));
+      }
+    }
 
     internal DownloadModel(string uri, string fileName)
     {
       Uri = uri;
       FileName = fileName;
-      status = DownloadTaskStatus.New;
+      status = DownloadTaskStatus.Ready;
       xe = new XElement("DownloadTask",
         new XElement("Uri", Uri),
         new XElement("FileName", FileName),
@@ -50,13 +58,13 @@ namespace YTY.amt
       this.xe = xe;
       Uri = xe.Element("Uri").Value;
       FileName = xe.Element("FileName").Value;
-      status = (DownloadTaskStatus)Enum.Parse(typeof(DownloadTaskStatus), xe.Element("Status").Value);
+      Status = (DownloadTaskStatus)Enum.Parse(typeof(DownloadTaskStatus), xe.Element("Status").Value);
     }
 
     internal void Start()
     {
       wd = new WebDownloader(Uri);
-      chunks = Enumerable.Range(0, wd.GetNumChunks()).ToDictionary(n => n, n => new ChunkEntity(ChunkStatus.New));
+      Chunks = Enumerable.Range(0, wd.GetNumChunks()).ToDictionary(n => n, n => new ChunkEntity(ChunkStatus.New));
       var bw = new BinaryWriter(new FileStream(FileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read));
       wd.ChunkCompleted += (s, e) =>
       {
@@ -68,51 +76,61 @@ namespace YTY.amt
       wd.DownloadCompleted += (s, e1) =>
       {
         bw.Close();
+        Status = DownloadTaskStatus.Finished;
       };
       wd.Start();
+      Status = DownloadTaskStatus.Downloading;
     }
 
     private void OnPropertyChanged(string propertyName)
     {
-      PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    internal class ChunkEntity : INotifyPropertyChanged
-    {
-      private ChunkStatus status;
-
-      internal ChunkStatus Status
-      {
-        get { return status; }
-        set
-        {
-          status = value;
-          OnPropertyChanged(nameof(Status));
-        }
-      }
-
-      public ChunkEntity(ChunkStatus status)
-      {
-        this.status = status;
-      }
-
-      public event PropertyChangedEventHandler PropertyChanged;
-
-      private void OnPropertyChanged(string propertyName)
-      {
+      var handler = PropertyChanged;
+      if (handler != null)
         PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-      }
-    }
-
-    internal enum DownloadTaskStatus
-    {
-      New
-    }
-
-    internal enum ChunkStatus
-    {
-      New,
-      Done
     }
   }
+
+  internal class ChunkEntity : INotifyPropertyChanged
+  {
+    private ChunkStatus status;
+
+    public ChunkStatus Status
+    {
+      get { return status; }
+      set
+      {
+        status = value;
+        OnPropertyChanged(nameof(Status));
+      }
+    }
+
+    public ChunkEntity(ChunkStatus status)
+    {
+      this.status = status;
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private void OnPropertyChanged(string propertyName)
+    {
+      var handler = PropertyChanged;
+      if (handler != null)
+        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+    }
+  }
+
+  internal enum DownloadTaskStatus
+  {
+    Ready,
+    Downloading,
+    Finished
+  }
+
+  internal enum ChunkStatus
+  {
+    New,
+    Done
+  }
+
 }
+
