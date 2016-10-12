@@ -20,7 +20,13 @@ namespace YTY.amt
         xDoc = XDocument.Load(DEFAULT_ConfigFile);
       else
         xDoc = new XDocument(new XElement("amt"));
+      xDoc.Changed += XDoc_Changed;
       DownloadTasks = new ObservableCollection<DownloadModel>(xDoc.Elements("DownloadTask").Select(ele => new DownloadModel(ele)));
+    }
+
+    private static void XDoc_Changed(object sender, XObjectChangeEventArgs e)
+    {
+      Save();
     }
 
     internal static void Save()

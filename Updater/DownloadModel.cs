@@ -28,6 +28,7 @@ namespace YTY.amt
       {
         status = value;
         OnPropertyChanged(nameof(Status));
+        xe.Element(nameof(Status)).SetValue(status);
       }
     }
 
@@ -37,7 +38,13 @@ namespace YTY.amt
       set
       {
         chunks = value;
-        OnPropertyChanged(nameof(Chunks));
+        if (chunks == null)
+          xe.Elements(nameof(ChunkEntity)).Remove();
+        else
+        {
+          OnPropertyChanged(nameof(Chunks));
+          xe.Add(chunks.Select(chunk => chunk.Value.GetXElement()));
+        }
       }
     }
 
@@ -46,25 +53,25 @@ namespace YTY.amt
       Uri = uri;
       FileName = fileName;
       status = DownloadTaskStatus.Ready;
-      xe = new XElement("DownloadTask",
-        new XElement("Uri", Uri),
-        new XElement("FileName", FileName),
-        new XElement("Status", Status));
+      xe = new XElement(nameof(DownloadModel),
+        new XElement(nameof(Uri), Uri),
+        new XElement(nameof(FileName), FileName),
+        new XElement(nameof(Status), Status));
       ConfigRoot.Root.Add(xe);
     }
 
     internal DownloadModel(XElement xe)
     {
       this.xe = xe;
-      Uri = xe.Element("Uri").Value;
-      FileName = xe.Element("FileName").Value;
-      Status = (DownloadTaskStatus)Enum.Parse(typeof(DownloadTaskStatus), xe.Element("Status").Value);
+      Uri = xe.Element(nameof(Uri)).Value;
+      FileName = xe.Element(nameof(FileName)).Value;
+      Status = (DownloadTaskStatus)Enum.Parse(typeof(DownloadTaskStatus), xe.Element(nameof(Status)).Value);
     }
 
     internal void Start()
     {
       wd = new WebDownloader(Uri);
-      Chunks = Enumerable.Range(0, wd.GetNumChunks()).ToDictionary(n => n, n => new ChunkEntity(ChunkStatus.New));
+      Chunks = Enumerable.Range(0, wd.GetNumChunks()).ToDictionary(n => n, n => new ChunkEntity(n));
       var bw = new BinaryWriter(new FileStream(FileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read));
       wd.ChunkCompleted += (s, e) =>
       {
@@ -92,7 +99,20 @@ namespace YTY.amt
 
   internal class ChunkEntity : INotifyPropertyChanged
   {
+    private int index;
     private ChunkStatus status;
+    private XElement xe;
+
+    public int Index
+    {
+      get { return index; }
+      set
+      {
+        index = value;
+        OnPropertyChanged(nameof(Index));
+        xe.Element(nameof(Index)).SetValue(index);
+      }
+    }
 
     public ChunkStatus Status
     {
@@ -101,12 +121,28 @@ namespace YTY.amt
       {
         status = value;
         OnPropertyChanged(nameof(Status));
+        xe.Element(nameof(Status)).SetValue(status);
       }
     }
 
-    public ChunkEntity(ChunkStatus status)
+    public ChunkEntity(int index)
     {
-      this.status = status;
+      status = ChunkStatus.New;
+      xe = new XElement(nameof(ChunkEntity),
+        new XElement(nameof(Index), index),
+        new XElement(nameof(Status), status));
+    }
+
+    public ChunkEntity(XElement xe)
+    {
+      this.xe = xe;
+      index = (int)xe.Element(nameof(Index));
+      status = (ChunkStatus)Enum.Parse(typeof(ChunkStatus), xe.Element(nameof(Status)).Value);
+    }
+
+    public XElement GetXElement()
+    {
+      return xe;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
