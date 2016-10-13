@@ -9,13 +9,6 @@
         Height="350"
         Width="525"
         Loaded="Window_Loaded">
-  <Window.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Resources.xaml"></ResourceDictionary>
-      </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>
-  </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="auto"></RowDefinition>
@@ -26,7 +19,8 @@
             Click="btnStart_Click">Start</Button>
     <ListBox x:Name="lbxMain"
              Grid.Row="1"
-             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             ItemsSource="{x:Static local:Config.DownloadTasks}">
       <ListBox.ItemTemplate>
         <DataTemplate>
           <StackPanel>
@@ -45,7 +39,7 @@
                   <Setter Property="BorderThickness"
                           Value="0">
                   </Setter>
-                  <Setter Property="Padding" 
+                  <Setter Property="Padding"
                           Value="1"></Setter>
                 </Style>
               </ListBox.ItemContainerStyle>

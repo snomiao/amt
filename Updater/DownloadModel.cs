@@ -5,10 +5,11 @@ using System.Text;
 using System.ComponentModel;
 using System.Xml.Linq;
 using System.IO;
+using System.Windows;
 
 namespace YTY.amt
 {
-  internal class DownloadModel : INotifyPropertyChanged
+  public class DownloadModel : INotifyPropertyChanged
   {
     private WebDownloader wd;
     private XElement xe;
@@ -57,7 +58,7 @@ namespace YTY.amt
         new XElement(nameof(Uri), Uri),
         new XElement(nameof(FileName), FileName),
         new XElement(nameof(Status), Status));
-      ConfigRoot.Root.Add(xe);
+    Config.Root.Add(xe);
     }
 
     internal DownloadModel(XElement xe)
@@ -97,7 +98,7 @@ namespace YTY.amt
     }
   }
 
-  internal class ChunkEntity : INotifyPropertyChanged
+  public class ChunkEntity : INotifyPropertyChanged
   {
     private int index;
     private ChunkStatus status;
@@ -155,14 +156,14 @@ namespace YTY.amt
     }
   }
 
-  internal enum DownloadTaskStatus
+  public enum DownloadTaskStatus
   {
     Ready,
     Downloading,
     Finished
   }
 
-  internal enum ChunkStatus
+  public enum ChunkStatus
   {
     New,
     Done

@@ -56,7 +56,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ChunkStatusToBrushConverter.cs" />
-    <Compile Include="ConfigRoot.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="DownloadChunkEventArgs.cs" />
     <Compile Include="DownloadModel.cs" />
     <Compile Include="WebClientEx.cs">

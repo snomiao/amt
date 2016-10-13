@@ -5,23 +5,24 @@ using System.IO;
 
 namespace YTY.amt
 {
-  internal static class ConfigRoot
+  public static class Config
   {
     private const string DEFAULT_ConfigFile = @"c:\1.xml";
     private static XDocument xDoc;
 
-    internal static XElement Root { get { return xDoc.Root; } }
+    public static XElement Root { get { return xDoc.Root; } }
 
-    internal static ObservableCollection<DownloadModel> DownloadTasks { get; }
+    public static ObservableCollection<DownloadModel> DownloadTasks { get; }
 
-    static ConfigRoot()
+    static Config()
     {
       if (File.Exists(DEFAULT_ConfigFile))
         xDoc = XDocument.Load(DEFAULT_ConfigFile);
       else
         xDoc = new XDocument(new XElement("amt"));
+
+      DownloadTasks = new ObservableCollection<DownloadModel>(Root.Elements(nameof(DownloadModel)).Select(ele => new DownloadModel(ele)));
       xDoc.Changed += XDoc_Changed;
-      DownloadTasks = new ObservableCollection<DownloadModel>(xDoc.Elements("DownloadTask").Select(ele => new DownloadModel(ele)));
     }
 
     private static void XDoc_Changed(object sender, XObjectChangeEventArgs e)
@@ -29,7 +30,7 @@ namespace YTY.amt
       Save();
     }
 
-    internal static void Save()
+    public static void Save()
     {
       xDoc.Save(DEFAULT_ConfigFile);
     }
