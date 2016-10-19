@@ -12,7 +12,7 @@ namespace YTY.amt
 
     public static XElement Root { get { return xDoc.Root; } }
 
-    public static ObservableCollection<DownloadModel> DownloadTasks { get; }
+    public static ObservableCollection<DownloadTaskViewModel> DownloadTasks { get; }
 
     static Config()
     {
@@ -21,7 +21,7 @@ namespace YTY.amt
       else
         xDoc = new XDocument(new XElement("amt"));
 
-      DownloadTasks = new ObservableCollection<DownloadModel>(Root.Elements(nameof(DownloadModel)).Select(ele => new DownloadModel(ele)));
+      DownloadTasks = new ObservableCollection<DownloadTaskViewModel>(Root.Elements(nameof(DownloadTaskViewModel)).Select(ele => new DownloadTaskViewModel(ele)));
       xDoc.Changed += XDoc_Changed;
     }
 

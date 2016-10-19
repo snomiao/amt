@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Net;
-using YTY;
 
 namespace YTY
 {
@@ -52,7 +50,7 @@ namespace YTY
         try
         {
           var req = WebRequest.Create(Uri);
-          req.Timeout = 8000;
+          req.Timeout = Timeout;
           req.Method = "HEAD";
           var resp = req.GetResponse() as HttpWebResponse;
           contentLength = resp.ContentLength;
@@ -141,14 +139,14 @@ namespace YTY
         try
         {
           byte[] bytes;
-          using (var wd = new WebClientEx())
+          using (var wc = new WebClientEx())
           {
-            wd.Timeout = Timeout;
+            wc.Timeout = Timeout;
             if (index == GetNumChunks() - 1)
-              wd.AddRange(ChunkSize * index);
+              wc.AddRange(ChunkSize * index);
             else
-              wd.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
-            bytes = wd.DownloadData(Uri);
+              wc.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
+            bytes = wc.DownloadData(Uri);
           }
           paused.WaitOne();
           semaphore.Release();
@@ -156,7 +154,7 @@ namespace YTY
           OnChunkCompleted(index, bytes);
           break;
         }
-        catch (WebException ex)
+        catch (WebException)
         {
 
         }

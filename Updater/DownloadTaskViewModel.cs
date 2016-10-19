@@ -9,14 +9,12 @@ using System.Windows;
 
 namespace YTY.amt
 {
-  public class DownloadModel : INotifyPropertyChanged
+  public class DownloadTaskViewModel : ViewModelBase
   {
     private WebDownloader wd;
     private XElement xe;
     private DownloadTaskStatus status;
     private IDictionary<int, ChunkEntity> chunks;
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public string Uri { get; }
 
@@ -49,24 +47,24 @@ namespace YTY.amt
       }
     }
 
-    internal DownloadModel(string uri, string fileName)
+    internal DownloadTaskViewModel(string uri, string fileName)
     {
       Uri = uri;
       FileName = fileName;
       status = DownloadTaskStatus.Ready;
-      xe = new XElement(nameof(DownloadModel),
+      xe = new XElement(nameof(DownloadTaskViewModel),
         new XElement(nameof(Uri), Uri),
         new XElement(nameof(FileName), FileName),
         new XElement(nameof(Status), Status));
-    Config.Root.Add(xe);
+      Config.Root.Add(xe);
     }
 
-    internal DownloadModel(XElement xe)
+    internal DownloadTaskViewModel(XElement xe)
     {
       this.xe = xe;
       Uri = xe.Element(nameof(Uri)).Value;
       FileName = xe.Element(nameof(FileName)).Value;
-      Status = (DownloadTaskStatus)Enum.Parse(typeof(DownloadTaskStatus), xe.Element(nameof(Status)).Value);
+      Enum.TryParse(xe.Element(nameof(Status)).Value, out status);
     }
 
     internal void Start()
@@ -88,13 +86,6 @@ namespace YTY.amt
       };
       wd.Start();
       Status = DownloadTaskStatus.Downloading;
-    }
-
-    private void OnPropertyChanged(string propertyName)
-    {
-      var handler = PropertyChanged;
-      if (handler != null)
-        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
     }
   }
 

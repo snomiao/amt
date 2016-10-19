@@ -58,7 +58,9 @@
     <Compile Include="ChunkStatusToBrushConverter.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DownloadChunkEventArgs.cs" />
-    <Compile Include="DownloadModel.cs" />
+    <Compile Include="DownloadTaskViewModel.cs" />
+    <Compile Include="UpdateServer.cs" />
+    <Compile Include="ViewModelBase.cs" />
     <Compile Include="WebClientEx.cs">
       <SubType>Component</SubType>
     </Compile>
