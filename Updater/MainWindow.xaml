@@ -22,7 +22,7 @@
     <ListBox x:Name="lbxMain"
              Grid.Row="1"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-             ItemsSource="{x:Static local:Config.DownloadTasks}">
+             ItemsSource="{Binding Source={StaticResource Config},Path=DownloadTasks}">
       <ListBox.ItemTemplate>
         <DataTemplate>
           <StackPanel>

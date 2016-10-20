@@ -60,7 +60,7 @@
     <Compile Include="DownloadChunkEventArgs.cs" />
     <Compile Include="DownloadTaskViewModel.cs" />
     <Compile Include="UpdateServerViewModel.cs" />
-    <Compile Include="UpdateSourceViewModel.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Compile Include="WebClientEx.cs">
       <SubType>Component</SubType>

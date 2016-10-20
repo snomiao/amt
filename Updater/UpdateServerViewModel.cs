@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 using System.Linq;
 using System.Collections.ObjectModel;
 
@@ -13,9 +14,11 @@ namespace YTY.amt
   {
     private const string SERVERURI = "http://www.hawkaoc.net/amt/UpdateSources.xml";
 
-    private XDocument xdoc;
+    private XElement xe;
     private UpdateServerStatus status;
-    private ObservableCollection<UpdateSourceViewModel> updateSources;
+    private List<Tuple<XElement, string>> files;
+
+    public int Build => (int)xe.Attribute(nameof(Build));
 
     public UpdateServerStatus Status
     {
@@ -27,11 +30,11 @@ namespace YTY.amt
       }
     }
 
-    public ObservableCollection<UpdateSourceViewModel> UpdateSources { get { return updateSources; } }
+    public IEnumerable<Tuple<XElement, string>> Files => files;
 
     public UpdateServerViewModel()
     {
-      updateSources = new ObservableCollection<UpdateSourceViewModel>();
+      files = new List<Tuple<XElement, string>>();
       BeginGet();
     }
 
@@ -40,26 +43,53 @@ namespace YTY.amt
       Status = UpdateServerStatus.Getting;
       using (var wc = new WebClient())
       {
-        wc.DownloadDataCompleted += (s, e) =>
+        wc.DownloadDataCompleted += GetUpdateServerComplete;
+        wc.DownloadDataAsync(new Uri(SERVERURI), wc);
+      }
+    }
+
+    private void GetUpdateServerComplete(object sender, DownloadDataCompletedEventArgs e)
+    {
+      (e.UserState as WebClient).DownloadDataCompleted -= GetUpdateServerComplete;
+      if (e.Error == null)
+      {
+        using (var ms = new MemoryStream(e.Result))
+          xe = XElement.Load(ms);
+        if (Build > GlobalVars.Config.Build)
+        {
+          ThreadPool.QueueUserWorkItem(state =>
           {
-            if (e.Error == null)
+          try
+          {
+            foreach (var ele in xe.Elements("UpdateSource"))
             {
-              xdoc = XDocument.Load(new MemoryStream(e.Result));
-              foreach (var ele in xdoc.Root.Elements("UpdateSource"))
+              using (var wc = new WebClient())
               {
-                updateSources.Add(new UpdateSourceViewModel(ele));
+                using (var ms = new MemoryStream(wc.DownloadData(ele.Value)))
+                {
+                    var dir = ele.Value.Remove(ele.Value.LastIndexOf("/"));
+                  foreach (var file in XElement.Load(ms).Elements("File"))
+                    files.Add(Tuple.Create(file,new Uri(new Uri( dir),file.Element("Name").Value).ToString()));
+                }
               }
-              Status = UpdateServerStatus.Ready;
             }
-            else
+              GlobalVars.Dispatcher.Invoke(new Action(() => Status = UpdateServerStatus.NeedUpdate));
+            }
+            catch (WebException)
             {
-              if ((e.Error as WebException).Status == WebExceptionStatus.ProtocolError)
-                Status = UpdateServerStatus.ServerError;
-              else
-                Status = UpdateServerStatus.ConnectFailed;
+              Status = UpdateServerStatus.ServerError;
             }
-          };
-        wc.DownloadDataAsync(new Uri(SERVERURI));
+          });
+        }
+        else
+          Status = UpdateServerStatus.UpToDate;
+      }
+      else
+      {
+        if ((e.Error as WebException).Status == WebExceptionStatus.ProtocolError)
+          Status = UpdateServerStatus.ServerError;
+        else
+          Status = UpdateServerStatus.ConnectFailed;
       }
     }
   }
@@ -67,7 +97,8 @@ namespace YTY.amt
   public enum UpdateServerStatus
   {
     Getting,
-    Ready,
+    NeedUpdate,
+    UpToDate,
     ConnectFailed,
     ServerError
   }

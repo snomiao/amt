@@ -1,38 +1,72 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows;
+using YTY;
 
 namespace YTY.amt
 {
-  public static class Config
+  public class Config
   {
-    private const string DEFAULT_ConfigFile = @"c:\1.xml";
-    private static XDocument xDoc;
+    private string fullPath;
+    private XDocument xDoc;
 
-    public static XElement Root { get { return xDoc.Root; } }
+    public XElement Root => xDoc.Root;
 
-    public static ObservableCollection<DownloadTaskViewModel> DownloadTasks { get; }
-
-    static Config()
+    public int Build
     {
-      if (File.Exists(DEFAULT_ConfigFile))
-        xDoc = XDocument.Load(DEFAULT_ConfigFile);
-      else
-        xDoc = new XDocument(new XElement("amt"));
-
-      DownloadTasks = new ObservableCollection<DownloadTaskViewModel>(Root.Elements(nameof(DownloadTaskViewModel)).Select(ele => new DownloadTaskViewModel(ele)));
-      xDoc.Changed += XDoc_Changed;
+      get { return (int)Root.Element(nameof(Build)); }
+      set { Root.Element(nameof(Build)).SetValue(value); }
     }
 
-    private static void XDoc_Changed(object sender, XObjectChangeEventArgs e)
+    public IEnumerable<XElement> Files => Root.Elements("File");
+
+    public ObservableCollection<DownloadTaskViewModel> DownloadTasks { get; }
+
+    public Config()
+    {
+      fullPath = Util.MakeQualifiedPath("amt.xml");
+      if (File.Exists(fullPath))
+        xDoc = XDocument.Load(Util.MakeQualifiedPath(fullPath));
+      else
+        xDoc = new XDocument(
+          new XElement("amt",
+          new XElement("Build", 0)));
+
+      (Application.Current.FindResource("UpdateServerViewModel") as UpdateServerViewModel).PropertyChanged += UpdateServerViewModel_PropertyChanged;
+      xDoc.Changed += XDoc_Changed;
+      DownloadTasks = new ObservableCollection<DownloadTaskViewModel>(Root.Elements(nameof(DownloadTaskViewModel)).Select(ele => new DownloadTaskViewModel(ele)));
+    }
+
+    private void UpdateServerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      var usvm = sender as UpdateServerViewModel;
+      if (e.PropertyName == "Status" && usvm.Status == UpdateServerStatus.NeedUpdate)
+      {
+        var updateList = usvm.Files.Where(f =>
+ !GlobalVars.Config.Files.Any(l =>
+ (int)(l.Attribute("Id")) == (int)(f.Item1.Attribute("Id"))) ||
+ new Version(f.Item1.Element("Version").Value) >
+ new Version(GlobalVars.Config.Files.First(l =>
+ (int)(l.Attribute("Id")) == (int)(f.Item1.Attribute("Id"))).Element("Version").Value));
+        foreach (var updateItem in updateList)
+          DownloadTasks.Add(new DownloadTaskViewModel(updateItem.Item2, updateItem.Item1.Element("Name").Value));
+
+      }
+    }
+
+    private void XDoc_Changed(object sender, XObjectChangeEventArgs e)
     {
       Save();
     }
 
-    public static void Save()
+    public void Save()
     {
-      xDoc.Save(DEFAULT_ConfigFile);
+      xDoc.Save(fullPath);
     }
   }
 }

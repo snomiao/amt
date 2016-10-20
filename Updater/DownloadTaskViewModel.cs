@@ -56,7 +56,7 @@ namespace YTY.amt
         new XElement(nameof(Uri), Uri),
         new XElement(nameof(FileName), FileName),
         new XElement(nameof(Status), Status));
-      Config.Root.Add(xe);
+     GlobalVars. Config.Root.Add(xe);
     }
 
     internal DownloadTaskViewModel(XElement xe)
