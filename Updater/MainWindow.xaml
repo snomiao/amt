@@ -16,17 +16,17 @@
       <RowDefinition Height="auto"></RowDefinition>
     </Grid.RowDefinitions>
     <ListBox Grid.Row="0"
-             ItemsSource="{Binding Source={StaticResource UpdateServerViewModel},Path=UpdateSources,IsAsync=True,Mode=OneWay}"
+             ItemsSource="{Binding Source={StaticResource UpdateServerViewModel},Path=ServerFiles}"
              DisplayMemberPath="Uri">
     </ListBox>
     <ListBox x:Name="lbxMain"
              Grid.Row="1"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-             ItemsSource="{Binding Source={StaticResource Config},Path=DownloadTasks}">
+             ItemsSource="{Binding Source={StaticResource Config},Path=LocalFilesView}">
       <ListBox.ItemTemplate>
         <DataTemplate>
           <StackPanel>
-            <TextBlock Text="{Binding Path=Uri}"></TextBlock>
+            <TextBlock Text="{Binding Path=SourceUri}"></TextBlock>
             <TextBlock Text="{Binding Path=FileName}"></TextBlock>
             <TextBlock Text="{Binding Path=Status}"></TextBlock>
             <ListBox ItemsSource="{Binding Path=Chunks}"
@@ -49,7 +49,7 @@
                 <DataTemplate>
                   <Rectangle Width="5"
                              Height="5"
-                             Fill="{Binding Path=Value.Status, Converter={StaticResource chunkStatusToBrush}}"></Rectangle>
+                             Fill="{Binding Path=Status, Converter={StaticResource chunkStatusToBrush}}"></Rectangle>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>

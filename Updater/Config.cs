@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using YTY;
 
 namespace YTY.amt
@@ -14,6 +15,7 @@ namespace YTY.amt
   {
     private string fullPath;
     private XDocument xDoc;
+    private Queue<UpdateItemViewModel> updateList = new Queue<UpdateItemViewModel>();
 
     public XElement Root => xDoc.Root;
 
@@ -23,23 +25,27 @@ namespace YTY.amt
       set { Root.Element(nameof(Build)).SetValue(value); }
     }
 
-    public IEnumerable<XElement> Files => Root.Elements("File");
+    public ObservableCollection<UpdateItemViewModel> LocalFiles { get; }
 
-    public ObservableCollection<DownloadTaskViewModel> DownloadTasks { get; }
+    public ICollectionView LocalFilesView { get; }
 
     public Config()
     {
       fullPath = Util.MakeQualifiedPath("amt.xml");
       if (File.Exists(fullPath))
+      {
         xDoc = XDocument.Load(Util.MakeQualifiedPath(fullPath));
+      }
       else
         xDoc = new XDocument(
           new XElement("amt",
           new XElement("Build", 0)));
 
       (Application.Current.FindResource("UpdateServerViewModel") as UpdateServerViewModel).PropertyChanged += UpdateServerViewModel_PropertyChanged;
-      xDoc.Changed += XDoc_Changed;
-      DownloadTasks = new ObservableCollection<DownloadTaskViewModel>(Root.Elements(nameof(DownloadTaskViewModel)).Select(ele => new DownloadTaskViewModel(ele)));
+      LocalFiles = new ObservableCollection<UpdateItemViewModel>(Root.Elements("File").Select(ele => new UpdateItemViewModel(ele)));
+      LocalFilesView = CollectionViewSource.GetDefaultView(LocalFiles);
+      LocalFilesView.Filter = item => (item as UpdateItemViewModel).Status != UpdateItemStatus.Finished;
+      EnableAutoSave();
     }
 
     private void UpdateServerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -47,16 +53,69 @@ namespace YTY.amt
       var usvm = sender as UpdateServerViewModel;
       if (e.PropertyName == "Status" && usvm.Status == UpdateServerStatus.NeedUpdate)
       {
-        var updateList = usvm.Files.Where(f =>
- !GlobalVars.Config.Files.Any(l =>
- (int)(l.Attribute("Id")) == (int)(f.Item1.Attribute("Id"))) ||
- new Version(f.Item1.Element("Version").Value) >
- new Version(GlobalVars.Config.Files.First(l =>
- (int)(l.Attribute("Id")) == (int)(f.Item1.Attribute("Id"))).Element("Version").Value));
-        foreach (var updateItem in updateList)
-          DownloadTasks.Add(new DownloadTaskViewModel(updateItem.Item2, updateItem.Item1.Element("Name").Value));
-
+        DisableAutoSave();
+        foreach (var serverFile in usvm.ServerFiles)
+        {
+          var localFile = LocalFiles.FirstOrDefault(l => l.Id == serverFile.Id);
+          if (localFile == null)
+          {
+            updateList.Enqueue(new UpdateItemViewModel(serverFile.Id, serverFile.SourceUri, serverFile.TargetPath)
+            {
+              Size = serverFile.Size,
+              Version = serverFile.Version.Clone() as Version,
+              MD5 = serverFile.MD5
+            });
+          }
+          else
+          {
+            if (serverFile.Version > localFile.Version)
+            {
+              localFile.Size = serverFile.Size;
+              localFile.MD5 = serverFile.MD5;
+              localFile.Version = serverFile.Version.Clone() as Version;
+              localFile.Status = UpdateItemStatus.Ready;
+              updateList.Enqueue(localFile);
+            }
+          }
+        }
+        EnableAutoSave();
       }
+      foreach (var pendingItem in LocalFiles.Where(f => f.Status == UpdateItemStatus.Ready || f.Status == UpdateItemStatus.Downloading || f.Status == UpdateItemStatus.Error))
+        updateList.Enqueue(pendingItem);
+
+      try
+      {
+        var currentItem = updateList.Dequeue();
+        currentItem.PropertyChanged += UpdateItemViewModel_PropertyChanged;
+        currentItem.Start();
+      }
+      catch (InvalidOperationException) { }
+    }
+
+    private void UpdateItemViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      var uivm = sender as UpdateItemViewModel;
+      if (e.PropertyName == "Status" && (uivm.Status == UpdateItemStatus.Finished))
+      {
+        try
+        {
+          var currentItem = updateList.Dequeue();
+          currentItem.PropertyChanged += UpdateItemViewModel_PropertyChanged;
+          currentItem.Start();
+        }
+        catch (InvalidOperationException) { }
+      }
+    }
+
+    public void EnableAutoSave()
+    {
+      xDoc.Changed += XDoc_Changed;
+      Save();
+    }
+
+    public void DisableAutoSave()
+    {
+      xDoc.Changed -= XDoc_Changed;
     }
 
     private void XDoc_Changed(object sender, XObjectChangeEventArgs e)

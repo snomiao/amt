@@ -4,7 +4,8 @@ namespace YTY
 {
   public class DownloadChunkEventArgs : EventArgs
   {
-    public int Index;
-    public byte[] Data;
+    public int Index { get; set; }
+    public byte[] Data { get; set; }
+    public bool Error { get; set; }
   }
 }

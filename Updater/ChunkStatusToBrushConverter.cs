@@ -12,11 +12,11 @@ namespace YTY.amt
   {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      switch( (ChunkStatus) value)
+      switch( (DownloadChunkStatus) value)
       {
-        case ChunkStatus.New:
+        case DownloadChunkStatus.New:
           return Brushes.Yellow;
-        case ChunkStatus.Done:
+        case DownloadChunkStatus.Done:
           return Brushes.Green;
       }
       return null;

@@ -16,7 +16,7 @@ namespace YTY.amt
 
     private XElement xe;
     private UpdateServerStatus status;
-    private List<Tuple<XElement, string>> files;
+    private List<ServerFile> files;
 
     public int Build => (int)xe.Attribute(nameof(Build));
 
@@ -30,69 +30,63 @@ namespace YTY.amt
       }
     }
 
-    public IEnumerable<Tuple<XElement, string>> Files => files;
+    public IEnumerable<ServerFile> ServerFiles => files;
 
     public UpdateServerViewModel()
     {
-      files = new List<Tuple<XElement, string>>();
-      BeginGet();
+      files = new List<ServerFile>();
+      GetAsync();
     }
 
-    public void BeginGet()
+    public async void GetAsync()
     {
       Status = UpdateServerStatus.Getting;
-      using (var wc = new WebClient())
+      try
       {
-        wc.DownloadDataCompleted += GetUpdateServerComplete;
-        wc.DownloadDataAsync(new Uri(SERVERURI), wc);
-      }
-    }
-
-    private void GetUpdateServerComplete(object sender, DownloadDataCompletedEventArgs e)
-    {
-      (e.UserState as WebClient).DownloadDataCompleted -= GetUpdateServerComplete;
-      if (e.Error == null)
-      {
-        using (var ms = new MemoryStream(e.Result))
-          xe = XElement.Load(ms);
-        if (Build > GlobalVars.Config.Build)
+        using (var wc = new WebClient())
         {
-          ThreadPool.QueueUserWorkItem(state =>
+          using (var ms = new MemoryStream(await wc.DownloadDataTaskAsync(SERVERURI)))
           {
-          try
-          {
-            foreach (var ele in xe.Elements("UpdateSource"))
+            xe = XElement.Load(ms);
+            if (Build > GlobalVars.Config.Build)
             {
-              using (var wc = new WebClient())
+              foreach (var ele in xe.Elements("UpdateSource"))
               {
-                using (var ms = new MemoryStream(wc.DownloadData(ele.Value)))
+                using (var wc1 = new WebClient())
                 {
-                    var dir = ele.Value.Remove(ele.Value.LastIndexOf("/"));
-                  foreach (var file in XElement.Load(ms).Elements("File"))
-                    files.Add(Tuple.Create(file,new Uri(new Uri( dir),file.Element("Name").Value).ToString()));
+                  using (var ms1 = new MemoryStream(await wc1.DownloadDataTaskAsync(ele.Value)))
+                  {
+                    var dir = ele.Value.Remove(ele.Value.LastIndexOf("/") + 1);
+                    foreach (var file in XElement.Load(ms1).Elements("File"))
+                      files.Add(new ServerFile()
+                      {
+                        Id = (int)file.Attribute("Id"),
+                        SourceUri = new Uri(new Uri(dir), file.Element("Name").Value).ToString(),
+                        TargetPath = file.Element("Name").Value,
+                        Size = (long)file.Element("Size"),
+                        Version = new Version(file.Element("Version").Value),
+                        MD5 = file.Element("MD5").Value
+                      });
+                  }
                 }
               }
+              Status = UpdateServerStatus.NeedUpdate;
             }
-              GlobalVars.Dispatcher.Invoke(new Action(() => Status = UpdateServerStatus.NeedUpdate));
-            }
-            catch (WebException)
-            {
-              Status = UpdateServerStatus.ServerError;
-            }
-          });
+            else
+              Status = UpdateServerStatus.UpToDate;
+          }
         }
-        else
-          Status = UpdateServerStatus.UpToDate;
       }
-      else
+      catch (WebException ex)
       {
-        if ((e.Error as WebException).Status == WebExceptionStatus.ProtocolError)
+        if (ex.Status == WebExceptionStatus.ProtocolError)
           Status = UpdateServerStatus.ServerError;
         else
           Status = UpdateServerStatus.ConnectFailed;
       }
     }
   }
+
 
   public enum UpdateServerStatus
   {
@@ -101,5 +95,20 @@ namespace YTY.amt
     UpToDate,
     ConnectFailed,
     ServerError
+  }
+
+  public class ServerFile
+  {
+    public int Id { get; set; }
+
+    public string SourceUri { get; set; }
+
+    public string TargetPath { get; set; }
+
+    public long Size { get; set; }
+
+    public Version Version { get; set; }
+
+    public string MD5 { get; set; }
   }
 }
