@@ -1,31 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Net;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using System.IO;
 
 namespace YTY
 {
   public class WebDownloader
   {
     private const int DEFAULT_ChunkSize = 65536;
-    private const int DEFAULT_NumThreads = 5;
     private const int DEFAULT_Timeout = 8000;
     private const int DEFAULT_Retries = 5;
 
     private long? contentLength;
     private int? numChunks;
-    private ManualResetEvent paused;
-    private ManualResetEvent stopped;
-    private Semaphore semaphore;
-    private CountdownEvent cde;
-    private SynchronizationContext syncContext;
-    private bool anyChunkError = false;
 
     public int ChunkSize { get; set; }
-
-    public int NumThreads { get; set; }
 
     public int Timeout { get; set; }
 
@@ -35,13 +27,9 @@ namespace YTY
 
     public WebDownloader()
     {
-      syncContext = SynchronizationContext.Current;
       ChunkSize = DEFAULT_ChunkSize;
-      NumThreads = DEFAULT_NumThreads;
       Timeout = DEFAULT_Timeout;
       Retries = DEFAULT_Retries;
-      paused = new ManualResetEvent(true);
-      stopped = new ManualResetEvent(false);
     }
 
     public WebDownloader(string uri) : this()
@@ -49,124 +37,85 @@ namespace YTY
       Uri = uri;
     }
 
+    public WebDownloader(string uri, long contentLength) : this(uri)
+    {
+      this.contentLength = contentLength;
+    }
+
     public async Task<long> GetContentLength()
     {
       if (!contentLength.HasValue)
       {
-        var req = WebRequest.Create(Uri);
-        req.Timeout = Timeout;
-        req.Method = "HEAD";
-        var resp = await req.GetResponseAsync();
-        contentLength = resp.ContentLength;
+        var request = WebRequest.Create(Uri);
+        request.Method = "HEAD";
+        var taskTimeout = TaskEx.Delay(Timeout);
+        var taskResponse = request.GetResponseAsync();
+        var firstCompleted = await TaskEx.WhenAny(new[] { taskTimeout, taskResponse });
+        if (firstCompleted == taskTimeout)
+        {
+          request.Abort();
+          throw new WebException("", WebExceptionStatus.Timeout);
+        }
+        else
+        {
+          using (var response = await (firstCompleted as Task<WebResponse>))
+          {
+            contentLength = response.ContentLength;
+          }
+        }
       }
       return contentLength.Value;
     }
 
-    public async Task<int> GetNumChunks()
+    public int GetNumChunks()
     {
       if (!numChunks.HasValue)
-      {
-        numChunks = (int)((await GetContentLength() + ChunkSize - 1) / ChunkSize);
-      }
-      return numChunks.Value;
-    }
+        numChunks = (int)((contentLength + ChunkSize - 1) / ChunkSize);
 
-    /// <summary>
-    /// Starts downloading all chunks.
-    /// </summary>
-    public async void Start()
-    {
-      Start(Enumerable.Range(0, await GetNumChunks()));
+      return numChunks.Value;
     }
 
     /// <summary>
     /// Starts downloading specified chunks.
     /// </summary>
     /// <param name="indexes">Indexes of chunks to download.</param>
-    public void Start(IEnumerable<int> indexes)
+    public async void Start(IEnumerable<int> indexes)
     {
-      ThreadPool.QueueUserWorkItem(state =>
+      var tasks = indexes.Select(i => DownloadChunkAsync(i));
+      await TaskEx.WhenAll(tasks);
+      //try
+      //{
+      //  await TaskEx.WhenAll(tasks.Keys);
+      //}
+      //catch (WebException) { throw; }
+    }
+
+    public async Task<Tuple<int, byte[]>> DownloadChunkAsync(int index)
+    {
+      for (var iTry = 0; iTry < Retries; iTry++)
       {
-        semaphore = new Semaphore(NumThreads, NumThreads);
-        cde = new CountdownEvent(indexes.Count());
-        var waitHandles = new WaitHandle[] { stopped, semaphore };
-        foreach (var index in indexes)
+        var request = WebRequest.Create(Uri) as HttpWebRequest;
+        request.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
+        var taskTimeout = TaskEx.Delay(Timeout);
+        var taskResponse = request.GetResponseAsync();
+        var firstCompleted = await TaskEx.WhenAny(new[] { taskTimeout, taskResponse });
+        if (firstCompleted == taskTimeout)
         {
-          if (WaitHandle.WaitAny(waitHandles) == 0) // Stopped
-            return;
-          ThreadPool.QueueUserWorkItem(state1 => DownloadChunk(index));
+          request.Abort();
         }
-        if (WaitHandle.WaitAny(new WaitHandle[] { stopped, cde.WaitHandle }) == 0) // Stopped
-          return;
-        OnDownloadCompleted();
-      });
-    }
-
-    public void Pause()
-    {
-      paused.Reset();
-    }
-
-    public void Stop()
-    {
-      stopped.Set();
-    }
-
-    public void Resume()
-    {
-      paused.Set();
-    }
-
-    public event EventHandler<DownloadChunkEventArgs> ChunkCompleted;
-
-    private void OnChunkCompleted(int index, byte[] data, bool error)
-    {
-      syncContext.Send(state => ChunkCompleted(this, new DownloadChunkEventArgs() { Index = index, Data = data, Error = error }), null);
-    }
-
-    public event EventHandler<DownloadCompletedEventArgs> DownloadCompleted;
-
-    private void OnDownloadCompleted()
-    {
-      syncContext.Send(state => DownloadCompleted(this, new DownloadCompletedEventArgs() { Error = anyChunkError }), null);
-    }
-
-    private async void DownloadChunk(int index)
-    {
-      for (var iTry = 1; ; iTry++)
-      {
-        try
+        else
         {
-          byte[] bytes;
-          using (var wc = new WebClientEx())
+          using (var response = await (firstCompleted as Task<WebResponse>))
           {
-            wc.Timeout = Timeout;
-            if (index == await GetNumChunks() - 1)
-              wc.AddRange(ChunkSize * index);
-            else
-              wc.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
-            bytes = wc.DownloadData(Uri);
-          }
-          paused.WaitOne();
-          semaphore.Release();
-          cde.Signal();
-          OnChunkCompleted(index, bytes, false);
-          break;
-        }
-        catch (WebException)
-        {
-          if (iTry == Retries)
-          {
-            anyChunkError = true;
-            OnChunkCompleted(index, null, true);
+            using (var ms = new MemoryStream(ChunkSize))
+            {
+              response.GetResponseStream().CopyTo(ms);
+              return Tuple.Create(index, ms.ToArray());
+            }
           }
         }
       }
+      throw new WebException($"Retry exceeded {Retries} times.", WebExceptionStatus.MessageLengthLimitExceeded);
     }
-  }
-
-  public class DownloadCompletedEventArgs : EventArgs
-  {
-    public bool Error { get; set; }
   }
 }

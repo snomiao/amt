@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.ObjectModel;
 
@@ -35,10 +35,9 @@ namespace YTY.amt
     public UpdateServerViewModel()
     {
       files = new List<ServerFile>();
-      GetAsync();
     }
 
-    public async void GetAsync()
+    public async Task GetUpdateSourcesAsync()
     {
       Status = UpdateServerStatus.Getting;
       try

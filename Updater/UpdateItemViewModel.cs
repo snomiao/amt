@@ -6,12 +6,12 @@ using System.Xml.Linq;
 using System.IO;
 using System.Net;
 using System.Windows;
+using System.Threading.Tasks;
 
 namespace YTY.amt
 {
   public class UpdateItemViewModel : ViewModelBase
   {
-    private WebDownloader wd;
     private XElement xe;
     private long size;
     private Version version;
@@ -19,11 +19,11 @@ namespace YTY.amt
     private UpdateItemStatus status;
     private ObservableCollection<ChunkViewModel> chunks;
 
-    public int Id { get; }
+    public int Id { get; private set; }
 
-    public string SourceUri { get; }
+    public string SourceUri { get; private set; }
 
-    public string FileName { get; }
+    public string FileName { get; private set; }
 
     public long Size
     {
@@ -64,6 +64,8 @@ namespace YTY.amt
       set
       {
         status = value;
+        if (status == UpdateItemStatus.Ready)
+          Chunks = null;
         OnPropertyChanged(nameof(Status));
         xe.Element(nameof(Status)).SetValue(status);
       }
@@ -112,45 +114,42 @@ namespace YTY.amt
       Version = new Version(xe.Element(nameof(Version)).Value);
       MD5 = xe.Element(nameof(MD5)).Value;
       Enum.TryParse(xe.Element(nameof(Status)).Value, out status);
-      chunks = new ObservableCollection<ChunkViewModel>(xe.Elements("Chunk").Select(ele => new ChunkViewModel(ele)));
     }
 
-    public async void Start()
+    public async Task StartAsync()
     {
-      wd = new WebDownloader(SourceUri);
       if (status == UpdateItemStatus.Finished)
         throw new InvalidOperationException();
 
       try
       {
+        var wd = new WebDownloader(SourceUri, size);
         if (status == UpdateItemStatus.Ready)
-          Chunks = new ObservableCollection<ChunkViewModel>(Enumerable.Range(0, await wd.GetNumChunks()).Select(n => new ChunkViewModel(n)));
+          Chunks = new ObservableCollection<ChunkViewModel>(Enumerable.Range(0, wd.GetNumChunks()).Select(n => new ChunkViewModel(n)));
+        else // status == Downloading or Error
+          Chunks = new ObservableCollection<ChunkViewModel>(xe.Elements("Chunk").Select(ele => new ChunkViewModel(ele)));
 
         var dir = Path.GetDirectoryName(Util.MakeQualifiedPath(FileName));
         if (!Directory.Exists(dir))
           Directory.CreateDirectory(dir);
-        var bw = new BinaryWriter(new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read));
-        wd.ChunkCompleted += (s, e) =>
+
+        using (var bw = new BinaryWriter(new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read)))
         {
-          if (!e.Error)
+          var tasks = chunks.Select(ch => wd.DownloadChunkAsync(ch.Index)).ToList();
+          var numTasks = tasks.Count;
+          for (var i = 0; i < numTasks; i++)
           {
-            bw.Seek(wd.ChunkSize * e.Index, SeekOrigin.Begin);
-            bw.Write(e.Data);
+            var recentlyCompletedTask = await TaskEx.WhenAny(tasks);
+            tasks.Remove(recentlyCompletedTask);
+            var indexAndData = await recentlyCompletedTask;
+            bw.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
+            bw.Write(indexAndData.Item2);
             bw.Flush();
-            chunks.First(ch => ch.Index == e.Index).Status = DownloadChunkStatus.Done;
+            chunks.First(ch => ch.Index == indexAndData.Item1).Status = DownloadChunkStatus.Done;
           }
-        };
-        wd.DownloadCompleted += (s, e) =>
-        {
-          bw.Close();
-          Chunks = null;
-          if (e.Error)
-            status = UpdateItemStatus.Error;
-          else
-            Status = UpdateItemStatus.Finished;
-        };
-        wd.Start(chunks.Select(ch => ch.Index));
-        Status = UpdateItemStatus.Downloading;
+        }
+        Chunks = null;
+        Status = UpdateItemStatus.Finished;
       }
       catch (WebException)
       {

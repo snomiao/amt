@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using System.Threading.Tasks;
+using System.Timers;
 using YTY;
 
 namespace YTY.amt
@@ -15,7 +17,7 @@ namespace YTY.amt
   {
     private string fullPath;
     private XDocument xDoc;
-    private Queue<UpdateItemViewModel> updateList = new Queue<UpdateItemViewModel>();
+    private Timer timer = new Timer(5000);
 
     public XElement Root => xDoc.Root;
 
@@ -41,25 +43,25 @@ namespace YTY.amt
           new XElement("amt",
           new XElement("Build", 0)));
 
-      (Application.Current.FindResource("UpdateServerViewModel") as UpdateServerViewModel).PropertyChanged += UpdateServerViewModel_PropertyChanged;
       LocalFiles = new ObservableCollection<UpdateItemViewModel>(Root.Elements("File").Select(ele => new UpdateItemViewModel(ele)));
       LocalFilesView = CollectionViewSource.GetDefaultView(LocalFiles);
       LocalFilesView.Filter = item => (item as UpdateItemViewModel).Status != UpdateItemStatus.Finished;
+      timer.Elapsed += (s, e) => Save();
       EnableAutoSave();
     }
 
-    private void UpdateServerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    public async Task StartUpdate()
     {
-      var usvm = sender as UpdateServerViewModel;
-      if (e.PropertyName == "Status" && usvm.Status == UpdateServerStatus.NeedUpdate)
+      await GlobalVars.UpdateServerViewModel.GetUpdateSourcesAsync();
+      if (GlobalVars.UpdateServerViewModel.Status == UpdateServerStatus.NeedUpdate)
       {
         DisableAutoSave();
-        foreach (var serverFile in usvm.ServerFiles)
+        foreach (var serverFile in GlobalVars.UpdateServerViewModel.ServerFiles)
         {
           var localFile = LocalFiles.FirstOrDefault(l => l.Id == serverFile.Id);
           if (localFile == null)
           {
-            updateList.Enqueue(new UpdateItemViewModel(serverFile.Id, serverFile.SourceUri, serverFile.TargetPath)
+            LocalFiles.Add(new UpdateItemViewModel(serverFile.Id, serverFile.SourceUri, serverFile.TargetPath)
             {
               Size = serverFile.Size,
               Version = serverFile.Version.Clone() as Version,
@@ -74,53 +76,28 @@ namespace YTY.amt
               localFile.MD5 = serverFile.MD5;
               localFile.Version = serverFile.Version.Clone() as Version;
               localFile.Status = UpdateItemStatus.Ready;
-              updateList.Enqueue(localFile);
+              LocalFiles.Add(localFile);
             }
           }
         }
         EnableAutoSave();
       }
       foreach (var pendingItem in LocalFiles.Where(f => f.Status == UpdateItemStatus.Ready || f.Status == UpdateItemStatus.Downloading || f.Status == UpdateItemStatus.Error))
-        updateList.Enqueue(pendingItem);
-
-      try
       {
-        var currentItem = updateList.Dequeue();
-        currentItem.PropertyChanged += UpdateItemViewModel_PropertyChanged;
-        currentItem.Start();
-      }
-      catch (InvalidOperationException) { }
-    }
-
-    private void UpdateItemViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      var uivm = sender as UpdateItemViewModel;
-      if (e.PropertyName == "Status" && (uivm.Status == UpdateItemStatus.Finished))
-      {
-        try
-        {
-          var currentItem = updateList.Dequeue();
-          currentItem.PropertyChanged += UpdateItemViewModel_PropertyChanged;
-          currentItem.Start();
-        }
-        catch (InvalidOperationException) { }
+        await pendingItem.StartAsync();
+        LocalFilesView.Refresh();
       }
     }
 
     public void EnableAutoSave()
     {
-      xDoc.Changed += XDoc_Changed;
+      timer.Start();
       Save();
     }
 
     public void DisableAutoSave()
     {
-      xDoc.Changed -= XDoc_Changed;
-    }
-
-    private void XDoc_Changed(object sender, XObjectChangeEventArgs e)
-    {
-      Save();
+      timer.Stop();
     }
 
     public void Save()
