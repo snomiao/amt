@@ -7,12 +7,13 @@ using System.IO;
 using System.Net;
 using System.Windows;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace YTY.amt
 {
   public class UpdateItemViewModel : ViewModelBase
   {
-    private XElement xe;
+
     private long size;
     private Version version;
     private string md5;
@@ -32,7 +33,7 @@ namespace YTY.amt
       {
         size = value;
         OnPropertyChanged(nameof(Size));
-        xe.Element(nameof(Size)).SetValue(size);
+        GlobalVars.Dal.SetUpdateItemSize(this);
       }
     }
 
@@ -43,7 +44,7 @@ namespace YTY.amt
       {
         version = value;
         OnPropertyChanged(nameof(Version));
-        xe.Element(nameof(Version)).SetValue(version.ToString());
+        GlobalVars.Dal.SetUpdateItemVersion(this);
       }
     }
 
@@ -54,7 +55,7 @@ namespace YTY.amt
       {
         md5 = value;
         OnPropertyChanged(nameof(MD5));
-        xe.Element(nameof(MD5)).SetValue(md5);
+        GlobalVars.Dal.SetUpdateItemMD5(this);
       }
     }
 
@@ -67,7 +68,7 @@ namespace YTY.amt
         if (status == UpdateItemStatus.Ready)
           Chunks = null;
         OnPropertyChanged(nameof(Status));
-        xe.Element(nameof(Status)).SetValue(status);
+        GlobalVars.Dal.SetUpdateItemStatus(this);
       }
     }
 
@@ -78,42 +79,41 @@ namespace YTY.amt
       {
         chunks = value;
         if (chunks == null)
-          xe.Elements("Chunk").Remove();
+          GlobalVars.Dal.DeleteChunks(this);
         else
         {
           OnPropertyChanged(nameof(Chunks));
-          xe.Add(chunks.Select(chunk => chunk.GetXElement()));
         }
       }
     }
 
-    public UpdateItemViewModel(int id, string sourceUri, string fileName)
+    private UpdateItemViewModel()
+    {
+
+    }
+
+    public UpdateItemViewModel(int id, string sourceUri, string fileName, long size, Version version, string md5, UpdateItemStatus status, IEnumerable<ChunkViewModel> chunks)
     {
       Id = id;
       SourceUri = sourceUri;
       FileName = fileName;
-      status = UpdateItemStatus.Ready;
-      xe = new XElement("File",
-        new XAttribute(nameof(Id), id),
-        new XElement(nameof(SourceUri), sourceUri),
-        new XElement(nameof(FileName), fileName),
-        new XElement(nameof(Status), Status),
-        new XElement(nameof(Size)),
-        new XElement(nameof(Version)),
-        new XElement(nameof(MD5)));
-      GlobalVars.Config.Root.Add(xe);
+      this.size = size;
+      this.version = version;
+      this.md5 = md5;
+      this.chunks = new ObservableCollection<ChunkViewModel>(chunks);
     }
 
-    public UpdateItemViewModel(XElement xe)
+    public static UpdateItemViewModel MakeNew(int id, string sourceUri, string fileName)
     {
-      this.xe = xe;
-      Id = (int)xe.Attribute(nameof(Id));
-      SourceUri = xe.Element(nameof(SourceUri)).Value;
-      FileName = xe.Element(nameof(FileName)).Value;
-      Size = (long)xe.Element(nameof(Size));
-      Version = new Version(xe.Element(nameof(Version)).Value);
-      MD5 = xe.Element(nameof(MD5)).Value;
-      Enum.TryParse(xe.Element(nameof(Status)).Value, out status);
+      var newMe = new UpdateItemViewModel()
+      {
+        Id = id,
+        SourceUri = sourceUri,
+        FileName = fileName,
+        status = UpdateItemStatus.Ready
+      };
+      GlobalVars.Dal.CreateUpdateItem(newMe);
+      return newMe;
     }
 
     public async Task StartAsync()
@@ -125,9 +125,12 @@ namespace YTY.amt
       {
         var wd = new WebDownloader(SourceUri, size);
         if (status == UpdateItemStatus.Ready)
-          Chunks = new ObservableCollection<ChunkViewModel>(Enumerable.Range(0, wd.GetNumChunks()).Select(n => new ChunkViewModel(n)));
+        {
+          Chunks = new ObservableCollection<ChunkViewModel>(Enumerable.Range(0, wd.GetNumChunks()).Select(n => new ChunkViewModel(Id, n, DownloadChunkStatus.New)));
+          GlobalVars.Dal.SaveChunks(chunks);
+        }
         else // status == Downloading or Error
-          Chunks = new ObservableCollection<ChunkViewModel>(xe.Elements("Chunk").Select(ele => new ChunkViewModel(ele)));
+          Chunks = new ObservableCollection<ChunkViewModel>(GlobalVars.Dal.GetChunks(Id));
 
         var dir = Path.GetDirectoryName(Util.MakeQualifiedPath(FileName));
         if (!Directory.Exists(dir))
@@ -160,20 +163,13 @@ namespace YTY.amt
 
   public class ChunkViewModel : ViewModelBase
   {
+    private int updateItemId;
     private int index;
     private DownloadChunkStatus status;
-    private XElement xe;
 
-    public int Index
-    {
-      get { return index; }
-      set
-      {
-        index = value;
-        OnPropertyChanged(nameof(Index));
-        xe.Element(nameof(Index)).SetValue(index);
-      }
-    }
+    public int UpdateItemId => updateItemId;
+
+    public int Index => index;
 
     public DownloadChunkStatus Status
     {
@@ -182,29 +178,22 @@ namespace YTY.amt
       {
         status = value;
         OnPropertyChanged(nameof(Status));
-        xe.Element(nameof(Status)).SetValue(status);
+        GlobalVars.Dal.SetChunkStatus(this, status);
       }
     }
 
-    public ChunkViewModel(int index)
+    public ChunkViewModel(int updateItemId, int index, DownloadChunkStatus status)
     {
+      this.updateItemId = updateItemId;
       this.index = index;
-      status = DownloadChunkStatus.New;
-      xe = new XElement("Chunk",
-        new XAttribute(nameof(Index), index),
-        new XElement(nameof(Status), status));
+      this.status = status;
     }
 
-    public ChunkViewModel(XElement xe)
+    public static ChunkViewModel MakeNew(int updateItemId, int index)
     {
-      this.xe = xe;
-      index = (int)xe.Attribute(nameof(Index));
-      Enum.TryParse(xe.Element(nameof(Status)).Value, out status);
-    }
-
-    public XElement GetXElement()
-    {
-      return xe;
+      var newMe = new ChunkViewModel(updateItemId, index, DownloadChunkStatus.New);
+      GlobalVars.Dal.CreateChunk(newMe);
+      return newMe;
     }
   }
 

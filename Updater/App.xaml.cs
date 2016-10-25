@@ -20,6 +20,11 @@ namespace YTY.amt
     {
 
     }
+
+    private void Application_Startup(object sender, StartupEventArgs e)
+    {
+      GlobalVars.Config.Init();
+    }
   }
 
   public static class GlobalVars
@@ -27,16 +32,18 @@ namespace YTY.amt
     private static App currentApp;
     private static Config config;
     private static UpdateServerViewModel updateServerViewModel;
+    private static DAL dal;
 
     static GlobalVars()
     {
       currentApp = Application.Current as App;
       updateServerViewModel = currentApp.FindResource("UpdateServerViewModel") as UpdateServerViewModel;
+      dal = currentApp.FindResource("DAL") as DAL;
       config = currentApp.FindResource("Config") as Config;
     }
 
     public static Config Config => config;
     public static UpdateServerViewModel UpdateServerViewModel { get { return updateServerViewModel; } }
-    public static Dispatcher Dispatcher => currentApp.Dispatcher;
+    public static DAL Dal => dal;
   }
 }

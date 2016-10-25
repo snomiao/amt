@@ -4,4 +4,5 @@
   <local:ChunkStatusToBrushConverter x:Key="chunkStatusToBrush"></local:ChunkStatusToBrushConverter>
   <local:UpdateServerViewModel x:Key="UpdateServerViewModel"></local:UpdateServerViewModel>
   <local:Config x:Key="Config"></local:Config>
+  <local:DAL x:Key="DAL"></local:DAL>
 </ResourceDictionary>
