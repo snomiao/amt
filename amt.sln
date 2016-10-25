@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{A954C548-37E0-4C31-9CF1-805F6F1B8C89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "amt", "amt\amt.csproj", "{22B34CF5-8712-401D-92C4-46E97527B018}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScxFile", "ScxFile\ScxFile.csproj", "{205F9621-6A7D-4457-A4A8-8B505AA7A2AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{A954C548-37E0-4C31-9CF1-805F6F1B8C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A954C548-37E0-4C31-9CF1-805F6F1B8C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A954C548-37E0-4C31-9CF1-805F6F1B8C89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22B34CF5-8712-401D-92C4-46E97527B018}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22B34CF5-8712-401D-92C4-46E97527B018}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22B34CF5-8712-401D-92C4-46E97527B018}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22B34CF5-8712-401D-92C4-46E97527B018}.Release|Any CPU.Build.0 = Release|Any CPU
+		{205F9621-6A7D-4457-A4A8-8B505AA7A2AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{205F9621-6A7D-4457-A4A8-8B505AA7A2AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{205F9621-6A7D-4457-A4A8-8B505AA7A2AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{205F9621-6A7D-4457-A4A8-8B505AA7A2AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
