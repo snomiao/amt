@@ -75,21 +75,6 @@ namespace YTY
       return numChunks.Value;
     }
 
-    /// <summary>
-    /// Starts downloading specified chunks.
-    /// </summary>
-    /// <param name="indexes">Indexes of chunks to download.</param>
-    public async void Start(IEnumerable<int> indexes)
-    {
-      var tasks = indexes.Select(i => DownloadChunkAsync(i));
-      await TaskEx.WhenAll(tasks);
-      //try
-      //{
-      //  await TaskEx.WhenAll(tasks.Keys);
-      //}
-      //catch (WebException) { throw; }
-    }
-
     public async Task<Tuple<int, byte[]>> DownloadChunkAsync(int index)
     {
       for (var iTry = 0; iTry < Retries; iTry++)
@@ -107,6 +92,7 @@ namespace YTY
         {
           using (var response = await (firstCompleted as Task<WebResponse>))
           {
+            await TaskEx.Delay(1);
             using (var ms = new MemoryStream(ChunkSize))
             {
               response.GetResponseStream().CopyTo(ms);

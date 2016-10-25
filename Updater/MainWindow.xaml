@@ -15,10 +15,6 @@
       <RowDefinition Height="*"></RowDefinition>
       <RowDefinition Height="auto"></RowDefinition>
     </Grid.RowDefinitions>
-    <ListBox Grid.Row="0"
-             ItemsSource="{Binding Source={StaticResource UpdateServerViewModel},Path=ServerFiles}"
-             DisplayMemberPath="Uri">
-    </ListBox>
     <ListBox x:Name="lbxMain"
              Grid.Row="1"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled"

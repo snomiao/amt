@@ -2,6 +2,7 @@
 using System.Data.SQLite;
 using System.Data;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace YTY.amt
 {
@@ -43,6 +44,38 @@ namespace YTY.amt
       }
     }
 
+    public async Task<int> ExecuteNonQueryAsync(string sql)
+    {
+      return await TaskEx.Run(() =>
+      {
+        using (var command = new SQLiteCommand(sql, connection))
+        {
+          return command.ExecuteNonQuery();
+        }
+      }).ConfigureAwait(false);
+    }
+
+    public async Task ExecuteNonQueryTransactionAsync(IEnumerable<string> sqls)
+    {
+      await TaskEx.Run(() =>
+      {
+        using (var transaction = connection.BeginTransaction())
+        {
+          using (var command = new SQLiteCommand())
+          {
+            command.Transaction = transaction;
+            foreach (var sql in sqls)
+            {
+              command.CommandText = sql;
+              command.ExecuteNonQuery();
+            }
+          }
+          transaction.Commit();
+        }
+      }).ConfigureAwait(false);
+    }
+
+
     public void ExecuteNonQueryTransaction(IEnumerable<string> sqls)
     {
       using (var transaction = connection.BeginTransaction())
@@ -50,7 +83,7 @@ namespace YTY.amt
         using (var command = new SQLiteCommand())
         {
           command.Transaction = transaction;
-          foreach(var sql in sqls )
+          foreach (var sql in sqls)
           {
             command.CommandText = sql;
             command.ExecuteNonQuery();
