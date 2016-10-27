@@ -8,12 +8,13 @@ using System.Net;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Data;
+using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace YTY.amt
 {
   public class UpdateItemViewModel : ViewModelBase
   {
-
     private long size;
     private Version version;
     private string md5;
@@ -117,33 +118,58 @@ namespace YTY.amt
           Chunks = new ObservableCollection<ChunkViewModel>(Enumerable.Range(0, wd.GetNumChunks()).Select(n => new ChunkViewModel(Id, n, DownloadChunkStatus.New)));
           await GlobalVars.Dal.SaveChunks(chunks).ConfigureAwait(false);
         }
-        if( status == UpdateItemStatus.Error)
+        if (status == UpdateItemStatus.Error)
           await SetStatusAsync(UpdateItemStatus.Downloading).ConfigureAwait(false);
 
         var dir = Path.GetDirectoryName(Util.MakeQualifiedPath(FileName));
         if (!Directory.Exists(dir))
           Directory.CreateDirectory(dir);
 
-        using (var bw = new BinaryWriter(new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read)))
+        using (var fs = new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
         {
-          var tasks = chunks.Where(ch => ch.Status == DownloadChunkStatus.New).Select(ch => wd.DownloadChunkAsync(ch.Index)).ToList();
+          var tasks = (chunks.Where(ch => ch.Status == DownloadChunkStatus.New).Select(ch => wd.DownloadChunkAsync(ch.Index))).ToList();
           var numTasks = tasks.Count;
-          for (var i = 0; i < numTasks; i++)
+          var processing = tasks.Take(1).ToList();
+          foreach (var remaining in tasks.Skip(10))
           {
-            var recentlyCompletedTask = await TaskEx.WhenAny(tasks).ConfigureAwait(false);
-            tasks.Remove(recentlyCompletedTask);
-            var indexAndData = await recentlyCompletedTask;
-            bw.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
-            bw.Write(indexAndData.Item2);
-            bw.Flush();
+            var recentlyCompletedTask = await TaskEx.WhenAny(processing).ConfigureAwait(false);
+            processing.Remove(recentlyCompletedTask);
+            processing.Add(remaining);
+            var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
+            Debug.WriteLine($"{indexAndData.Item1} returned");
+            fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
+            await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length).ConfigureAwait(false);
             await chunks.First(ch => ch.Index == indexAndData.Item1).SetStatusAsync(DownloadChunkStatus.Done).ConfigureAwait(false);
           }
+          var processingCount = processing.Count;
+          for (var i = 0; i < processingCount; i++)
+          {
+            var recentlyCompletedTask = await TaskEx.WhenAny(processing).ConfigureAwait(false);
+            processing.Remove(recentlyCompletedTask);
+            var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
+            Debug.WriteLine($"{indexAndData.Item1} returned");
+            fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
+            await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length).ConfigureAwait(false);
+            await chunks.First(ch => ch.Index == indexAndData.Item1).SetStatusAsync(DownloadChunkStatus.Done).ConfigureAwait(false);
+          }
+          //for (var i = 0; i < numTasks; i++)
+          //{
+          //  var recentlyCompletedTask = await TaskEx.WhenAny(tasks.Keys).ConfigureAwait(false);
+          //  bool _;
+          //  tasks.TryRemove(recentlyCompletedTask, out _);
+          //  var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
+          //  Debug.WriteLine($"{indexAndData.Item1} returned");
+          //  fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
+          //  await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length).ConfigureAwait(false);
+          //  await chunks.First(ch => ch.Index == indexAndData.Item1).SetStatusAsync(DownloadChunkStatus.Done).ConfigureAwait(false);
+          //}
         }
         await GlobalVars.Dal.DeleteChunks(this).ConfigureAwait(false);
         await SetStatusAsync(UpdateItemStatus.Finished).ConfigureAwait(false);
       }
-      catch (WebException)
+      catch (WebException ex)
       {
+        Debug.WriteLine(ex.Status);
         await SetStatusAsync(UpdateItemStatus.Error).ConfigureAwait(false);
       }
     }

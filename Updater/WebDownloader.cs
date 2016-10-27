@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Threading;
 
 namespace YTY
 {
@@ -79,26 +80,33 @@ namespace YTY
     {
       for (var iTry = 0; iTry < Retries; iTry++)
       {
-        var request = WebRequest.Create(Uri) as HttpWebRequest;
-        request.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
-        var taskTimeout = TaskEx.Delay(Timeout);
-        var taskResponse = request.GetResponseAsync();
-        var firstCompleted = await TaskEx.WhenAny(new[] { taskTimeout, taskResponse });
-        if (firstCompleted == taskTimeout)
+        try
         {
-          request.Abort();
-        }
-        else
-        {
-          using (var response = await (firstCompleted as Task<WebResponse>))
+          var request = WebRequest.Create(Uri) as HttpWebRequest;
+          request.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
+          var taskTimeout = TaskEx.Delay(Timeout);
+          var taskResponse = TaskEx.Run(() => request.GetResponse());
+          var firstCompleted = await TaskEx.WhenAny(taskResponse, taskTimeout).ConfigureAwait(false);
+          if (firstCompleted == taskTimeout)
           {
-            await TaskEx.Delay(1);
-            using (var ms = new MemoryStream(ChunkSize))
+            request.Abort();
+          }
+          else
+          {
+            using (var response = await (firstCompleted as Task<WebResponse>).ConfigureAwait(false))
             {
-              response.GetResponseStream().CopyTo(ms);
-              return Tuple.Create(index, ms.ToArray());
+              using (var ms = new MemoryStream(ChunkSize))
+              {
+                response.GetResponseStream().CopyTo(ms);
+                Debug.WriteLine($"{index} about to return");
+                return Tuple.Create(index, ms.ToArray());
+              }
             }
           }
+        }
+        catch(WebException ex)
+        {
+          Debug.WriteLine(ex.Message);
         }
       }
       throw new WebException($"Retry exceeded {Retries} times.", WebExceptionStatus.MessageLengthLimitExceeded);

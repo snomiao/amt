@@ -75,6 +75,18 @@ namespace YTY.amt
         }
       }
     }
+
+    private ScxVersion GetVersion()
+    {
+      if (version[2] == 0x31)
+        return ScxVersion.Version118;
+      else if (version2 < 1.2201f)
+        return ScxVersion.Version122;
+      else if (version2 < 1.2301f)
+        return ScxVersion.Version123;
+      else if(version2<1.2401f)
+        return 
+    }
   }
 
   public class Player
@@ -116,5 +128,15 @@ namespace YTY.amt
     Castle,
     Imperial,
     PostImperial
+  }
+
+  public enum ScxVersion
+  {
+    Version118,
+    Version122,
+    Version123,
+    Version124,
+    Version126,
+    Unknown
   }
 }

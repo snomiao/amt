@@ -37,7 +37,7 @@ namespace YTY.amt
 
     public async Task StartUpdate()
     {
-      await GlobalVars.UpdateServerViewModel.GetUpdateSourcesAsync();
+      await GlobalVars.UpdateServerViewModel.GetUpdateSourcesAsync().ConfigureAwait(false);
       if (GlobalVars.UpdateServerViewModel.Status == UpdateServerStatus.NeedUpdate)
       {
         GlobalVars.Dal.Build = GlobalVars.UpdateServerViewModel.Build;
@@ -55,21 +55,21 @@ namespace YTY.amt
           {
             if (serverFile.Version > localFile.Version)
             {
-              await localFile.SetSizeAsync(serverFile.Size);
-              await localFile.SetMD5Async(serverFile.MD5);
-              await localFile.SetVersionAsync(serverFile.Version.Clone() as Version);
-              await localFile.SetStatusAsync(UpdateItemStatus.Ready);
+              await localFile.SetSizeAsync(serverFile.Size).ConfigureAwait(false);
+              await localFile.SetMD5Async(serverFile.MD5).ConfigureAwait(false);
+              await localFile.SetVersionAsync(serverFile.Version.Clone() as Version).ConfigureAwait(false);
+              await localFile.SetStatusAsync(UpdateItemStatus.Ready).ConfigureAwait(false);
             }
           }
         }
-        await GlobalVars.Dal.SaveUpdateItems(newUpdateItems);
+        await GlobalVars.Dal.SaveUpdateItems(newUpdateItems).ConfigureAwait(false);
       }
       if (GlobalVars.UpdateServerViewModel.Status != UpdateServerStatus.ConnectFailed && GlobalVars.UpdateServerViewModel.Status != UpdateServerStatus.ServerError)
       {
         foreach (var pendingItem in LocalFiles.Where(f => f.Status == UpdateItemStatus.Ready || f.Status == UpdateItemStatus.Downloading || f.Status == UpdateItemStatus.Error))
         {
-          await pendingItem.StartAsync();
-          LocalFilesView.Refresh();
+          await pendingItem.StartAsync().ConfigureAwait(false);
+          //LocalFilesView.Refresh();
         }
       }
     }
