@@ -127,14 +127,14 @@ namespace YTY.amt
 
         using (var fs = new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
         {
-          var tasks = (chunks.Where(ch => ch.Status == DownloadChunkStatus.New).Select(ch => wd.DownloadChunkAsync(ch.Index))).ToList();
-          var numTasks = tasks.Count;
-          var processing = tasks.Take(1).ToList();
+          var tasks = (chunks.Where(ch => ch.Status == DownloadChunkStatus.New));//.Select(ch => wd.DownloadChunkAsync(ch.Index))).ToList();
+         // var numTasks = tasks.Count;
+          var processing = tasks.Take(10).Select(ch=>wd.DownloadChunkAsync(ch.Index)). ToList();
           foreach (var remaining in tasks.Skip(10))
           {
             var recentlyCompletedTask = await TaskEx.WhenAny(processing).ConfigureAwait(false);
             processing.Remove(recentlyCompletedTask);
-            processing.Add(remaining);
+            processing.Add(wd.DownloadChunkAsync(remaining.Index));
             var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
             Debug.WriteLine($"{indexAndData.Item1} returned");
             fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
@@ -154,11 +154,10 @@ namespace YTY.amt
           }
           //for (var i = 0; i < numTasks; i++)
           //{
-          //  var recentlyCompletedTask = await TaskEx.WhenAny(tasks.Keys).ConfigureAwait(false);
-          //  bool _;
-          //  tasks.TryRemove(recentlyCompletedTask, out _);
+          //  var recentlyCompletedTask = await TaskEx.WhenAny(tasks).ConfigureAwait(false);
+          //  Debug.WriteLine($"{i} returned");
+          //  tasks.Remove(recentlyCompletedTask);
           //  var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
-          //  Debug.WriteLine($"{indexAndData.Item1} returned");
           //  fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
           //  await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length).ConfigureAwait(false);
           //  await chunks.First(ch => ch.Index == indexAndData.Item1).SetStatusAsync(DownloadChunkStatus.Done).ConfigureAwait(false);
