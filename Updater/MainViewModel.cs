@@ -12,7 +12,7 @@ using YTY;
 
 namespace YTY.amt
 {
-  public class Config
+  public class MainViewModel:ViewModelBase
   {
     public int Build
     {
@@ -24,7 +24,7 @@ namespace YTY.amt
 
     public ICollectionView LocalFilesView { get; private set; }
 
-    public Config()
+    public MainViewModel()
     {
     }
 
@@ -55,21 +55,20 @@ namespace YTY.amt
           {
             if (serverFile.Version > localFile.Version)
             {
-              await localFile.SetSizeAsync(serverFile.Size).ConfigureAwait(false);
-              await localFile.SetMD5Async(serverFile.MD5).ConfigureAwait(false);
-              await localFile.SetVersionAsync(serverFile.Version.Clone() as Version).ConfigureAwait(false);
-              await localFile.SetStatusAsync(UpdateItemStatus.Ready).ConfigureAwait(false);
+              localFile.Size = serverFile.Size;
+              localFile.MD5 = serverFile.MD5;
+              localFile.Version = serverFile.Version.Clone() as Version;
+              localFile.Status = UpdateItemStatus.Ready;
             }
           }
         }
-        await GlobalVars.Dal.SaveUpdateItems(newUpdateItems).ConfigureAwait(false);
+        GlobalVars.Dal.SaveUpdateItems(newUpdateItems);
       }
       if (GlobalVars.UpdateServerViewModel.Status != UpdateServerStatus.ConnectFailed && GlobalVars.UpdateServerViewModel.Status != UpdateServerStatus.ServerError)
       {
         foreach (var pendingItem in LocalFiles.Where(f => f.Status == UpdateItemStatus.Ready || f.Status == UpdateItemStatus.Downloading || f.Status == UpdateItemStatus.Error))
         {
-          await pendingItem.StartAsync().ConfigureAwait(false);
-          //LocalFilesView.Refresh();
+          await pendingItem.StartAsync();
         }
       }
     }

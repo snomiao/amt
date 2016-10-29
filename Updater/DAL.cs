@@ -49,29 +49,29 @@ INSERT INTO Meta(build) VALUES(0);");
       }
     }
 
-    public async Task CreateUpdateItem(UpdateItemViewModel updateItem)
+    public void CreateUpdateItem(UpdateItemViewModel updateItem)
     {
-      await sqlite.ExecuteNonQueryAsync($"INSERT INTO Files(id,sourceUri,fileName,status) VALUES({updateItem.Id},'{updateItem.SourceUri}','{updateItem.FileName}',{(int)updateItem.Status})").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"INSERT INTO Files(id,sourceUri,fileName,status) VALUES({updateItem.Id},'{updateItem.SourceUri}','{updateItem.FileName}',{(int)updateItem.Status})");
     }
 
-    public async Task SetUpdateItemSize(UpdateItemViewModel updateItem)
+    public void SetUpdateItemSize(UpdateItemViewModel updateItem)
     {
-      await sqlite.ExecuteNonQueryAsync($"UPDATE Files SET size={updateItem.Size} WHERE id={updateItem.Id}").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"UPDATE Files SET size={updateItem.Size} WHERE id={updateItem.Id}");
     }
 
-    public async Task SetUpdateItemStatus(UpdateItemViewModel updateItem)
+    public void SetUpdateItemStatus(UpdateItemViewModel updateItem)
     {
-      await sqlite.ExecuteNonQueryAsync($"UPDATE Files SET status={(int)updateItem.Status} WHERE id={updateItem.Id}").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"UPDATE Files SET status={(int)updateItem.Status} WHERE id={updateItem.Id}");
     }
 
-    public async Task SetUpdateItemVersion(UpdateItemViewModel updateItem)
+    public void SetUpdateItemVersion(UpdateItemViewModel updateItem)
     {
-      await sqlite.ExecuteNonQueryAsync($"UPDATE Files SET version='{updateItem.Version}' WHERE id={updateItem.Id}").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"UPDATE Files SET version='{updateItem.Version}' WHERE id={updateItem.Id}");
     }
 
-    public async Task SetUpdateItemMD5(UpdateItemViewModel updateItem)
+    public void SetUpdateItemMD5(UpdateItemViewModel updateItem)
     {
-      await sqlite.ExecuteNonQueryAsync($"UPDATE Files SET md5='{updateItem.MD5}' WHERE id={updateItem.Id}").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"UPDATE Files SET md5='{updateItem.MD5}' WHERE id={updateItem.Id}");
     }
 
     public IEnumerable<UpdateItemViewModel> GetUpdateItems()
@@ -88,14 +88,14 @@ INSERT INTO Meta(build) VALUES(0);");
            chunks: GetChunks(row.Field<int>("id"))));
     }
 
-    public async Task SaveUpdateItems(IEnumerable<UpdateItemViewModel> updateItems)
+    public void SaveUpdateItems(IEnumerable<UpdateItemViewModel> updateItems)
     {
-      await sqlite.ExecuteNonQueryTransactionAsync(updateItems.Select(item => $"INSERT INTO Files(id,sourceUri,fileName,status,size,version,md5) VALUES({item.Id},'{item.SourceUri.Replace("'","''")}','{item.FileName.Replace("'", "''")}',{(int)item.Status},{item.Size},'{item.Version}','{item.MD5}')")).ConfigureAwait(false);
+      sqlite.ExecuteNonQueryTransaction(updateItems.Select(item => $"INSERT INTO Files(id,sourceUri,fileName,status,size,version,md5) VALUES({item.Id},'{item.SourceUri.Replace("'", "''")}','{item.FileName.Replace("'", "''")}',{(int)item.Status},{item.Size},'{item.Version}','{item.MD5}')"));
     }
 
-    public async Task SaveChunks(IEnumerable<ChunkViewModel> chunks)
+    public void SaveChunks(IEnumerable<ChunkViewModel> chunks)
     {
-      await sqlite.ExecuteNonQueryTransactionAsync(chunks.Select(item => $"INSERT INTO Chunks(updateItemId,idx,status) VALUES({item.UpdateItemId},{item.Index},{(int)item.Status})")).ConfigureAwait(false);
+      sqlite.ExecuteNonQueryTransaction(chunks.Select(item => $"INSERT INTO Chunks(updateItemId,idx,status) VALUES({item.UpdateItemId},{item.Index},{(int)item.Status})"));
     }
 
     public IEnumerable<ChunkViewModel> GetChunks(int updateItemId)
@@ -107,19 +107,19 @@ INSERT INTO Meta(build) VALUES(0);");
           status: row.Field<DownloadChunkStatus>("status")));
     }
 
-    public async Task SetChunkStatus(ChunkViewModel chunk, DownloadChunkStatus status)
+    public void SetChunkStatus(ChunkViewModel chunk, DownloadChunkStatus status)
     {
-      await sqlite.ExecuteNonQueryAsync($"UPDATE Chunks SET status={(int)status} WHERE updateItemId={chunk.UpdateItemId} AND idx={chunk.Index}").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"UPDATE Chunks SET status={(int)status} WHERE updateItemId={chunk.UpdateItemId} AND idx={chunk.Index}");
     }
 
-    public async Task CreateChunk(ChunkViewModel chunk)
+    public void CreateChunk(ChunkViewModel chunk)
     {
-      await sqlite.ExecuteNonQueryAsync($"INSERT INTO Chunks(updateItemId,idx,status) VALUES({chunk.UpdateItemId},{chunk.Index},{(int)chunk.Status})").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"INSERT INTO Chunks(updateItemId,idx,status) VALUES({chunk.UpdateItemId},{chunk.Index},{(int)chunk.Status})");
     }
 
-    public async Task DeleteChunks(UpdateItemViewModel updateItem)
+    public void DeleteChunks(UpdateItemViewModel updateItem)
     {
-      await sqlite.ExecuteNonQueryAsync($"DELETE FROM Chunks WHERE updateItemId={updateItem.Id}").ConfigureAwait(false);
+      sqlite.ExecuteNonQuery($"DELETE FROM Chunks WHERE updateItemId={updateItem.Id}");
     }
   }
 }

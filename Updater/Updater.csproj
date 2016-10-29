@@ -86,8 +86,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ChunkStatusToBrushConverter.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="ByteCountToTextConverter.cs" />
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="DAL.cs" />
     <Compile Include="SqliteOp.cs" />
     <Compile Include="UpdateItemViewModel.cs" />

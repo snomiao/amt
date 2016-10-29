@@ -47,7 +47,7 @@ namespace YTY.amt
           using (var ms = new MemoryStream(await wc.DownloadDataTaskAsync(SERVERURI)))
           {
             xe = XElement.Load(ms);
-            if (Build > GlobalVars.Config.Build)
+            if (Build > GlobalVars.MainViewModel.Build)
             {
               foreach (var ele in xe.Elements("UpdateSource"))
               {
