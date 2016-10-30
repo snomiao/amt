@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace amt
+namespace YTY.amt
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
@@ -22,6 +22,12 @@ namespace amt
     public MainWindow()
     {
       InitializeComponent();
+    }
+
+    private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+      if (e.ChangedButton == MouseButton.Left)
+        DragMove();
     }
   }
 }
