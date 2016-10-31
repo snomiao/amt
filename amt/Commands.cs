@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Diagnostics;
 
 namespace YTY.amt
 {
@@ -41,4 +42,19 @@ namespace YTY.amt
     }
   }
 
+  public class CreateProcessCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      var p = new Process() { StartInfo = new ProcessStartInfo(parameter as string) { UseShellExecute = true } };
+      p.Start();
+    }
+  }
 }

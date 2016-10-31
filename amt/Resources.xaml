@@ -223,6 +223,7 @@
           </Style>
         </Style.Resources>
       </Style>
+      
       <Style TargetType="{x:Type TextBlock}"
              x:Key="TextBlockHeaderStyle">
         <Setter Property="FontWeight"
@@ -233,7 +234,44 @@
                 Value="0"></Setter>
       </Style>
 
-
+      <Style x:Key="TabControlSubStyle" TargetType="{x:Type TabControl}">
+        <Setter Property="BorderThickness"
+                Value="0"></Setter>
+        <Style.Resources>
+          <Style TargetType="{x:Type TabItem }">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabItem }">
+                  <Border Margin="8,5"
+                          Background="Transparent">
+                    <TextBlock x:Name="txb"
+                               Text="{TemplateBinding Property=Header}"
+                               FontSize="18"
+                               VerticalAlignment="Center"
+                               Margin="8,0"></TextBlock>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver"
+                             Value="True">
+                      <Setter TargetName="txb"
+                              Property="FontWeight"
+                              Value="Bold"></Setter>
+                    </Trigger>
+                    <Trigger Property="IsSelected"
+                             Value="True">
+                      <Setter TargetName="txb"
+                              Property="FontWeight"
+                              Value="Bold"></Setter>
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+          <Style TargetType="{x:Type TextBlock}"
+                 BasedOn="{StaticResource TextBlockHeaderStyle}"></Style>
+        </Style.Resources>
+      </Style>
     </ResourceDictionary>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
