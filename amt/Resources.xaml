@@ -6,7 +6,12 @@
 
       <local:CloseWindowCommand x:Key="CloseWindowCommand"></local:CloseWindowCommand>
       <local:MinimizeWindowCommand x:Key="MinimizeWindowCommand"></local:MinimizeWindowCommand>
-
+      <local:ConfigSwitchGameCommand x:Key="ConfigSwitchGameCommand"></local:ConfigSwitchGameCommand>
+      <local:OpenFolderCommand x:Key="OpenFolderCommand"></local:OpenFolderCommand>
+      <ToolTip x:Key="ttpPortForwarding">
+        <TextBlock TextWrapping="Wrap"
+                   MaxWidth="200">联机优化可以使多人游戏显著减少卡顿问题，但是会导致不支持IPX、局域网联机游戏，如需开启需要参与玩家全部开启，请慎重使用。</TextBlock>
+      </ToolTip>
 
       <Style x:Key="ButtonNoneStyle"
              TargetType="{x:Type Button}">

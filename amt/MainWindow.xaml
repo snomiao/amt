@@ -56,76 +56,66 @@
               <TextBlock>版本切换</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前版本</TextBlock>
-                <TextBlock x:Name="txbWhichExe" />
+                <TextBlock></TextBlock>
                 <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnSwitchTo14"
-                        Click="btnSwitchTo14_Click">帝国时代Ⅱ 1.5</Button>
-                <Button x:Name="btnSwitchToC"
-                        Click="btnSwitchToC_Click">帝国时代Ⅱ 1.0C</Button>
-                <Button x:Name="btnSwitchToFe"
-                        Click="btnSwitchToFe_Click">被遗忘的帝国</Button>
-                <Button x:Name="btnSwitchToA"
-                        Click="btnSwitchToA_Click">启动帝国时代Ⅱ 1.0A</Button>
+                <StackPanel.Resources>
+                  <Style TargetType="{x:Type Button}">
+                    <Setter Property="Command"
+                            Value="{StaticResource ConfigSwitchGameCommand}"></Setter>
+                  </Style>
+                </StackPanel.Resources>
+                <Button>帝国时代Ⅱ 1.5</Button>
+                <Button>帝国时代Ⅱ 1.0C</Button>
+                <Button>被遗忘的帝国</Button>
+                <Button>启动帝国时代Ⅱ 1.0A</Button>
               </StackPanel>
               <WrapPanel x:Name="wrpStarts"></WrapPanel>
               <TextBlock>打开目录</TextBlock>
               <TextBlock HorizontalAlignment="Left">单击按钮，打开当前版本的特定目录。</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnOpenDirCampaign"
-                        Click="btnOpenDirCampaign_Click">战役</Button>
-                <Button x:Name="btnOpenDirScenario"
-                        Click="btnOpenDirScenario_Click">场景</Button>
-                <Button x:Name="btnOpenDirAI"
-                        Click="btnOpenDirAI_Click">AI</Button>
-                <Button x:Name="btnOpenDirSave"
-                        Click="btnOpenDirSave_Click">存档/录像</Button>
-                <Button x:Name="btnOpenDirSound"
-                        Click="btnOpenDirSound_Click">场景音效</Button>
-                <Button x:Name="btnOpenDirData"
-                        Click="btnOpenDirData_Click">数据</Button>
-                <Button x:Name="btnOpenDirRms"
-                        Click="btnOpenDirRms_Click">随机地图</Button>
-                <Button x:Name="btnOpenDirScreenshot"
-                        Click="btnOpenDirScreenshot_Click">截屏</Button>
+                <StackPanel.Resources>
+                  <Style TargetType="{x:Type Button}">
+                    <Setter Property="Command"
+                            Value="{StaticResource OpenFolderCommand}"></Setter>
+                  </Style>
+                </StackPanel.Resources>
+                <Button>战役</Button>
+                <Button>场景</Button>
+                <Button>AI</Button>
+                <Button>存档/录像</Button>
+                <Button>场景音效</Button>
+                <Button>数据</Button>
+                <Button>随机地图</Button>
+                <Button>截屏</Button>
               </StackPanel>
-              <TextBlock >1000人口上限功能</TextBlock>
+              <TextBlock>1000人口上限功能</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock >当前1000人口上限功能</TextBlock>
-                <TextBlock x:Name="txbPopulationExtend"
-                            />
+                <TextBlock>当前1000人口上限功能</TextBlock>
+                <TextBlock></TextBlock>
                 <TextBlock>。请选择开启或关闭1000人口上限。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnPopulationExtendOn"
-                        Click="btnPopulationExtendOn_Click">开启1000人口上限</Button>
-                <Button x:Name="btnPopulationExtendOff"
-                        Click="btnPopulationExtendOff_Click">关闭1000人口上限</Button>
+                <Button>开启1000人口上限</Button>
+                <Button>关闭1000人口上限</Button>
               </StackPanel>
               <TextBlock>多队列训练</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前多队列训练功能</TextBlock>
-                <TextBlock x:Name="txbMultiQueue" />
+                <TextBlock></TextBlock>
                 <TextBlock>。请选择开启或关闭多队列训练。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnMultiQueueOn"
-                        Click="btnMultiQueueOn_Click">开启多队列训练</Button>
-                <Button x:Name="btnMultiQueueOff"
-                        Click="btnMultiQueueOff_Click">关闭多队列训练</Button>
+                <Button>开启多队列训练</Button>
+                <Button>关闭多队列训练</Button>
               </StackPanel>
               <TextBlock>快捷键</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnHotkeyC"
-                        Click="btnHotkeyC_Click">使用C版默认快捷键</Button>
-                <Button x:Name="btnHotkeyFe"
-                        Click="btnHotkeyFe_Click">使用AoFE默认快捷键</Button>
-                <Button x:Name="btnUserManager"
-                        Click="btnUserManager_Click"
-                        Visibility="Hidden">帝国时代用户管理器</Button>
-                <Button x:Name="btnHkiEditor"
-                        Click="btnHkiEditor_Click">热键编辑器</Button>
+                <Button>使用C版默认快捷键</Button>
+                <Button>使用AoFE默认快捷键</Button>
+                <Button Visibility="Hidden">帝国时代用户管理器</Button>
+                <Button>热键编辑器</Button>
               </StackPanel>
             </StackPanel>
           </TabItem>
@@ -134,23 +124,14 @@
               <TextBlock>游戏界面语言</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前游戏界面语言：</TextBlock>
-                <TextBlock x:Name="txbLanguage"
-                            />
+                <TextBlock></TextBlock>
                 <TextBlock>。请选择游戏界面语言。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnLanguageChs"
-                        Click="btnLanguageChs_Click"
-                        VerticalAlignment="Top">中文</Button>
-                <Button x:Name="btnLanguageEn"
-                        Click="btnLanguageEn_Click"
-                        VerticalAlignment="Top">英文</Button>
-                <Button x:Name="btnLanguageJa"
-                        Click="btnLanguageJa_Click"
-                        VerticalAlignment="Top">日语</Button>
-                <Button x:Name="btnLanguageEs"
-                        Click="btnLanguageEs_Click"
-                        VerticalAlignment="Top">西班牙语</Button>
+                <Button>中文</Button>
+                <Button>英文</Button>
+                <Button>日语</Button>
+                <Button>西班牙语</Button>
                 <Expander Header="更多语言">
                   <ListBox x:Name="lstLanguagesMore"
                            TextBlock.FontSize="14"
@@ -172,28 +153,20 @@
                   </ListBox>
                 </Expander>
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"><Run Text="开场影片" /></TextBlock>
+              <TextBlock>开场影片</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="程序启动开场影片：" /></TextBlock>
-                <TextBlock x:Name="txbSplash"
-                           Style="{StaticResource txbVariableStyle}" />
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="。请选择开启或关闭。" /></TextBlock>
+                <TextBlock>程序启动开场影片：</TextBlock>
+                <TextBlock></TextBlock>
+                <TextBlock>。请选择开启或关闭。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnSplashOn"
-                        Style="{StaticResource btnSettingStyle}"
-                        Content="开场影片开启"
-                        Click="btnSplashOn_Click"></Button>
-                <Button x:Name="btnSplashOff"
-                        Style="{StaticResource btnSettingStyle}"
-                        Content="开场影片关闭"
-                        Click="btnSplashOff_Click" />
+                <Button>开场影片开启</Button>
+                <Button>开场影片关闭</Button>
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"><Run Text="分辨率" /></TextBlock>
+              <TextBlock>分辨率</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="当前分辨率：" /></TextBlock>
-                <TextBlock x:Name="txbResolution"
-                           Style="{StaticResource txbVariableStyle}">
+                <TextBlock>当前分辨率：</TextBlock>
+                <TextBlock x:Name="txbResolution">
                   <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0}×{1}">
                       <Binding ElementName="txtResolutionWidth"
@@ -203,44 +176,35 @@
                     </MultiBinding>
                   </TextBlock.Text>
                 </TextBlock>
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="。请选择或输入自定义数值。" /></TextBlock>
+                <TextBlock>。请选择或输入自定义数值。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Expander Header="选择分辨率"
-                          Style="{StaticResource expStyle}">
+                <Expander Header="选择分辨率">
                   <ListBox x:Name="lstResolution"
-                           Style="{StaticResource lstStyle}"
                            TextBlock.FontSize="14"
-                           TextBlock.Foreground="{StaticResource bruBtnText}"
                            SelectionChanged="lstResolution_SelectionChanged">
                   </ListBox>
                 </Expander>
                 <Button x:Name="btnFullScreen"
-                        Style="{StaticResource btnSettingStyle}"
                         VerticalAlignment="Top"
                         Content="全屏"
                         Click="btnFullScreen_Click" />
                 <Button x:Name="btnWindowedFullScreen"
-                        Style="{StaticResource btnSettingStyle}"
                         VerticalAlignment="Top"
                         Content="窗口化全屏"
                         Click="btnWindowedFullScreen_Click" />
-                <Button Style="{StaticResource btnSettingStyle}"
-                        VerticalAlignment="Top">
+                <Button  VerticalAlignment="Top">
                   <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="{StaticResource bruBtnText}"
-                               FontSize="18"><Run Text="宽度：" /></TextBlock>
+                    <TextBlock FontSize="18">宽度：</TextBlock>
                     <TextBox x:Name="txtResolutionWidth"
                              Width="50"
                              FontSize="16"
                              LostFocus="txtResolutionWidth_LostFocus" />
                   </StackPanel>
                 </Button>
-                <Button Style="{StaticResource btnSettingStyle}"
-                        VerticalAlignment="Top">
+                <Button VerticalAlignment="Top">
                   <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="{StaticResource bruBtnText}"
-                               FontSize="18"><Run Text="高度：" /></TextBlock>
+                    <TextBlock FontSize="18">高度：</TextBlock>
                     <TextBox x:Name="txtResolutionHeight"
                              Width="50"
                              FontSize="16"
@@ -248,163 +212,107 @@
                   </StackPanel>
                 </Button>
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"><Run Text="重组资料库" /></TextBlock>
-              <TextBlock Style="{StaticResource txbContentStyle}"
-                         HorizontalAlignment="Left">开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
+              <TextBlock>重组资料库</TextBlock>
+              <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
               <Grid>
                 <Grid.RowDefinitions>
-                  <RowDefinition></RowDefinition>
-                  <RowDefinition></RowDefinition>
-                  <RowDefinition></RowDefinition>
-                  <RowDefinition></RowDefinition>
+                  <RowDefinition Height="auto"></RowDefinition>
+                  <RowDefinition Height="auto"></RowDefinition>
+                  <RowDefinition Height="auto"></RowDefinition>
+                  <RowDefinition Height="auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="auto"></ColumnDefinition>
                   <ColumnDefinition Width="auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0"
-                           Grid.Column="0"
-                           Style="{StaticResource txbContentStyle }"
-                           Margin="5"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center">1.5 版</TextBlock>
+                           Grid.Column="0">1.5 版</TextBlock>
                 <TextBlock Grid.Row="1"
-                           Grid.Column="0"
-                           Style="{StaticResource txbContentStyle }"
-                           Margin="5"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center">1.0C 版</TextBlock>
+                           Grid.Column="0">1.0C 版</TextBlock>
                 <TextBlock Grid.Row="2"
-                           Grid.Column="0"
-                           Style="{StaticResource txbContentStyle }"
-                           Margin="5"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center">被遗忘的帝国</TextBlock>
+                           Grid.Column="0">被遗忘的帝国</TextBlock>
                 <TextBlock Grid.Row="3"
-                           Grid.Column="0"
-                           Style="{StaticResource txbContentStyle }"
-                           Margin="5"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center">1.0A 版</TextBlock>
-                <ToggleButton x:Name="tglDat14"
-                              Grid.Row="0"
-                              Grid.Column="1"
-                              Style="{StaticResource tglOnOffStyle}"
-                              Margin="20,5"
-                              Checked="tglDat14_Checked"
-                              Unchecked="tglDat14_Unchecked"></ToggleButton>
-                <ToggleButton x:Name="tglDatC"
-                              Grid.Row="1"
-                              Grid.Column="1"
-                              Style="{StaticResource tglOnOffStyle}"
-                              Margin="20,5"
-                              Checked="tglDatC_Checked"
-                              Unchecked="tglDatC_Unchecked"></ToggleButton>
-                <ToggleButton x:Name="tglDatFe"
-                              Grid.Row="2"
-                              Grid.Column="1"
-                              Style="{StaticResource tglOnOffStyle}"
-                              Margin="20,5"
-                              Checked="tglDatFe_Checked"
-                              Unchecked="tglDatFe_Unchecked"></ToggleButton>
-                <ToggleButton x:Name="tglDatA"
-                              Grid.Row="3"
-                              Grid.Column="1"
-                              Style="{StaticResource tglOnOffStyle}"
-                              Margin="20,5"
-                              Checked="tglDatA_Checked"
-                              Unchecked="tglDatA_Unchecked"></ToggleButton>
+                           Grid.Column="0">1.0A 版</TextBlock>
+                <ToggleButton Grid.Row="0"
+                              Grid.Column="1"></ToggleButton>
+                <ToggleButton Grid.Row="1"
+                              Grid.Column="1"></ToggleButton>
+                <ToggleButton Grid.Row="2"
+                              Grid.Column="1"></ToggleButton>
+                <ToggleButton Grid.Row="3"
+                              Grid.Column="1"></ToggleButton>
               </Grid>
             </StackPanel>
           </TabItem>
           <TabItem x:Name="tabSound"
-                   Header="声音"
-                   Style="{StaticResource tabItem2Style}">
+                   Header="声音">
             <StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"><Run Text="背景音乐" /></TextBlock>
+              <TextBlock>背景音乐</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="当前背景音乐" /></TextBlock>
-                <TextBlock x:Name="txbMusic"
-                           Style="{StaticResource txbVariableStyle}" />
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="。请选择开启或关闭背景音乐。" /></TextBlock>
+                <TextBlock>当前背景音乐</TextBlock>
+                <TextBlock></TextBlock>
+                <TextBlock>。请选择开启或关闭背景音乐。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
                 <Button x:Name="btnMusicOn"
-                        Style="{StaticResource btnSettingStyle}"
                         Content="开启背景音乐"
                         Click="btnMusicOn_Click" />
                 <Button x:Name="btnMusicOff"
-                        Style="{StaticResource btnSettingStyle}"
                         Content="关闭背景音乐"
                         Click="btnMusicOff_Click" />
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"><Run Text="战役语音语言" /></TextBlock>
+              <TextBlock>战役语音语言</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="当前战役语音：" /></TextBlock>
-                <TextBlock x:Name="txbScenarioSound"
-                           Style="{StaticResource txbVariableStyle}" />
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="。请选择战役语音。" /></TextBlock>
+                <TextBlock>当前战役语音：</TextBlock>
+                <TextBlock x:Name="txbScenarioSound" />
+                <TextBlock>。请选择战役语音。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
                 <Button x:Name="btnScenarioSoundEn"
-                        Style="{StaticResource btnSettingStyle}"
                         Content="英文战役语音"
                         Click="btnScenarioSoundEn_Click" />
                 <Button x:Name="btnScenarioSoundZh"
-                        Style="{StaticResource btnSettingStyle}"
                         Content="中文战役语音"
                         Click="btnScenarioSoundZh_Click" />
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"><Run Text="嘲讽音效语言" /></TextBlock>
+              <TextBlock>嘲讽音效语言</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="当前嘲讽音效：" /></TextBlock>
-                <TextBlock x:Name="txbTaunt"
-                           Style="{StaticResource txbVariableStyle}" />
-                <TextBlock Style="{StaticResource txbContentStyle}"><Run Text="。请选择嘲讽音效。" /></TextBlock>
+                <TextBlock>当前嘲讽音效：</TextBlock>
+                <TextBlock x:Name="txbTaunt" />
+                <TextBlock>。请选择嘲讽音效。</TextBlock>
               </StackPanel>
               <WrapPanel x:Name="wrpTaunts"
                          Orientation="Horizontal">
                 <Button x:Name="btnTauntEn"
-                        Style="{StaticResource btnSettingStyle}"
                         Content="英文嘲讽音效"
                         Click="btnTauntEn_Click" />
                 <Button x:Name="btnTauntZh"
-                        Style="{StaticResource btnSettingStyle}"
                         Content="中文嘲讽音效"
                         Click="btnTauntZh_Click" />
               </WrapPanel>
             </StackPanel>
           </TabItem>
-          <TabItem Header="联机"
-                   Style="{StaticResource tabItem2Style}">
+          <TabItem Header="联机">
             <StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle }">腾讯对战平台</TextBlock>
+              <TextBlock>腾讯对战平台</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <Button x:Name="btnStartTxdz"
-                        Style="{StaticResource btnSettingStyle}"
-                        Click="btnStartTxdz_Click"
-                        ToolTip="{StaticResource ttpMultiPlayer}"></Button>
+                        Click="btnStartTxdz_Click"></Button>
                 <TextBlock x:Name="txbTxdz"
-                           Style="{StaticResource txbVariableStyle}"
                            VerticalAlignment="Center"></TextBlock>
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle }">浩方对战平台</TextBlock>
+              <TextBlock>浩方对战平台</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <Button x:Name="btnStartHoldfast"
-                        Style="{StaticResource btnSettingStyle}"
-                        Click="btnStartHoldfast_Click"
-                        ToolTip="{StaticResource ttpMultiPlayer}"></Button>
+                        Click="btnStartHoldfast_Click"></Button>
                 <Button x:Name="btnBrowseHoldfast"
-                        Style="{StaticResource btnSettingStyle}"
                         Click="btnBrowseHoldfast_Click">选择安装路径</Button>
                 <TextBlock x:Name="txbHoldfastPath"
-                           Style="{StaticResource txbVariableStyle}"
                            VerticalAlignment="Center"></TextBlock>
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}">修复补丁</TextBlock>
+              <TextBlock>修复补丁</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <Button x:Name="btnInstallIpx"
-                        Style="{StaticResource btnSettingStyle}"
                         Click="btnInstallIpx_Click">
                   <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap"
@@ -413,7 +321,6 @@
                   IPX 补丁
                 </Button>
                 <Button x:Name="btnSetupreg"
-                        Style="{StaticResource btnSettingStyle}"
                         Click="btnSetupreg_Click">
                   <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap"
@@ -422,22 +329,18 @@
                   修复注册表
                 </Button>
               </StackPanel>
-              <TextBlock Style="{StaticResource txbHeaderStyle}"
-                         ToolTip="{StaticResource ttpPortForwarding}">联机优化</TextBlock>
+              <TextBlock ToolTip="{StaticResource ttpPortForwarding}">联机优化</TextBlock>
               <StackPanel Orientation="Horizontal"
                           ToolTip="{StaticResource ttpPortForwarding}">
-                <TextBlock Style="{StaticResource txbContentStyle}">当前联机优化</TextBlock>
-                <TextBlock x:Name="txbPortForwarding"
-                           Style="{StaticResource txbVariableStyle}"></TextBlock>
-                <TextBlock Style="{StaticResource txbContentStyle}">。请选择开启或关闭。</TextBlock>
+                <TextBlock>当前联机优化</TextBlock>
+                <TextBlock x:Name="txbPortForwarding"></TextBlock>
+                <TextBlock>。请选择开启或关闭。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal"
                           ToolTip="{StaticResource ttpPortForwarding}">
                 <Button x:Name="btnPortForwardingOff"
-                        Style="{StaticResource btnSettingStyle}"
                         Click="btnPortForwardingOff_Click">关闭联机优化</Button>
                 <Button x:Name="btnPortForwardingOn"
-                        Style="{StaticResource btnSettingStyle}"
                         Click="btnPortForwardingOn_Click">开启联机优化</Button>
               </StackPanel>
             </StackPanel>

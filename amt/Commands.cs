@@ -57,4 +57,34 @@ namespace YTY.amt
       p.Start();
     }
   }
+
+  public class ConfigSwitchGameCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      return;
+    }
+  }
+
+  public class OpenFolderCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      return;
+    }
+  }
 }
