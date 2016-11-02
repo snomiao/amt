@@ -134,9 +134,7 @@
                 <Button>西班牙语</Button>
                 <Expander Header="更多语言">
                   <ListBox x:Name="lstLanguagesMore"
-                           TextBlock.FontSize="14"
-                           SelectionChanged="lstLanguagesMore_SelectionChanged"
-                           SelectionMode="Single">
+                           TextBlock.FontSize="14">
                     <ListBoxItem Tag="bg">保加利亚语</ListBoxItem>
                     <ListBoxItem Tag="cs">捷克语</ListBoxItem>
                     <ListBoxItem Tag="de">德语</ListBoxItem>
@@ -181,25 +179,17 @@
               <StackPanel Orientation="Horizontal">
                 <Expander Header="选择分辨率">
                   <ListBox x:Name="lstResolution"
-                           TextBlock.FontSize="14"
-                           SelectionChanged="lstResolution_SelectionChanged">
+                           TextBlock.FontSize="14">
                   </ListBox>
                 </Expander>
-                <Button x:Name="btnFullScreen"
-                        VerticalAlignment="Top"
-                        Content="全屏"
-                        Click="btnFullScreen_Click" />
-                <Button x:Name="btnWindowedFullScreen"
-                        VerticalAlignment="Top"
-                        Content="窗口化全屏"
-                        Click="btnWindowedFullScreen_Click" />
+                <Button>全屏</Button>
+                <Button>窗口化全屏</Button>
                 <Button  VerticalAlignment="Top">
                   <StackPanel Orientation="Horizontal">
                     <TextBlock FontSize="18">宽度：</TextBlock>
                     <TextBox x:Name="txtResolutionWidth"
                              Width="50"
-                             FontSize="16"
-                             LostFocus="txtResolutionWidth_LostFocus" />
+                             FontSize="16"></TextBox>
                   </StackPanel>
                 </Button>
                 <Button VerticalAlignment="Top">
@@ -207,8 +197,7 @@
                     <TextBlock FontSize="18">高度：</TextBlock>
                     <TextBox x:Name="txtResolutionHeight"
                              Width="50"
-                             FontSize="16"
-                             LostFocus="txtResolutionHeight_LostFocus" />
+                             FontSize="16"></TextBox>
                   </StackPanel>
                 </Button>
               </StackPanel>
@@ -254,26 +243,18 @@
                 <TextBlock>。请选择开启或关闭背景音乐。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnMusicOn"
-                        Content="开启背景音乐"
-                        Click="btnMusicOn_Click" />
-                <Button x:Name="btnMusicOff"
-                        Content="关闭背景音乐"
-                        Click="btnMusicOff_Click" />
+                <Button>开启背景音乐</Button>
+                <Button>关闭背景音乐</Button>
               </StackPanel>
               <TextBlock>战役语音语言</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前战役语音：</TextBlock>
-                <TextBlock x:Name="txbScenarioSound" />
+                <TextBlock></TextBlock>
                 <TextBlock>。请选择战役语音。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnScenarioSoundEn"
-                        Content="英文战役语音"
-                        Click="btnScenarioSoundEn_Click" />
-                <Button x:Name="btnScenarioSoundZh"
-                        Content="中文战役语音"
-                        Click="btnScenarioSoundZh_Click" />
+                <Button>英文战役语音</Button>
+                <Button>中文战役语音</Button>
               </StackPanel>
               <TextBlock>嘲讽音效语言</TextBlock>
               <StackPanel Orientation="Horizontal">
@@ -283,12 +264,8 @@
               </StackPanel>
               <WrapPanel x:Name="wrpTaunts"
                          Orientation="Horizontal">
-                <Button x:Name="btnTauntEn"
-                        Content="英文嘲讽音效"
-                        Click="btnTauntEn_Click" />
-                <Button x:Name="btnTauntZh"
-                        Content="中文嘲讽音效"
-                        Click="btnTauntZh_Click" />
+                <Button>英文嘲讽音效</Button>
+                <Button>中文嘲讽音效</Button>
               </WrapPanel>
             </StackPanel>
           </TabItem>
@@ -296,32 +273,27 @@
             <StackPanel>
               <TextBlock>腾讯对战平台</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnStartTxdz"
-                        Click="btnStartTxdz_Click"></Button>
+                <Button x:Name="btnStartTxdz"></Button>
                 <TextBlock x:Name="txbTxdz"
                            VerticalAlignment="Center"></TextBlock>
               </StackPanel>
               <TextBlock>浩方对战平台</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnStartHoldfast"
-                        Click="btnStartHoldfast_Click"></Button>
-                <Button x:Name="btnBrowseHoldfast"
-                        Click="btnBrowseHoldfast_Click">选择安装路径</Button>
+                <Button></Button>
+                <Button>选择安装路径</Button>
                 <TextBlock x:Name="txbHoldfastPath"
                            VerticalAlignment="Center"></TextBlock>
               </StackPanel>
               <TextBlock>修复补丁</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnInstallIpx"
-                        Click="btnInstallIpx_Click">
+                <Button>
                   <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap"
                                MaxWidth="200">使用腾讯、浩方对战平台需要IPX协议，在Win7以上系统当中并没有该协议，翔鹰版在安装时已经默认安装了该协议。</TextBlock>
                   </Button.ToolTip>
                   IPX 补丁
                 </Button>
-                <Button x:Name="btnSetupreg"
-                        Click="btnSetupreg_Click">
+                <Button>
                   <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap"
                                MaxWidth="200">使用安装版帝国时代时，程序路径储存在注册表中，如果你的帝国时代是拷贝得来，那么注册表中并没有帝国时代路径信息。Voobly平台通过注册表来识别帝国时代路径。</TextBlock>
@@ -338,10 +310,8 @@
               </StackPanel>
               <StackPanel Orientation="Horizontal"
                           ToolTip="{StaticResource ttpPortForwarding}">
-                <Button x:Name="btnPortForwardingOff"
-                        Click="btnPortForwardingOff_Click">关闭联机优化</Button>
-                <Button x:Name="btnPortForwardingOn"
-                        Click="btnPortForwardingOn_Click">开启联机优化</Button>
+                <Button>关闭联机优化</Button>
+                <Button>开启联机优化</Button>
               </StackPanel>
             </StackPanel>
           </TabItem>
