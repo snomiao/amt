@@ -52,191 +52,188 @@
       <TabItem Header="游戏设置">
         <TabControl Style="{StaticResource TabControlSubStyle}">
           <TabItem Header="内容">
-            <StackPanel>
-              <TextBlock>版本切换</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>当前版本</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
+            <ScrollViewer>
+              <StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">版本切换</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock>当前版本</TextBlock>
+                  <TextBlock></TextBlock>
+                  <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
+                </StackPanel>
+                <DockPanel>
+                  <DockPanel.Resources>
+                    <Style TargetType="{x:Type Button}"
+                           BasedOn="{StaticResource ButtonSettingStyle}">
+                      <Setter Property="Command"
+                              Value="{StaticResource ConfigSwitchGameCommand}"></Setter>
+                    </Style>
+                  </DockPanel.Resources>
+                  <Button>帝国时代Ⅱ 1.5</Button>
+                  <Button>帝国时代Ⅱ 1.0C</Button>
+                  <Button>被遗忘的帝国</Button>
+                  <Button HorizontalAlignment="Right">启动帝国时代Ⅱ 1.0A</Button>
+                </DockPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">打开目录</TextBlock>
+                <TextBlock>单击按钮，打开当前版本的特定目录。</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}"
+                           BasedOn="{StaticResource ButtonSettingStyle}">
+                      <Setter Property="Command"
+                              Value="{StaticResource OpenFolderCommand}"></Setter>
+                    </Style>
+                  </StackPanel.Resources>
+                  <Button>战役</Button>
+                  <Button>场景</Button>
+                  <Button>AI</Button>
+                  <Button>存档/录像</Button>
+                  <Button>场景音效</Button>
+                  <Button>数据</Button>
+                  <Button>随机地图</Button>
+                  <Button>截屏</Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">1000人口上限功能</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock>当前1000人口上限功能</TextBlock>
+                  <TextBlock></TextBlock>
+                  <TextBlock>。请选择开启或关闭1000人口上限。</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Button>开启1000人口上限</Button>
+                  <Button>关闭1000人口上限</Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">多队列训练</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock>当前多队列训练功能</TextBlock>
+                  <TextBlock></TextBlock>
+                  <TextBlock>。请选择开启或关闭多队列训练。</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Button>开启多队列训练</Button>
+                  <Button>关闭多队列训练</Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键</TextBlock>
+                <DockPanel>
+                  <Button>使用C版默认快捷键</Button>
+                  <Button>使用AoFE默认快捷键</Button>
+                  <Button Visibility="Collapsed">帝国时代用户管理器</Button>
+                  <Button HorizontalAlignment="Right">热键编辑器</Button>
+                </DockPanel>
               </StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <StackPanel.Resources>
-                  <Style TargetType="{x:Type Button}">
-                    <Setter Property="Command"
-                            Value="{StaticResource ConfigSwitchGameCommand}"></Setter>
-                  </Style>
-                </StackPanel.Resources>
-                <Button>帝国时代Ⅱ 1.5</Button>
-                <Button>帝国时代Ⅱ 1.0C</Button>
-                <Button>被遗忘的帝国</Button>
-                <Button>启动帝国时代Ⅱ 1.0A</Button>
-              </StackPanel>
-              <WrapPanel x:Name="wrpStarts"></WrapPanel>
-              <TextBlock>打开目录</TextBlock>
-              <TextBlock HorizontalAlignment="Left">单击按钮，打开当前版本的特定目录。</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <StackPanel.Resources>
-                  <Style TargetType="{x:Type Button}">
-                    <Setter Property="Command"
-                            Value="{StaticResource OpenFolderCommand}"></Setter>
-                  </Style>
-                </StackPanel.Resources>
-                <Button>战役</Button>
-                <Button>场景</Button>
-                <Button>AI</Button>
-                <Button>存档/录像</Button>
-                <Button>场景音效</Button>
-                <Button>数据</Button>
-                <Button>随机地图</Button>
-                <Button>截屏</Button>
-              </StackPanel>
-              <TextBlock>1000人口上限功能</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>当前1000人口上限功能</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请选择开启或关闭1000人口上限。</TextBlock>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <Button>开启1000人口上限</Button>
-                <Button>关闭1000人口上限</Button>
-              </StackPanel>
-              <TextBlock>多队列训练</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>当前多队列训练功能</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请选择开启或关闭多队列训练。</TextBlock>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <Button>开启多队列训练</Button>
-                <Button>关闭多队列训练</Button>
-              </StackPanel>
-              <TextBlock>快捷键</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <Button>使用C版默认快捷键</Button>
-                <Button>使用AoFE默认快捷键</Button>
-                <Button Visibility="Hidden">帝国时代用户管理器</Button>
-                <Button>热键编辑器</Button>
-              </StackPanel>
-            </StackPanel>
+            </ScrollViewer>
           </TabItem>
           <TabItem Header="界面">
-            <StackPanel>
-              <TextBlock>游戏界面语言</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>当前游戏界面语言：</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请选择游戏界面语言。</TextBlock>
+            <ScrollViewer>
+              <StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock>当前游戏界面语言：</TextBlock>
+                  <TextBlock></TextBlock>
+                  <TextBlock>。请选择游戏界面语言。</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Button>中文</Button>
+                  <Button>英文</Button>
+                  <Button>日语</Button>
+                  <Button>西班牙语</Button>
+                  <ComboBox IsEditable="False">
+                    <ComboBoxItem Tag="bg">保加利亚语</ComboBoxItem>
+                    <ComboBoxItem Tag="cs">捷克语</ComboBoxItem>
+                    <ComboBoxItem Tag="de">德语</ComboBoxItem>
+                    <ComboBoxItem Tag="el">希腊语</ComboBoxItem>
+                    <ComboBoxItem Tag="fr">法语</ComboBoxItem>
+                    <ComboBoxItem Tag="hu">匈牙利语</ComboBoxItem>
+                    <ComboBoxItem Tag="it">意大利语</ComboBoxItem>
+                    <ComboBoxItem Tag="ko">朝鲜语</ComboBoxItem>
+                    <ComboBoxItem Tag="pl">波兰语</ComboBoxItem>
+                    <ComboBoxItem Tag="pt">葡萄牙语</ComboBoxItem>
+                    <ComboBoxItem Tag="ru">俄语</ComboBoxItem>
+                    <ComboBoxItem Tag="sk">斯洛伐克语</ComboBoxItem>
+                    <ComboBoxItem Tag="tr">土耳其语</ComboBoxItem>
+                  </ComboBox>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">开场影片</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock>程序启动开场影片：</TextBlock>
+                  <TextBlock></TextBlock>
+                  <TextBlock>。请选择开启或关闭。</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Button>开场影片开启</Button>
+                  <Button>开场影片关闭</Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">分辨率</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock>当前分辨率：</TextBlock>
+                  <TextBlock x:Name="txbResolution">
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0}×{1}">
+                        <Binding ElementName="txtResolutionWidth"
+                                 Path="Text"></Binding>
+                        <Binding ElementName="txtResolutionHeight"
+                                 Path="Text"></Binding>
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                  <TextBlock>。请选择或输入自定义数值。</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <ComboBox x:Name="lstResolution">
+                  </ComboBox>
+                  <Button>全屏</Button>
+                  <Button>窗口化全屏</Button>
+                  <Button  VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock>设置宽度为：</TextBlock>
+                      <TextBox x:Name="txtResolutionWidth"
+                               Width="50"></TextBox>
+                    </StackPanel>
+                  </Button>
+                  <Button VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock>设置高度为：</TextBlock>
+                      <TextBox x:Name="txtResolutionHeight"
+                               Width="50"></TextBox>
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">重组资料库</TextBlock>
+                <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Row="0"
+                             Grid.Column="0">1.5 版</TextBlock>
+                  <TextBlock Grid.Row="1"
+                             Grid.Column="0">1.0C 版</TextBlock>
+                  <TextBlock Grid.Row="2"
+                             Grid.Column="0">被遗忘的帝国</TextBlock>
+                  <TextBlock Grid.Row="3"
+                             Grid.Column="0">1.0A 版</TextBlock>
+                  <ToggleButton Grid.Row="0"
+                                Grid.Column="1"></ToggleButton>
+                  <ToggleButton Grid.Row="1"
+                                Grid.Column="1"></ToggleButton>
+                  <ToggleButton Grid.Row="2"
+                                Grid.Column="1"></ToggleButton>
+                  <ToggleButton Grid.Row="3"
+                                Grid.Column="1"></ToggleButton>
+                </Grid>
               </StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <Button>中文</Button>
-                <Button>英文</Button>
-                <Button>日语</Button>
-                <Button>西班牙语</Button>
-                <Expander Header="更多语言">
-                  <ListBox x:Name="lstLanguagesMore"
-                           TextBlock.FontSize="14">
-                    <ListBoxItem Tag="bg">保加利亚语</ListBoxItem>
-                    <ListBoxItem Tag="cs">捷克语</ListBoxItem>
-                    <ListBoxItem Tag="de">德语</ListBoxItem>
-                    <ListBoxItem Tag="el">希腊语</ListBoxItem>
-                    <ListBoxItem Tag="fr">法语</ListBoxItem>
-                    <ListBoxItem Tag="hu">匈牙利语</ListBoxItem>
-                    <ListBoxItem Tag="it">意大利语</ListBoxItem>
-                    <ListBoxItem Tag="ko">朝鲜语</ListBoxItem>
-                    <ListBoxItem Tag="pl">波兰语</ListBoxItem>
-                    <ListBoxItem Tag="pt">葡萄牙语</ListBoxItem>
-                    <ListBoxItem Tag="ru">俄语</ListBoxItem>
-                    <ListBoxItem Tag="sk">斯洛伐克语</ListBoxItem>
-                    <ListBoxItem Tag="tr">土耳其语</ListBoxItem>
-                  </ListBox>
-                </Expander>
-              </StackPanel>
-              <TextBlock>开场影片</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>程序启动开场影片：</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请选择开启或关闭。</TextBlock>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <Button>开场影片开启</Button>
-                <Button>开场影片关闭</Button>
-              </StackPanel>
-              <TextBlock>分辨率</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>当前分辨率：</TextBlock>
-                <TextBlock x:Name="txbResolution">
-                  <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0}×{1}">
-                      <Binding ElementName="txtResolutionWidth"
-                               Path="Text"></Binding>
-                      <Binding ElementName="txtResolutionHeight"
-                               Path="Text"></Binding>
-                    </MultiBinding>
-                  </TextBlock.Text>
-                </TextBlock>
-                <TextBlock>。请选择或输入自定义数值。</TextBlock>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <Expander Header="选择分辨率">
-                  <ListBox x:Name="lstResolution"
-                           TextBlock.FontSize="14">
-                  </ListBox>
-                </Expander>
-                <Button>全屏</Button>
-                <Button>窗口化全屏</Button>
-                <Button  VerticalAlignment="Top">
-                  <StackPanel Orientation="Horizontal">
-                    <TextBlock FontSize="18">宽度：</TextBlock>
-                    <TextBox x:Name="txtResolutionWidth"
-                             Width="50"
-                             FontSize="16"></TextBox>
-                  </StackPanel>
-                </Button>
-                <Button VerticalAlignment="Top">
-                  <StackPanel Orientation="Horizontal">
-                    <TextBlock FontSize="18">高度：</TextBlock>
-                    <TextBox x:Name="txtResolutionHeight"
-                             Width="50"
-                             FontSize="16"></TextBox>
-                  </StackPanel>
-                </Button>
-              </StackPanel>
-              <TextBlock>重组资料库</TextBlock>
-              <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
-              <Grid>
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="auto"></RowDefinition>
-                  <RowDefinition Height="auto"></RowDefinition>
-                  <RowDefinition Height="auto"></RowDefinition>
-                  <RowDefinition Height="auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="auto"></ColumnDefinition>
-                  <ColumnDefinition Width="auto"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0"
-                           Grid.Column="0">1.5 版</TextBlock>
-                <TextBlock Grid.Row="1"
-                           Grid.Column="0">1.0C 版</TextBlock>
-                <TextBlock Grid.Row="2"
-                           Grid.Column="0">被遗忘的帝国</TextBlock>
-                <TextBlock Grid.Row="3"
-                           Grid.Column="0">1.0A 版</TextBlock>
-                <ToggleButton Grid.Row="0"
-                              Grid.Column="1"></ToggleButton>
-                <ToggleButton Grid.Row="1"
-                              Grid.Column="1"></ToggleButton>
-                <ToggleButton Grid.Row="2"
-                              Grid.Column="1"></ToggleButton>
-                <ToggleButton Grid.Row="3"
-                              Grid.Column="1"></ToggleButton>
-              </Grid>
-            </StackPanel>
+            </ScrollViewer>
           </TabItem>
           <TabItem x:Name="tabSound"
                    Header="声音">
             <StackPanel>
-              <TextBlock>背景音乐</TextBlock>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">背景音乐</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前背景音乐</TextBlock>
                 <TextBlock></TextBlock>
@@ -246,7 +243,7 @@
                 <Button>开启背景音乐</Button>
                 <Button>关闭背景音乐</Button>
               </StackPanel>
-              <TextBlock>战役语音语言</TextBlock>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">战役语音语言</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前战役语音：</TextBlock>
                 <TextBlock></TextBlock>
@@ -256,7 +253,7 @@
                 <Button>英文战役语音</Button>
                 <Button>中文战役语音</Button>
               </StackPanel>
-              <TextBlock>嘲讽音效语言</TextBlock>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">嘲讽音效语言</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前嘲讽音效：</TextBlock>
                 <TextBlock x:Name="txbTaunt" />
@@ -284,7 +281,7 @@
                 <TextBlock x:Name="txbHoldfastPath"
                            VerticalAlignment="Center"></TextBlock>
               </StackPanel>
-              <TextBlock>修复补丁</TextBlock>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">修复补丁</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <Button>
                   <Button.ToolTip>
@@ -301,7 +298,8 @@
                   修复注册表
                 </Button>
               </StackPanel>
-              <TextBlock ToolTip="{StaticResource ttpPortForwarding}">联机优化</TextBlock>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}"
+                         ToolTip="{StaticResource ttpPortForwarding}">联机优化</TextBlock>
               <StackPanel Orientation="Horizontal"
                           ToolTip="{StaticResource ttpPortForwarding}">
                 <TextBlock>当前联机优化</TextBlock>
@@ -319,6 +317,14 @@
       </TabItem>
       <TabItem Header="创意工坊"></TabItem>
       <TabItem Header="开发工具">
+        <TabItem.Resources>
+          <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment"
+                    Value="Center"></Setter>
+            <Setter Property="TextWrapping"
+                    Value="Wrap"></Setter>
+          </Style>
+        </TabItem.Resources>
         <ScrollViewer>
           <StackPanel Margin="10,0,0,0">
             <TextBlock Style="{StaticResource TextBlockHeaderStyle}">战役与场景</TextBlock>
