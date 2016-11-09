@@ -4,15 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YTY.amt"
-        xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="帝国时代管家"
         Height="530"
         Width="850"
-        WindowStyle="None"
-        ResizeMode="NoResize"
-        AllowsTransparency="True"
-        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        Style="{StaticResource WindowGeneralStyle}">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="135"></RowDefinition>
@@ -38,13 +34,9 @@
               VerticalAlignment="Center"
               Padding="30,20">启动游戏</Button>
       <Button Grid.Column="2"
-              Style="{StaticResource ButtonMinimizeStyle}"
-              Command="{StaticResource MinimizeWindowCommand}"
-              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}}"></Button>
+              Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="3"
-              Style="{StaticResource ButtonCloseStyle}"
-              Command="{StaticResource CloseWindowCommand}"
-              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}}"></Button>
+              Style="{StaticResource ButtonCloseStyle}"></Button>
     </Grid>
     <TabControl Grid.Row="1"
                 Style="{StaticResource TabControlMainStyle}">
