@@ -8,8 +8,6 @@ namespace YTY.amt
 {
   public class WorkshopResourceViewModel : INotifyPropertyChanged
   {
-    private WorkshopResourceModel model;
-
     public WorkshopResourceModel Model { get; }
 
     public WorkshopResourceViewModel(WorkshopResourceModel model)

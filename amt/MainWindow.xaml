@@ -8,7 +8,9 @@
         Title="帝国时代管家"
         Height="530"
         Width="850"
-        Style="{StaticResource WindowGeneralStyle}">
+        Style="{StaticResource WindowGeneralStyle}"
+        Closed="Window_Closed"
+        DataContext="{StaticResource WindowViewModel}">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="135"></RowDefinition>
@@ -16,7 +18,9 @@
     </Grid.RowDefinitions>
     <Grid Grid.Row="0">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="*"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -29,14 +33,137 @@
                         Offset="1"></GradientStop>
         </LinearGradientBrush>
       </Grid.Background>
-      <Button Grid.Column="1"
-              Style="{StaticResource ButtonStartStyle}"
-              VerticalAlignment="Center"
-              Padding="30,20">启动游戏</Button>
+      <Image Grid.Column="0"
+             Source="Resources/logo.png"
+             Width="100"
+             Height="100"
+             Margin="33,0,0,0"></Image>
+      <Image Grid.Column="1"
+             Source="Resources/帝国时代管家.png"
+             Width="334"
+             Height="82"
+             HorizontalAlignment="Left"
+             Margin="0,2,0,0"></Image>
       <Button Grid.Column="2"
+              x:Name="btnStartGame"
+              Height="50"
+              Width="165"
+              FontSize="24"
+              Foreground="White"
+              Command="{StaticResource CreateProcessCommand}">
+        <Button.Style>
+          <Style TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource ButtonNoneStyle}">
+            <Setter Property="Background"
+                    Value="LimeGreen"></Setter>
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="Lime"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+        启动游戏
+      </Button>
+      <ToggleButton Grid.Column="3"
+                    x:Name="tglShowGameList"
+                    Height="50"
+                    Width="20"
+                    Margin="1,0,0,0">
+        <ToggleButton.Style>
+          <Style TargetType="{x:Type ToggleButton}"
+                 BasedOn="{StaticResource ToggleButtonNoneStyle}">
+            <Setter Property="Background"
+                    Value="DarkSeaGreen"></Setter>
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="Lime"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsChecked"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="DarkGreen"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </ToggleButton.Style>
+        <Polyline Points="0,0 6,5 12,0"
+                  Stroke="White"
+                  StrokeThickness="1"></Polyline>
+      </ToggleButton>
+      <Popup IsOpen="{Binding ElementName=tglShowGameList,Path=IsChecked,Mode=TwoWay}"
+             StaysOpen="False"
+             Placement="Bottom"
+             PlacementTarget="{Binding ElementName=btnStartGame}"
+             Width="186">
+        <ItemsControl>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button></Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Popup>
+      <TextBlock Grid.Column="2"
+                 Grid.ColumnSpan="2"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Center"
+                 Text="{Binding}"
+                 MaxWidth="186"></TextBlock>
+      <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
-      <Button Grid.Column="3"
-              Style="{StaticResource ButtonCloseStyle}"></Button>
+      <Button Grid.Column="5"
+              Style="{StaticResource ButtonCloseStyle}"
+              Command="{StaticResource CloseWindowCommand}"></Button>
     </Grid>
     <TabControl Grid.Row="1"
                 Style="{StaticResource TabControlMainStyle}">
@@ -307,7 +434,7 @@
           </TabItem>
         </TabControl>
       </TabItem>
-      <TabItem Header="创意工坊"></TabItem>
+      <TabItem Header="创意工坊" IsSelected="{Binding Path=WorkshopShown,Mode=OneWayToSource}"></TabItem>
       <TabItem Header="开发工具">
         <TabItem.Resources>
           <Style TargetType="{x:Type TextBlock}">

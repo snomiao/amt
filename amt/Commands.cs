@@ -8,10 +8,6 @@ using System.Diagnostics;
 
 namespace YTY.amt
 {
-  public class Commands
-  {
-  }
-
   public class CloseWindowCommand : ICommand
   {
     public event EventHandler CanExecuteChanged;
@@ -39,6 +35,21 @@ namespace YTY.amt
     public void Execute(object parameter)
     {
       (parameter as Window).WindowState = WindowState.Minimized;
+    }
+  }
+
+  public class HideWindowCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      (parameter as Window).Hide();
     }
   }
 

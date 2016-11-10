@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Diagnostics;
 
 namespace YTY.amt
 {
@@ -22,6 +23,11 @@ namespace YTY.amt
     public MainWindow()
     {
       InitializeComponent();
+    }
+
+    private void Window_Closed(object sender, EventArgs e)
+    {
+      (Application.Current as App).Shutdown();
     }
   }
 }
