@@ -165,23 +165,25 @@
            BasedOn="{StaticResource ButtonSystemStyle}">
       <Setter Property="CommandParameter"
               Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}}"></Setter>
-      <Setter Property="Content">
+      <Setter Property="ContentTemplate">
         <Setter.Value>
-          <Canvas Width="30"
-                  Height="30">
-            <Line Canvas.Left="9"
-                  Canvas.Top="9"
-                  X2="12"
-                  Y2="12"
-                  StrokeThickness="3"
-                  Stroke="White"></Line>
-            <Line Canvas.Right="9"
-                  Canvas.Top="9"
-                  X2="-12"
-                  Y2="12"
-                  StrokeThickness="3"
-                  Stroke="White"></Line>
-          </Canvas>
+          <DataTemplate>
+            <Canvas Width="30"
+                    Height="30">
+              <Line Canvas.Left="9"
+                    Canvas.Top="9"
+                    X2="12"
+                    Y2="12"
+                    StrokeThickness="3"
+                    Stroke="White"></Line>
+              <Line Canvas.Right="9"
+                    Canvas.Top="9"
+                    X2="-12"
+                    Y2="12"
+                    StrokeThickness="3"
+                    Stroke="White"></Line>
+            </Canvas>
+          </DataTemplate>
         </Setter.Value>
       </Setter>
       <Style.Triggers>
@@ -212,16 +214,18 @@
               Value="{StaticResource MinimizeWindowCommand}"></Setter>
       <Setter Property="CommandParameter"
               Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}}"></Setter>
-      <Setter Property="Content">
+      <Setter Property="ContentTemplate">
         <Setter.Value>
-          <Canvas Width="30"
-                  Height="30">
-            <Line Canvas.Left="8"
-                  Canvas.Top="20"
-                  X2="12"
-                  StrokeThickness="3"
-                  Stroke="White"></Line>
-          </Canvas>
+          <DataTemplate>
+            <Canvas Width="30"
+                    Height="30">
+              <Line Canvas.Left="8"
+                    Canvas.Top="20"
+                    X2="12"
+                    StrokeThickness="3"
+                    Stroke="White"></Line>
+            </Canvas>
+          </DataTemplate>
         </Setter.Value>
       </Setter>
       <Style.Triggers>

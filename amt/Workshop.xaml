@@ -169,6 +169,8 @@
                           Value="#3f3f3f3f"></Setter>
                   <Setter Property="BorderThickness"
                           Value="0"></Setter>
+                  <Setter Property="HorizontalContentAlignment"
+                          Value="Stretch"></Setter>
                 </Style>
               </Button.Style>
               <Grid>

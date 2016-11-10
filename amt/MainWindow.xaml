@@ -156,9 +156,7 @@
       <TextBlock Grid.Column="2"
                  Grid.ColumnSpan="2"
                  VerticalAlignment="Bottom"
-                 HorizontalAlignment="Center"
-                 Text="{Binding}"
-                 MaxWidth="186"></TextBlock>
+                 HorizontalAlignment="Center"></TextBlock>
       <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="5"
