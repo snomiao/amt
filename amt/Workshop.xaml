@@ -156,7 +156,7 @@
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
             <UniformGrid Columns="2"
-                         Margin="10"></UniformGrid>
+                         Margin="10" VerticalAlignment="Top"></UniformGrid>
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
@@ -189,37 +189,37 @@
                   <Image.Style>
                     <Style TargetType="{x:Type Image}">
                       <Style.Triggers>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="Drs">
                           <Setter Property="Source"
                                   Value="Resources\resdrs.png"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="Campaign">
                           <Setter Property="Source"
                                   Value="Resources\rescpx.png"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="Scenario">
                           <Setter Property="Source"
                                   Value="Resources\resscx.png"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="RandomMap">
                           <Setter Property="Source"
                                   Value="Resources\resrms.png"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="Replay">
                           <Setter Property="Source"
                                   Value="Resources\resmgx.png"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="Mod">
                           <Setter Property="Source"
                                   Value="Resources\resmod.png"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}"
+                        <DataTrigger Binding="{Binding Model.Type}"
                                      Value="Ai">
                           <Setter Property="Source"
                                   Value="Resources\resai.png"></Setter>
@@ -232,13 +232,13 @@
                            VerticalAlignment="Center"
                            FontSize="14"
                            Margin="20,0,0,0"
-                           Text="{Binding Name}"
+                           Text="{Binding Model.Name}"
                            TextWrapping="Wrap"></TextBlock>
                 <TextBlock Grid.Column="2"
                            VerticalAlignment="Center"
                            FontSize="14"
                            Margin="0,0,10,0"
-                           Text="{Binding Rating}"></TextBlock>
+                           Text="{Binding Model.Rating}"></TextBlock>
                 <Button Grid.Column="3"
                         Width="90"
                         Height="35"

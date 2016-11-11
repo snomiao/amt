@@ -37,13 +37,11 @@ namespace YTY.amt
 
     public async Task<DbDataReader> ExecuteReaderAsync(string sql)
     {
-      using (var connection = new MySqlConnection(connectionString))
+      var connection = new MySqlConnection(connectionString);
+      await connection.OpenAsync();
+      using (var command = new MySqlCommand(sql, connection))
       {
-        await connection.OpenAsync();
-        using (var command = new MySqlCommand(sql, connection))
-        {
-          return await command.ExecuteReaderAsync();
-        }
+        return await command.ExecuteReaderAsync();
       }
     }
 

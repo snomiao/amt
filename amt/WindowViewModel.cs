@@ -5,13 +5,14 @@ using System.Text;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace YTY.amt
 {
   public class WindowViewModel : INotifyPropertyChanged
   {
     private WindowView view;
-    public ObservableCollection<WorkshopResourceViewModel> workshopResources;
+    private ObservableCollection<WorkshopResourceViewModel> workshopResources;
 
     public WindowView CurrentView
     {
@@ -31,11 +32,19 @@ namespace YTY.amt
       }
     }
 
-    public ObservableCollection<WorkshopResourceViewModel> WorkshopResources => workshopResources;
+    public ObservableCollection<WorkshopResourceViewModel> WorkshopResources
+    {
+      get { return workshopResources; }
+      set
+      {
+        workshopResources = value;
+        OnPropertyChanged(nameof(WorkshopResources));
+      }
+    }
 
     public async Task Get()
     {
-      workshopResources = new ObservableCollection<WorkshopResourceViewModel>();
+      WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>();
       await DAL.GetWorkshopResourcesAsync(new Progress<WorkshopResourceModel>(model => workshopResources.Add(new WorkshopResourceViewModel(model))));
     }
 

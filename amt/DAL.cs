@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Windows.Threading;
 
 namespace YTY.amt
 {
@@ -32,16 +33,17 @@ namespace YTY.amt
     {
       var ret = new ObservableCollection<WorkshopResourceModel>();
       var mysqlOp = new MySqlOp(new IPEndPoint(IPAddress.Parse("121.42.152.168"), 3306), "amtclient", "read@hawkempire", "ssrc");
-      using (var reader = await mysqlOp.ExecuteReaderAsync("SELECT name,id,e_type FROM res LIMIT 0,30"))
+      using (var reader = await mysqlOp.ExecuteReaderAsync("SELECT name,id,e_type FROM res"))
       {
         while (await reader.ReadAsync())
         {
           var model = new WorkshopResourceModel(
            await reader.GetFieldValueAsync<string>(0),
-           await reader.GetFieldValueAsync<double>(1),
+           await reader.GetFieldValueAsync<uint>(1),
            dic_String_Type[await reader.GetFieldValueAsync<string>(2)]);
           ret.Add(model);
           progress.Report(model);
+          await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
         }
       }
       return ret;
