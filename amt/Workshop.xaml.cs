@@ -23,20 +23,9 @@ namespace YTY.amt
       InitializeComponent();
     }
 
-    private void wnd_Loaded(object sender, RoutedEventArgs e)
+    private  async void wnd_Loaded(object sender, RoutedEventArgs e)
     {
-      itc.ItemsSource = new List<WorkshopResourceModel>()
-        {
-           new WorkshopResourceModel("test1",4.9, WorkshopResourceType.Drs),
-           new WorkshopResourceModel("name2",4.2,WorkshopResourceType.Campaign),
-           new WorkshopResourceModel("This is an extraordinarily long workshop resource name",1.2, WorkshopResourceType.Scenario ),
-           new WorkshopResourceModel() ,
-           new WorkshopResourceModel() ,
-           new WorkshopResourceModel() ,
-           new WorkshopResourceModel() ,
-           new WorkshopResourceModel() ,
-           new WorkshopResourceModel()
-        };
+      await My.WindowViewModel.Get();
     }
   }
 }

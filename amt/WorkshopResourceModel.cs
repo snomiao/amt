@@ -56,7 +56,9 @@ namespace YTY.amt
     RandomMap,
     Replay,
     Mod,
-    Ai
+    Ai,
+    Taunt,
+    Undefined
   }
 
   [Flags]

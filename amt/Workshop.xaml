@@ -151,7 +151,8 @@
     <Image Grid.Row="1"
            Source="Resources\aboutbg.png"></Image>
     <ScrollViewer Grid.Row="1">
-      <ItemsControl x:Name="itc">
+      <ItemsControl x:Name="itc"
+                    ItemsSource="{Binding Source={StaticResource WindowViewModel},Path=WorkshopResources}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
             <UniformGrid Columns="2"

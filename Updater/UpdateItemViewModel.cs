@@ -164,7 +164,7 @@ namespace YTY.amt
           //}
           for (var i = 0; i < numTasks; i++)
           {
-            var recentlyCompletedTask = await TaskEx.WhenAny(tasks);
+            var recentlyCompletedTask = await Task.WhenAny(tasks);
             tasks.Remove(recentlyCompletedTask);
             var indexAndData = await recentlyCompletedTask;
             fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);

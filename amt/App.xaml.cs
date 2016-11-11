@@ -31,5 +31,13 @@ namespace YTY.amt
         return workshop;
       }
     }
+
+    public static WindowViewModel WindowViewModel
+    {
+      get
+      {
+        return App.FindResource(nameof(WindowViewModel)) as WindowViewModel;
+      }
+    }
   }
 }

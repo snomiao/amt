@@ -47,9 +47,9 @@ namespace YTY
         {
           var request = WebRequest.Create(Uri) as HttpWebRequest;
           request.AddRange(ChunkSize * index, ChunkSize * (index + 1) - 1);
-          var taskTimeout = TaskEx.Delay(Timeout);
-          var taskResponse = TaskEx.Run(() => request.GetResponse());
-          var firstCompleted = await TaskEx.WhenAny(taskResponse, taskTimeout).ConfigureAwait(false);
+          var taskTimeout = Task.Delay(Timeout);
+          var taskResponse = Task.Run(() => request.GetResponse());
+          var firstCompleted = await Task.WhenAny(taskResponse, taskTimeout).ConfigureAwait(false);
           if (firstCompleted == taskTimeout)
           {
             request.Abort();
