@@ -10,10 +10,11 @@ namespace YTY.amt
 {
   public partial class App : Application
   {
-    
+
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+      e.Handled = true;
       if (e.ChangedButton == MouseButton.Left)
         (sender as Window).DragMove();
     }
@@ -32,11 +33,11 @@ namespace YTY.amt
       }
     }
 
-    public static WindowViewModel WindowViewModel
+    public static WorkshopWindowViewModel WindowViewModel
     {
       get
       {
-        return App.FindResource(nameof(WindowViewModel)) as WindowViewModel;
+        return App.FindResource(nameof(WindowViewModel)) as WorkshopWindowViewModel;
       }
     }
   }

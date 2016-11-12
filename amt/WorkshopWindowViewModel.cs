@@ -9,10 +9,11 @@ using System.Diagnostics;
 
 namespace YTY.amt
 {
-  public class WindowViewModel : INotifyPropertyChanged
+  public class WorkshopWindowViewModel : INotifyPropertyChanged
   {
     private WindowView view;
     private ObservableCollection<WorkshopResourceViewModel> workshopResources;
+    private WorkshopResourceViewModel selectedItem;
 
     public WindowView CurrentView
     {
@@ -42,7 +43,17 @@ namespace YTY.amt
       }
     }
 
-    public async Task Get()
+    public WorkshopResourceViewModel SelectedItem
+    {
+      get { return selectedItem; }
+      set
+      {
+        selectedItem = value;
+        OnPropertyChanged(nameof(SelectedItem));
+      }
+    }
+
+    public async Task InitAsync()
     {
       WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>();
       await DAL.GetWorkshopResourcesAsync(new Progress<WorkshopResourceModel>(model => workshopResources.Add(new WorkshopResourceViewModel(model))));

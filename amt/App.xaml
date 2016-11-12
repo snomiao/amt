@@ -12,7 +12,12 @@
     <local:OpenFolderCommand x:Key="OpenFolderCommand"></local:OpenFolderCommand>
     <local:CreateProcessCommand x:Key="CreateProcessCommand"></local:CreateProcessCommand>
     <local:Workshop x:Key="WorkshopWindow"></local:Workshop>
-    <local:WindowViewModel x:Key="WindowViewModel"></local:WindowViewModel>
+    <local:WorkshopWindowViewModel x:Key="WindowViewModel"></local:WorkshopWindowViewModel>
+    <local:ShowSelectedResourceViewCommand x:Key="ShowSelectedResourceViewCommand"></local:ShowSelectedResourceViewCommand>
+    <local:ShowResourceListViewCommand x:Key="ShowResourceListViewCommand"></local:ShowResourceListViewCommand>
+    <local:WorkshopResourceTypeToImageConverter x:Key="WorkshopResourceTypeToImageConverter"></local:WorkshopResourceTypeToImageConverter>
+    <local:GameVersionToStringConverter x:Key="GameVersionToStringConverter"></local:GameVersionToStringConverter>
+    <local:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></local:ByteCountToTextConverter>
 
     <ToolTip x:Key="ttpPortForwarding">
       <TextBlock TextWrapping="Wrap"

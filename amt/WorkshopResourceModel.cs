@@ -2,49 +2,122 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.ComponentModel;
 
 namespace YTY.amt
 {
-  public class WorkshopResourceModel
+  public class WorkshopResourceModel : INotifyPropertyChanged
   {
-    public int Id { get; }
+    private string authorName;
+    private ulong totalSize;
+    private DateTime updateDate;
+    private string discription;
+    private GameVersion gameVersion;
+    private uint downloadCount;
+    private string sourceUrl;
+    private WorkshopResourceStatus status;
+
+    public uint Id { get; }
 
     public WorkshopResourceType Type { get; }
 
-    public int FileSize { get; }
-
-    public DateTime CreateDate { get; }
-
-    public DateTime UpdateDate { get; }
-
     public string Name { get; }
 
-    public int AuthorUid { get; }
+    public uint Rating { get; }
 
-    public string AuthorName { get; }
-
-    public string Summary { get; }
-
-    public string Intro { get; }
-
-    public GameVersion GameVersion { get; }
-
-    public double Rating { get; }
-
-    public WorkshopResourceStatus Status { get; set; }
-
-
-    public WorkshopResourceModel()
+    public ulong TotalSize
     {
-
+      get { return totalSize; }
+      set
+      {
+        totalSize = value;
+        OnPropertyChanged(nameof(TotalSize));
+      }
     }
 
-    public WorkshopResourceModel(string name,double rating,WorkshopResourceType type)
+    public DateTime UpdateDate
     {
+      get { return updateDate; }
+      set
+      {
+        updateDate = value;
+        OnPropertyChanged(nameof(UpdateDate));
+      }
+    }
+
+    public string AuthorName
+    {
+      get { return authorName; }
+      set
+      {
+        authorName = value; OnPropertyChanged(nameof(AuthorName));
+      }
+    }
+
+    public string Discription
+    {
+      get { return discription; }
+      set
+      {
+        discription = value;
+        OnPropertyChanged(nameof(Discription));
+      }
+    }
+
+    public GameVersion GameVersion
+    {
+      get { return gameVersion; }
+      set
+      {
+        gameVersion = value;
+        OnPropertyChanged(nameof(GameVersion));
+      }
+    }
+
+    public uint DownloadCount
+    {
+      get { return downloadCount; }
+      set
+      {
+        downloadCount = value;
+        OnPropertyChanged(nameof(DownloadCount));
+      }
+    }
+
+    public string SourceUrl
+    {
+      get { return sourceUrl; }
+      set
+      {
+        sourceUrl = value;
+        OnPropertyChanged(nameof(SourceUrl));
+      }
+    }
+
+    public WorkshopResourceStatus Status
+    {
+      get { return status; }
+      set
+      {
+        status = value;
+        OnPropertyChanged(nameof(Status));
+      }
+    }
+
+    public WorkshopResourceModel(uint id, string name, uint rating, WorkshopResourceType type)
+    {
+      Id = id;
       Name = name;
       Rating = rating;
       Type = type;
       Status = WorkshopResourceStatus.NotInstalled;
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void OnPropertyChanged(string propertyName)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
   }
 
@@ -64,11 +137,12 @@ namespace YTY.amt
   [Flags]
   public enum GameVersion
   {
-    Aok,
-    AocA,
-    AocC,
-    Aoc15,
-    Aofe
+    None,
+    Aok = 0x2,
+    AocA = 0x4,
+    AocC = 0x8,
+    Aoc15 = 0x10,
+    Aofe = 0x20,
   }
 
   public enum WorkshopResourceStatus

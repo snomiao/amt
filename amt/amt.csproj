@@ -67,9 +67,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters.cs" />
     <Compile Include="DAL.cs" />
     <Compile Include="MySqlOp.cs" />
-    <Compile Include="WindowViewModel.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop.xaml.cs">
       <DependentUpon>Workshop.xaml</DependentUpon>
     </Compile>

@@ -23,9 +23,17 @@ namespace YTY.amt
       InitializeComponent();
     }
 
-    private  async void wnd_Loaded(object sender, RoutedEventArgs e)
+    private async void wnd_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-      await My.WindowViewModel.Get();
+      if (!(bool)e.NewValue) return;
+      try
+      {
+        await My.WindowViewModel.InitAsync();
+      }
+      catch (InvalidOperationException ex)
+      {
+        MessageBox.Show(ex.ToString());
+      }
     }
   }
 }

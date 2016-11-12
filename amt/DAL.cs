@@ -6,12 +6,18 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Windows.Threading;
+using MySql.Data.MySqlClient;
 
 namespace YTY.amt
 {
-  public class DAL
+  public static class DAL
   {
+    private static IPEndPoint WORKSHOPDBSERVER = new IPEndPoint(IPAddress.Parse("121.42.152.168"), 3306);
+    private const string WORKSHOPDBUSER = "amtclient";
+    private const string WORKSHOPDBPASSWORD = "read@hawkempire";
+    private const string WORKSHOPDBNAME = "ssrc";
     private static Dictionary<string, WorkshopResourceType> dic_String_Type;
+    private static MySqlOp WorkshopOp = new MySqlOp(WORKSHOPDBSERVER, WORKSHOPDBUSER, WORKSHOPDBPASSWORD, WORKSHOPDBNAME);
 
     static DAL()
     {
@@ -32,21 +38,51 @@ namespace YTY.amt
     public static async Task<ObservableCollection<WorkshopResourceModel>> GetWorkshopResourcesAsync(IProgress<WorkshopResourceModel> progress)
     {
       var ret = new ObservableCollection<WorkshopResourceModel>();
-      var mysqlOp = new MySqlOp(new IPEndPoint(IPAddress.Parse("121.42.152.168"), 3306), "amtclient", "read@hawkempire", "ssrc");
-      using (var reader = await mysqlOp.ExecuteReaderAsync("SELECT name,id,e_type FROM res"))
+      try
       {
-        while (await reader.ReadAsync())
+        using (var reader = await WorkshopOp.ExecuteReaderAsync("SELECT id,name,votereview,e_type FROM res"))
         {
-          var model = new WorkshopResourceModel(
-           await reader.GetFieldValueAsync<string>(0),
-           await reader.GetFieldValueAsync<uint>(1),
-           dic_String_Type[await reader.GetFieldValueAsync<string>(2)]);
-          ret.Add(model);
-          progress.Report(model);
-          await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+          while (await reader.ReadAsync())
+          {
+            var model = new WorkshopResourceModel(
+              await reader.GetFieldValueAsync<uint>(0),
+             await reader.GetFieldValueAsync<string>(1),
+             await reader.GetFieldValueAsync<uint>(2),
+             dic_String_Type[await reader.GetFieldValueAsync<string>(3)]);
+            ret.Add(model);
+            progress.Report(model);
+          }
         }
       }
+      catch (MySqlException ex)
+      {
+        throw new InvalidOperationException(ex.ToString(), ex);
+      }
       return ret;
+    }
+
+    public static async Task GetDetailsAsync(this WorkshopResourceViewModel viewModel)
+    {
+      try
+      {
+        using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT t_update,totalsize,count_download,author_name,content,b_gamebase,fromurl FROM res WHERE id={viewModel.Model.Id}"))
+        {
+          while (await reader.ReadAsync())
+          {
+            viewModel.Model.UpdateDate = Util.FromUnixTimestamp(await reader.GetFieldValueAsync<ulong>(0));
+            viewModel.Model.TotalSize = await reader.GetFieldValueAsync<ulong>(1);
+            viewModel.Model.DownloadCount = await reader.GetFieldValueAsync<uint>(2);
+            viewModel.Model.AuthorName = await reader.GetFieldValueAsync<string>(3);
+            viewModel.Model.Discription = await reader.GetFieldValueAsync<string>(4);
+            viewModel.Model.GameVersion = (GameVersion)await reader.GetFieldValueAsync<uint>(5);
+            viewModel.Model.SourceUrl = await reader.GetFieldValueAsync<string>(6);
+          }
+        }
+      }
+      catch(MySqlException ex)
+      {
+        throw new InvalidOperationException(ex.ToString(), ex);
+      }
     }
   }
 }

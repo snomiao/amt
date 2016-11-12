@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace YTY.amt
 {
@@ -96,6 +97,47 @@ namespace YTY.amt
     public void Execute(object parameter)
     {
       return;
+    }
+  }
+
+  public class ShowSelectedResourceViewCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public async void Execute(object parameter)
+    {
+      var viewModel = parameter as WorkshopResourceViewModel;
+      My.WindowViewModel.SelectedItem = viewModel;
+      My.WindowViewModel.CurrentView = WindowView.ShowingSelectedResource;
+      try
+      {
+        await viewModel.GetDetailsAsync();
+      }
+      catch(InvalidOperationException ex)
+      {
+        MessageBox.Show(ex.ToString());
+      }
+    }
+  }
+
+  public class ShowResourceListViewCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      My.WindowViewModel.SelectedItem = null;
+      My.WindowViewModel.CurrentView = WindowView.ShowingResourceList;
     }
   }
 }

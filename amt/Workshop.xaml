@@ -10,10 +10,11 @@
         Width="990"
         Style="{StaticResource WindowGeneralStyle}"
         x:Name="wnd"
-        Loaded="wnd_Loaded">
+        IsVisibleChanged="wnd_IsVisibleChanged">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="138"></RowDefinition>
+      <RowDefinition Height="50"></RowDefinition>
       <RowDefinition Height="*"></RowDefinition>
     </Grid.RowDefinitions>
     <Grid Grid.Row="0">
@@ -148,21 +149,51 @@
               Style="{StaticResource ButtonCloseStyle}"
               Command="{StaticResource HideWindowCommand}"></Button>
     </Grid>
-    <Image Grid.Row="1"
+    <Grid Grid.Row="1"
+          Background="LightGray">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0"
+              Style="{StaticResource ButtonNoneStyle}"
+              Padding="5"
+              Command="{StaticResource  ShowResourceListViewCommand}">
+        <Polyline Points="10,0 0,13 10,26"
+                  Stroke="Black"
+                  StrokeThickness="1"></Polyline>
+      </Button>
+    </Grid>
+    <Image Grid.Row="2"
            Source="Resources\aboutbg.png"></Image>
-    <ScrollViewer Grid.Row="1">
+    <ScrollViewer Grid.Row="2">
+      <ScrollViewer.Style>
+        <Style TargetType="{x:Type ScrollViewer}">
+          <Setter Property="Visibility"
+                  Value="Hidden"></Setter>
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding Source={StaticResource WindowViewModel},Path=CurrentView}"
+                         Value="ShowingResourceList">
+              <Setter Property="Visibility"
+                      Value="Visible"></Setter>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </ScrollViewer.Style>
       <ItemsControl x:Name="itc"
                     ItemsSource="{Binding Source={StaticResource WindowViewModel},Path=WorkshopResources}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
             <UniformGrid Columns="2"
-                         Margin="10" VerticalAlignment="Top"></UniformGrid>
+                         Margin="10"
+                         VerticalAlignment="Top"></UniformGrid>
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <Button Margin="10"
-                    Height="80">
+                    Height="80"
+                    Command="{StaticResource ShowSelectedResourceViewCommand}"
+                    CommandParameter="{Binding}">
               <Button.Style>
                 <Style TargetType="{x:Type Button}"
                        BasedOn="{StaticResource ButtonNoneStyle}">
@@ -185,48 +216,8 @@
                 <Image Grid.Column="0"
                        Width="50"
                        Height="50"
-                       Margin="20,0,0,0">
-                  <Image.Style>
-                    <Style TargetType="{x:Type Image}">
-                      <Style.Triggers>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="Drs">
-                          <Setter Property="Source"
-                                  Value="Resources\resdrs.png"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="Campaign">
-                          <Setter Property="Source"
-                                  Value="Resources\rescpx.png"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="Scenario">
-                          <Setter Property="Source"
-                                  Value="Resources\resscx.png"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="RandomMap">
-                          <Setter Property="Source"
-                                  Value="Resources\resrms.png"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="Replay">
-                          <Setter Property="Source"
-                                  Value="Resources\resmgx.png"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="Mod">
-                          <Setter Property="Source"
-                                  Value="Resources\resmod.png"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Model.Type}"
-                                     Value="Ai">
-                          <Setter Property="Source"
-                                  Value="Resources\resai.png"></Setter>
-                        </DataTrigger>
-                      </Style.Triggers>
-                    </Style>
-                  </Image.Style>
+                       Margin="20,0,0,0"
+                       Source="{Binding Model.Type,Converter={StaticResource WorkshopResourceTypeToImageConverter}}">
                 </Image>
                 <TextBlock Grid.Column="1"
                            VerticalAlignment="Center"
@@ -274,5 +265,91 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
     </ScrollViewer>
+    <Grid Grid.Row="2"
+          DataContext="{Binding Source={StaticResource WindowViewModel},Path=SelectedItem}"
+          Margin="20">
+      <Grid.Style>
+        <Style TargetType="{x:Type Grid}">
+          <Setter Property="Visibility"
+                  Value="Hidden"></Setter>
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding Source={StaticResource WindowViewModel},Path=CurrentView}"
+                         Value="ShowingSelectedResource">
+              <Setter Property="Visibility"
+                      Value="Visible"></Setter>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </Grid.Style>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="auto"></RowDefinition>
+        <RowDefinition Height="*"></RowDefinition>
+      </Grid.RowDefinitions>
+      <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="auto"></ColumnDefinition>
+          <ColumnDefinition Width="*"></ColumnDefinition>
+          <ColumnDefinition Width="auto"></ColumnDefinition>
+          <ColumnDefinition Width="auto"></ColumnDefinition>
+          <ColumnDefinition Width="auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Image Grid.Column="0"
+               Width="100"
+               Height="100"
+               Source="{Binding Model.Type,Converter={StaticResource WorkshopResourceTypeToImageConverter}}"
+               Margin="0,0,20,0"></Image>
+        <Grid Grid.Column="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0"
+                     FontSize="30"
+                     Text="{Binding Model.Name}"></TextBlock>
+          <TextBlock Grid.Row="1"
+                     FontSize="16">
+            <TextBlock.Text>
+              <MultiBinding StringFormat="作者：{0} 更新时间：{1:d}">
+                <Binding Path="Model.AuthorName"></Binding>
+                <Binding Path="Model.UpdateDate"></Binding>
+              </MultiBinding>
+            </TextBlock.Text>
+          </TextBlock>
+          <TextBlock Grid.Row="2"
+                     FontSize="16">
+            <TextBlock.Text>
+              <MultiBinding StringFormat="大小：{0} 游戏版本：{1} 下载量：{2}">
+                <Binding Path="Model.TotalSize"
+                         Converter="{StaticResource ByteCountToTextConverter}"></Binding>
+                <Binding Path="Model.GameVersion"
+                         Converter="{StaticResource GameVersionToStringConverter}"></Binding>
+                <Binding Path="Model.DownloadCount"></Binding>
+              </MultiBinding>
+            </TextBlock.Text>
+          </TextBlock>
+        </Grid>
+        <TextBlock Grid.Column="2"
+                   Text="{Binding Model.Rating}"></TextBlock>
+        <Button Grid.Column="3"></Button>
+        <Button Grid.Column="4"></Button>
+      </Grid>
+      <ScrollViewer Grid.Row="1" Margin="0,20,0,0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+          </Grid.RowDefinitions>
+          <StackPanel Grid.Row="0">
+
+          </StackPanel>
+          <TextBlock Grid.Row="1"
+                     FontSize="16"
+                     TextWrapping="Wrap"
+                     LineHeight="24"
+                     Text="{Binding Model.Discription}"></TextBlock>
+        </Grid>
+      </ScrollViewer>
+    </Grid>
   </Grid>
 </Window>
