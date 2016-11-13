@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YTY
+namespace YTY.amt
 {
   public static class Util
   {

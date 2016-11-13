@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 
-namespace YTY.amt
+namespace YTY
 {
   public class ScxFile
   {
@@ -84,8 +84,10 @@ namespace YTY.amt
         return ScxVersion.Version122;
       else if (version2 < 1.2301f)
         return ScxVersion.Version123;
-      else if(version2<1.2401f)
-        return 
+      else if (version2 < 1.2401f)
+        return ScxVersion.Version124;
+      else
+        return ScxVersion.Version126;
     }
   }
 

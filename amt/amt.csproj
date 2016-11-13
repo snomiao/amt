@@ -18,11 +18,11 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -67,7 +67,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Converters.cs" />
     <Compile Include="DAL.cs" />
     <Compile Include="MySqlOp.cs" />
     <Compile Include="Util.cs" />
@@ -90,10 +89,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Workshop.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -103,124 +98,19 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\0.png" />
-    <Resource Include="Resources\1.png" />
-    <Resource Include="Resources\10.png" />
-    <Resource Include="Resources\11.png" />
-    <Resource Include="Resources\12.png" />
-    <Resource Include="Resources\13.png" />
-    <Resource Include="Resources\14.png" />
-    <Resource Include="Resources\15.png" />
-    <Resource Include="Resources\16.png" />
-    <Resource Include="Resources\17.png" />
-    <Resource Include="Resources\2.png" />
-    <Resource Include="Resources\3.png" />
-    <Resource Include="Resources\4.png" />
-    <Resource Include="Resources\5.png" />
-    <Resource Include="Resources\6.png" />
-    <Resource Include="Resources\7.png" />
-    <Resource Include="Resources\8.png" />
-    <Resource Include="Resources\9.png" />
-    <Resource Include="Resources\aboutbg.png" />
-    <Resource Include="Resources\abouthawk.png" />
-    <Resource Include="Resources\AGE.png" />
-    <Resource Include="Resources\AGE2.png" />
-    <Resource Include="Resources\AGE3.png" />
-    <Resource Include="Resources\AI-Editor.png" />
-    <Resource Include="Resources\AI-Editor2.png" />
-    <Resource Include="Resources\AI-Editor3.png" />
-    <Resource Include="Resources\AI-Script-Builder.png" />
-    <Resource Include="Resources\AI-Script-Builder2.png" />
-    <Resource Include="Resources\AI-Script-Builder3.png" />
-    <Resource Include="Resources\hf.png" />
-    <Resource Include="Resources\ID修改器.png" />
-    <Resource Include="Resources\ID修改器2.png" />
-    <Resource Include="Resources\ID修改器3.png" />
-    <Resource Include="Resources\logo.png" />
-    <Resource Include="Resources\logogreen.png" />
-    <Resource Include="Resources\MOD开发者管理器.png" />
-    <Resource Include="Resources\MOD开发者管理器2.png" />
-    <Resource Include="Resources\MOD开发者管理器3.png" />
-    <Resource Include="Resources\off.png" />
-    <Resource Include="Resources\on.png" />
-    <Resource Include="Resources\resai.png" />
-    <Resource Include="Resources\rescpx.png" />
-    <Resource Include="Resources\resdrs.png" />
-    <Resource Include="Resources\resmgx.png" />
-    <Resource Include="Resources\resmod.png" />
-    <Resource Include="Resources\resrms.png" />
-    <Resource Include="Resources\resscx.png" />
-    <Resource Include="Resources\RMS编辑器.png" />
-    <Resource Include="Resources\RMS编辑器2.png" />
-    <Resource Include="Resources\RMS编辑器3.png" />
-    <Resource Include="Resources\ScriptEd.png" />
-    <Resource Include="Resources\ScriptEd2.png" />
-    <Resource Include="Resources\ScriptEd3.png" />
-    <Resource Include="Resources\SetupAI.png" />
-    <Resource Include="Resources\SetupAI2.png" />
-    <Resource Include="Resources\SetupAI3.png" />
-    <Resource Include="Resources\workshoptitle.png" />
-    <Resource Include="Resources\乌龟包.png" />
-    <Resource Include="Resources\乌龟包2.png" />
-    <Resource Include="Resources\乌龟包3.png" />
-    <Resource Include="Resources\信息类.png" />
-    <Resource Include="Resources\信息类2.png" />
-    <Resource Include="Resources\信息类3.png" />
-    <Resource Include="Resources\信息类4.png" />
-    <Resource Include="Resources\修改器.png" />
-    <Resource Include="Resources\修改器2.png" />
-    <Resource Include="Resources\修改器3.png" />
-    <Resource Include="Resources\关闭（单击）.png" />
-    <Resource Include="Resources\关闭（悬停）.png" />
-    <Resource Include="Resources\关闭（普通）.png" />
-    <Resource Include="Resources\帝国时代管家.png" />
-    <Resource Include="Resources\录像1.png" />
-    <Resource Include="Resources\录像2.png" />
-    <Resource Include="Resources\录像3.png" />
-    <Resource Include="Resources\战役管理器.png" />
-    <Resource Include="Resources\战役管理器2.png" />
-    <Resource Include="Resources\战役管理器3.png" />
-    <Resource Include="Resources\教程类.png" />
-    <Resource Include="Resources\教程类2.png" />
-    <Resource Include="Resources\教程类3.png" />
-    <Resource Include="Resources\数据类.png" />
-    <Resource Include="Resources\数据类2.png" />
-    <Resource Include="Resources\数据类3.png" />
-    <Resource Include="Resources\文件夹.png" />
-    <Resource Include="Resources\文件夹2.png" />
-    <Resource Include="Resources\文件夹3.png" />
-    <Resource Include="Resources\最小化（单击）.png" />
-    <Resource Include="Resources\最小化（悬停）.png" />
-    <Resource Include="Resources\最小化（普通）.png" />
-    <Resource Include="Resources\触发工作室.png" />
-    <Resource Include="Resources\触发工作室2.png" />
-    <Resource Include="Resources\触发工作室3.png" />
-    <Resource Include="Resources\语言DLL.png" />
-    <Resource Include="Resources\语言DLL2.png" />
-    <Resource Include="Resources\语言DLL3.png" />
+    <ProjectReference Include="..\lib\lib.csproj">
+      <Project>{a31e68c4-c6a3-4c8b-b24c-3916f85c1b6c}</Project>
+      <Name>lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\resources\resources.csproj">
+      <Project>{23c92b4b-ef39-48f0-9277-c2e5da3144fe}</Project>
+      <Name>resources</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.103\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.103\build\net45\System.Data.SQLite.Core.targets')" />

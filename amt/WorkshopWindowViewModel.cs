@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Windows.Data;
 
 namespace YTY.amt
 {
@@ -39,9 +40,11 @@ namespace YTY.amt
       set
       {
         workshopResources = value;
-        OnPropertyChanged(nameof(WorkshopResources));
+        OnPropertyChanged(nameof(WorkshopResourcesView));
       }
     }
+
+    public ICollectionView WorkshopResourcesView => CollectionViewSource.GetDefaultView(workshopResources);
 
     public WorkshopResourceViewModel SelectedItem
     {

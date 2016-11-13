@@ -28,7 +28,7 @@ namespace YTY.amt
       if (!(bool)e.NewValue) return;
       try
       {
-        await My.WindowViewModel.InitAsync();
+        await My.WorkshopWindowViewModel.InitAsync();
       }
       catch (InvalidOperationException ex)
       {

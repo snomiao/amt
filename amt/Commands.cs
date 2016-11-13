@@ -56,11 +56,15 @@ namespace YTY.amt
 
   public class CreateProcessCommand : ICommand
   {
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler CanExecuteChanged
+    {
+      add { CommandManager.RequerySuggested += value; }
+      remove { CommandManager.RequerySuggested -= value; }
+    }
 
     public bool CanExecute(object parameter)
     {
-      return true;
+      return !string.IsNullOrWhiteSpace(parameter as string);
     }
 
     public void Execute(object parameter)
@@ -112,13 +116,13 @@ namespace YTY.amt
     public async void Execute(object parameter)
     {
       var viewModel = parameter as WorkshopResourceViewModel;
-      My.WindowViewModel.SelectedItem = viewModel;
-      My.WindowViewModel.CurrentView = WindowView.ShowingSelectedResource;
+      My.WorkshopWindowViewModel.SelectedItem = viewModel;
+      My.WorkshopWindowViewModel.CurrentView = WindowView.ShowingSelectedResource;
       try
       {
         await viewModel.GetDetailsAsync();
       }
-      catch(InvalidOperationException ex)
+      catch (InvalidOperationException ex)
       {
         MessageBox.Show(ex.ToString());
       }
@@ -136,8 +140,34 @@ namespace YTY.amt
 
     public void Execute(object parameter)
     {
-      My.WindowViewModel.SelectedItem = null;
-      My.WindowViewModel.CurrentView = WindowView.ShowingResourceList;
+      My.WorkshopWindowViewModel.SelectedItem = null;
+      My.WorkshopWindowViewModel.CurrentView = WindowView.ShowingResourceList;
+    }
+  }
+
+  public class FilterResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      var param = parameter as string;
+      if (param == "All")
+      {
+        My.WorkshopWindowViewModel.WorkshopResourcesView.Filter = null;
+      }
+      else
+      {
+        WorkshopResourceType filter;
+        Enum.TryParse(param, out filter);
+        My.WorkshopWindowViewModel.WorkshopResourcesView.Filter = item => (item as WorkshopResourceViewModel).Model.Type == filter;
+      }
+      My.ShowResourceListViewCommand.Execute(null);
     }
   }
 }
