@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Windows.Threading;
 using MySql.Data.MySqlClient;
+using System.Data.Common;
 
 namespace YTY.amt
 {
@@ -16,8 +17,10 @@ namespace YTY.amt
     private const string WORKSHOPDBUSER = "amtclient";
     private const string WORKSHOPDBPASSWORD = "read@hawkempire";
     private const string WORKSHOPDBNAME = "ssrc";
+    private const string CONFIGFILE = "config.db";
     private static Dictionary<string, WorkshopResourceType> dic_String_Type;
     private static MySqlOp WorkshopOp = new MySqlOp(WORKSHOPDBSERVER, WORKSHOPDBUSER, WORKSHOPDBPASSWORD, WORKSHOPDBNAME);
+    private static SqliteOp ConfigOp = new SqliteOp(CONFIGFILE);
 
     static DAL()
     {
@@ -80,6 +83,21 @@ namespace YTY.amt
         }
       }
       catch(MySqlException ex)
+      {
+        throw new InvalidOperationException(ex.ToString(), ex);
+      }
+    }
+
+    public static void GetConfig()
+    {
+      try
+      {
+        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath FROM Config"))
+        {
+          My.MainWindowViewModel.Config.HawkempirePath = reader.GetString(0);
+        }
+      }
+      catch(DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }

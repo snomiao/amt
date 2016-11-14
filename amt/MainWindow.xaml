@@ -10,7 +10,7 @@
         Width="850"
         Style="{StaticResource WindowGeneralStyle}"
         Closed="Window_Closed"
-        DataContext="{StaticResource WorkshopWindowViewModel}">
+        DataContext="{StaticResource MainWindowViewModel}">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="135"></RowDefinition>
@@ -639,7 +639,19 @@
           </StackPanel>
         </ScrollViewer>
       </TabItem>
-      <TabItem Header="控制面板"></TabItem>
+      <TabItem Header="控制面板">
+        <TabControl Style="{StaticResource TabControlSubStyle}">
+          <TabItem Header="设置">
+            <StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏路径</TextBlock>
+              <StackPanel Orientation="Horizontal">
+                <Button>设置游戏路径</Button>
+                <TextBlock Text="{Binding Config.HawkempirePath}"></TextBlock>
+              </StackPanel>
+            </StackPanel>
+          </TabItem>
+        </TabControl>
+      </TabItem>
     </TabControl>
   </Grid>
 </Window>

@@ -67,7 +67,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConfigModel.cs" />
     <Compile Include="DAL.cs" />
+    <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="MySqlOp.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="WorkshopWindowViewModel.cs" />

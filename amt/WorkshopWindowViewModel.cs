@@ -26,14 +26,6 @@ namespace YTY.amt
       }
     }
 
-    public bool WorkshopShown
-    {
-      set
-      {
-        if (value) My.WorkshopWindow.Show();
-      }
-    }
-
     public ObservableCollection<WorkshopResourceViewModel> WorkshopResources
     {
       get { return workshopResources; }

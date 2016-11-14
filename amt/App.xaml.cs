@@ -42,5 +42,13 @@ namespace YTY.amt
     }
 
     public static ShowResourceListViewCommand ShowResourceListViewCommand => App.FindResource(nameof(ShowResourceListViewCommand)) as ShowResourceListViewCommand;
+
+    public static MainWindowViewModel MainWindowViewModel
+    {
+      get
+      {
+        return App.FindResource(nameof(MainWindowViewModel)) as MainWindowViewModel;
+      }
+    }
   }
 }

@@ -18,6 +18,7 @@
     <local:ShowResourceListViewCommand x:Key="ShowResourceListViewCommand"></local:ShowResourceListViewCommand>
     <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:FilterResourceCommand x:Key="FilterResourceCommand"></local:FilterResourceCommand>
+    <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>
 
     <ToolTip x:Key="ttpPortForwarding">
       <TextBlock TextWrapping="Wrap"
