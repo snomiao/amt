@@ -50,13 +50,20 @@
               Width="165"
               FontSize="24"
               Foreground="White"
-              Command="{StaticResource CreateProcessCommand}">
+              Command="{StaticResource CreateProcessCommand}"
+              CommandParameter="age2_x1\age2_x1.exe"
+              IsEnabled="{Binding IsValidHawkempirePath}">
         <Button.Style>
           <Style TargetType="{x:Type Button}"
                  BasedOn="{StaticResource ButtonNoneStyle}">
             <Setter Property="Background"
                     Value="LimeGreen"></Setter>
             <Style.Triggers>
+              <Trigger Property="IsEnabled"
+                       Value="False">
+                <Setter Property="Background"
+                        Value="Gray"></Setter>
+              </Trigger>
               <Trigger Property="IsMouseOver"
                        Value="True">
                 <Trigger.EnterActions>
@@ -86,13 +93,19 @@
                     x:Name="tglShowGameList"
                     Height="50"
                     Width="20"
-                    Margin="1,0,0,0">
+                    Margin="1,0,0,0"
+                    IsEnabled="{Binding IsValidHawkempirePath}">
         <ToggleButton.Style>
           <Style TargetType="{x:Type ToggleButton}"
                  BasedOn="{StaticResource ToggleButtonNoneStyle}">
             <Setter Property="Background"
                     Value="DarkSeaGreen"></Setter>
             <Style.Triggers>
+              <Trigger Property="IsEnabled"
+                       Value="False">
+                <Setter Property="Background"
+                        Value="Gray"></Setter>
+              </Trigger>
               <Trigger Property="IsMouseOver"
                        Value="True">
                 <Trigger.EnterActions>
@@ -166,7 +179,8 @@
     <TabControl Grid.Row="1"
                 Style="{StaticResource TabControlMainStyle}">
       <TabItem Header="启动界面"></TabItem>
-      <TabItem Header="游戏设置">
+      <TabItem Header="游戏设置"
+               IsEnabled="{Binding IsValidHawkempirePath}">
         <TabControl Style="{StaticResource TabControlSubStyle}">
           <TabItem Header="内容">
             <ScrollViewer>
@@ -432,7 +446,9 @@
           </TabItem>
         </TabControl>
       </TabItem>
-      <TabItem Header="创意工坊" IsSelected="{Binding Path=WorkshopShown,Mode=OneWayToSource}"></TabItem>
+      <TabItem Header="创意工坊"
+               IsSelected="{Binding Path=WorkshopShown,Mode=OneWayToSource}"
+               IsEnabled="{Binding IsValidHawkempirePath}"></TabItem>
       <TabItem Header="开发工具">
         <TabItem.Resources>
           <Style TargetType="{x:Type TextBlock}">
@@ -645,8 +661,8 @@
             <StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏路径</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button>设置游戏路径</Button>
-                <TextBlock Text="{Binding Config.HawkempirePath}"></TextBlock>
+                <Button Click="btnSetHawkempirePath_Click">设置游戏路径</Button>
+                <TextBlock x:Name="txbHawkempirePath" Text="{Binding Config.HawkempirePath,Mode=TwoWay}"></TextBlock>
               </StackPanel>
             </StackPanel>
           </TabItem>

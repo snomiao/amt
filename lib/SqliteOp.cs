@@ -31,13 +31,11 @@ namespace YTY
 
     public SQLiteDataReader ExecuteReader(string sql)
     {
-      using (var connection = new SQLiteConnection(connectionString))
+      var connection = new SQLiteConnection(connectionString);
+      connection.Open();
+      using (var command = new SQLiteCommand(sql, connection))
       {
-        connection.Open();
-        using (var command = new SQLiteCommand(sql, connection))
-        {
-          return command.ExecuteReader();
-        }
+        return command.ExecuteReader();
       }
     }
 

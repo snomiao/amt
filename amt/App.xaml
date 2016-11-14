@@ -317,6 +317,18 @@
                             Property="Foreground"
                             Value="blue"></Setter>
                   </Trigger>
+                  <Trigger Property="IsEnabled"
+                           Value="False">
+                    <Setter TargetName="elli"
+                            Property="Fill"
+                            Value="Gray"></Setter>
+                    <Setter TargetName="elli"
+                            Property="Stroke"
+                            Value="Gray"></Setter>
+                    <Setter TargetName="txb"
+                            Property="Foreground"
+                            Value="Gray"></Setter>
+                  </Trigger>
                 </ControlTemplate.Triggers>
               </ControlTemplate>
             </Setter.Value>

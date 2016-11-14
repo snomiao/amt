@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace YTY.amt
 {
@@ -27,7 +28,14 @@ namespace YTY.amt
 
     private void Window_Closed(object sender, EventArgs e)
     {
-      (Application.Current as App).Shutdown();
+      My.App.Shutdown();
+    }
+
+    private void btnSetHawkempirePath_Click(object sender, RoutedEventArgs e)
+    {
+      var fbd = new FolderBrowserDialog();
+      if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+      txbHawkempirePath.Text = fbd.SelectedPath;
     }
   }
 }

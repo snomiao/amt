@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 
 namespace YTY.amt
 {
@@ -23,12 +25,20 @@ namespace YTY.amt
     {
       get
       {
-        if(config==null)
+        if (config == null)
         {
-          config = new ConfigModel();
-          config.Init();
+          config = DAL.GetConfig();
+          config.PropertyChanged += Config_PropertyChanged;
         }
         return config;
+      }
+    }
+
+    public bool IsValidHawkempirePath
+    {
+      get
+      {
+        return File.Exists(Path.Combine(Config.HawkempirePath, "empires2.exe"));
       }
     }
 
@@ -37,6 +47,16 @@ namespace YTY.amt
     protected void OnPropertyChanged(string propertyName)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void Config_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      switch (e.PropertyName)
+      {
+        case nameof(ConfigModel.HawkempirePath):
+          OnPropertyChanged(nameof(IsValidHawkempirePath));
+          break;
+      }
     }
   }
 }

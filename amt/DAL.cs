@@ -8,6 +8,7 @@ using System.Net;
 using System.Windows.Threading;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
+using System.Diagnostics;
 
 namespace YTY.amt
 {
@@ -82,25 +83,42 @@ namespace YTY.amt
           }
         }
       }
-      catch(MySqlException ex)
+      catch (MySqlException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
     }
 
-    public static void GetConfig()
+    public static ConfigModel GetConfig()
     {
       try
       {
+        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text)");
         using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath FROM Config"))
         {
-          My.MainWindowViewModel.Config.HawkempirePath = reader.GetString(0);
+          if(reader.Read())
+          {
+            return new ConfigModel(reader.GetString(0));
+          }
+          else
+            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('')");
         }
       }
-      catch(DbException ex)
+      catch (DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
+      return new ConfigModel();
+    }
+
+    public static void SaveHawkempirePath(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET hawkempirePath='{config.HawkempirePath}'");
+    }
+
+    public static void SaveCurrentGameVersion(ConfigModel config )
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET currentGameVersion={config.CurrentGameVersion}");
     }
   }
 }

@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.IO;
+using System.Diagnostics;
 
 namespace YTY.amt
 {
   public class ConfigModel : INotifyPropertyChanged
   {
     private string hawkempirePath;
+    private int currentGameVersion;
 
     public string HawkempirePath
     {
@@ -17,13 +20,26 @@ namespace YTY.amt
       set
       {
         hawkempirePath = value;
+        DAL.SaveHawkempirePath(this);
         OnPropertyChanged(nameof(HawkempirePath));
       }
     }
 
-    public void Init()
+    public int CurrentGameVersion
     {
-      DAL.GetConfig();
+      get { return currentGameVersion; }
+      set
+      {
+        currentGameVersion = value;
+        
+      }
+    }
+
+    public ConfigModel() { }
+
+    public ConfigModel(string hawkempirePath)
+    {
+      this.hawkempirePath = hawkempirePath;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
