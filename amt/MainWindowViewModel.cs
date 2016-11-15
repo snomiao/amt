@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace YTY.amt
 {
   public class MainWindowViewModel : INotifyPropertyChanged
   {
     private ConfigModel config;
+    private ObservableCollection<GameVersionModel> gameVersionList;
 
     public bool WorkshopShown
     {
@@ -39,6 +41,34 @@ namespace YTY.amt
       get
       {
         return File.Exists(Path.Combine(Config.HawkempirePath, "empires2.exe"));
+      }
+    }
+
+    public ObservableCollection<GameVersionModel> GameVersionList
+    {
+      get
+      {
+        if (gameVersionList == null)
+        {
+          gameVersionList = new ObservableCollection<GameVersionModel>(new[]
+          {
+            new GameVersionModel() { ResourceId=-1, Name="帝国时代Ⅱ 1.5",ExePath=@"exe\age2_x1.5.exe" },
+            new GameVersionModel() {ResourceId=-2,Name="帝国时代Ⅱ 1.0C",ExePath=@"exe\age2_x1.0c.exe" },
+            new GameVersionModel() {ResourceId=-3,Name="被遗忘的帝国",ExePath=@"exe\age2_x2.exe" },
+            new GameVersionModel() {ResourceId=-4,Name="WAIFor 触发扩展版",ExePath=@"exe\age2_wtep.exe" }
+          }); // TODO: concat with installed mods
+        }
+        return gameVersionList;
+      }
+    }
+
+    public GameVersionModel CurrentGameVersion
+    {
+      get { return gameVersionList.FirstOrDefault(g => g.ResourceId == config.CurrentGameVersion); }
+      set
+      {
+        config.CurrentGameVersion = value.ResourceId;
+        OnPropertyChanged(nameof(CurrentGameVersion));
       }
     }
 

@@ -31,15 +31,17 @@ namespace YTY.amt
       set
       {
         currentGameVersion = value;
-        
+        DAL.SaveCurrentGameVersion(this);
+        OnPropertyChanged(nameof(CurrentGameVersion));
       }
     }
 
     public ConfigModel() { }
 
-    public ConfigModel(string hawkempirePath)
+    public ConfigModel(string hawkempirePath,int currentGameVersion)
     {
       this.hawkempirePath = hawkempirePath;
+      this.currentGameVersion = currentGameVersion;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

@@ -158,10 +158,44 @@
              Placement="Bottom"
              PlacementTarget="{Binding ElementName=btnStartGame}"
              Width="186">
-        <ItemsControl>
+        <ItemsControl ItemsSource="{Binding GameVersionList}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Button></Button>
+              <Button BorderThickness="1"
+                      Padding="0,5"
+                      Foreground="White"
+                      FontSize="14"
+                      Content="{Binding Name}">
+                <Button.Style>
+                  <Style TargetType="{x:Type Button}"
+                         BasedOn="{StaticResource ButtonNoneStyle}">
+                    <Setter Property="Background"
+                            Value="DarkSeaGreen"></Setter>
+                    <Style.Triggers>
+                      <Trigger Property="IsMouseOver"
+                               Value="True">
+                        <Trigger.EnterActions>
+                          <BeginStoryboard>
+                            <Storyboard>
+                              <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                              To="Lime"
+                                              Duration="0:0:0.2"></ColorAnimation>
+                            </Storyboard>
+                          </BeginStoryboard>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                          <BeginStoryboard>
+                            <Storyboard>
+                              <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                              Duration="0:0:0.2"></ColorAnimation>
+                            </Storyboard>
+                          </BeginStoryboard>
+                        </Trigger.ExitActions>
+                      </Trigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
@@ -169,7 +203,13 @@
       <TextBlock Grid.Column="2"
                  Grid.ColumnSpan="2"
                  VerticalAlignment="Bottom"
-                 HorizontalAlignment="Center"></TextBlock>
+                 HorizontalAlignment="Center"
+                 FontSize="16"
+                 Foreground="White"
+                 Margin="0,0,0,10"
+                 TextWrapping="WrapWithOverflow"
+                 MaxWidth="185"
+                 Text="{Binding CurrentGameVersion.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
       <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="5"
@@ -662,7 +702,8 @@
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏路径</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <Button Click="btnSetHawkempirePath_Click">设置游戏路径</Button>
-                <TextBlock x:Name="txbHawkempirePath" Text="{Binding Config.HawkempirePath,Mode=TwoWay}"></TextBlock>
+                <TextBlock x:Name="txbHawkempirePath"
+                           Text="{Binding Config.HawkempirePath,Mode=TwoWay}"></TextBlock>
               </StackPanel>
             </StackPanel>
           </TabItem>

@@ -93,22 +93,23 @@ namespace YTY.amt
     {
       try
       {
-        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text)");
-        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath FROM Config"))
+        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int)");
+        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion FROM Config"))
         {
           if(reader.Read())
           {
-            return new ConfigModel(reader.GetString(0));
+            return new ConfigModel(reader.GetString(0),
+              reader.GetInt32(1));
           }
           else
-            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('')");
+            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1)");
         }
       }
       catch (DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
-      return new ConfigModel();
+      return new ConfigModel("",-1);
     }
 
     public static void SaveHawkempirePath(ConfigModel config)
