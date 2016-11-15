@@ -50,5 +50,7 @@ namespace YTY.amt
         return App.FindResource(nameof(MainWindowViewModel)) as MainWindowViewModel;
       }
     }
+
+    public static CreateProcessCommand CreateProcessCommand => App.FindResource(nameof(CreateProcessCommand)) as CreateProcessCommand;
   }
 }

@@ -93,23 +93,25 @@ namespace YTY.amt
     {
       try
       {
-        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int)");
-        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion FROM Config"))
+        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int)");
+        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue FROM Config"))
         {
           if(reader.Read())
           {
             return new ConfigModel(reader.GetString(0),
-              reader.GetInt32(1));
+              reader.GetInt32(1),
+              reader.GetBoolean(2),
+              reader.GetBoolean(3));
           }
           else
-            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1)");
+            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0)");
         }
       }
       catch (DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
-      return new ConfigModel("",-1);
+      return new ConfigModel("",-1,true,false);
     }
 
     public static void SaveHawkempirePath(ConfigModel config)
@@ -120,6 +122,16 @@ namespace YTY.amt
     public static void SaveCurrentGameVersion(ConfigModel config )
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Config SET currentGameVersion={config.CurrentGameVersion}");
+    }
+
+    public static void SavePopulationLimit(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32( config.PopulationLimit)}");
+    }
+
+    public static void SaveMultipleQueue(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET multipleQueue={Convert.ToInt32(config.MultipleQueue)}");
     }
   }
 }

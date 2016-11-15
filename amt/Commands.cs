@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
 using System.Windows.Threading;
+using System.ComponentModel;
 
 namespace YTY.amt
 {
@@ -70,11 +71,18 @@ namespace YTY.amt
     public void Execute(object parameter)
     {
       var p = new Process() { StartInfo = new ProcessStartInfo(parameter as string) { UseShellExecute = true } };
-      p.Start();
+      try
+      {
+        p.Start();
+      }
+      catch(Win32Exception ex)
+      {
+        MessageBox.Show(ex.ToString());
+      }
     }
   }
 
-  public class ConfigSwitchGameCommand : ICommand
+  public class SwitchAndStartGameCommand : ICommand
   {
     public event EventHandler CanExecuteChanged;
 
@@ -85,7 +93,9 @@ namespace YTY.amt
 
     public void Execute(object parameter)
     {
-      return;
+      var game = parameter as GameVersionModel;
+      My.CreateProcessCommand.Execute(game.ExePath);
+      My.MainWindowViewModel.CurrentGameVersion = game;
     }
   }
 

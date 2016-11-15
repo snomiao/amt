@@ -9,7 +9,7 @@
     <local:CloseWindowCommand x:Key="CloseWindowCommand"></local:CloseWindowCommand>
     <local:MinimizeWindowCommand x:Key="MinimizeWindowCommand"></local:MinimizeWindowCommand>
     <local:HideWindowCommand x:Key="HideWindowCommand"></local:HideWindowCommand>
-    <local:ConfigSwitchGameCommand x:Key="ConfigSwitchGameCommand"></local:ConfigSwitchGameCommand>
+    <local:SwitchAndStartGameCommand x:Key="SwitchAndStartGameCommand"></local:SwitchAndStartGameCommand>
     <local:OpenFolderCommand x:Key="OpenFolderCommand"></local:OpenFolderCommand>
     <local:CreateProcessCommand x:Key="CreateProcessCommand"></local:CreateProcessCommand>
     <local:Workshop x:Key="WorkshopWindow"></local:Workshop>
@@ -19,6 +19,7 @@
     <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:FilterResourceCommand x:Key="FilterResourceCommand"></local:FilterResourceCommand>
     <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>
+    <lib:NegateBooleanConverter x:Key="NegateBooleanConverter"></lib:NegateBooleanConverter>
 
     <ToolTip x:Key="ttpPortForwarding">
       <TextBlock TextWrapping="Wrap"
@@ -255,6 +256,107 @@
       </Style.Triggers>
     </Style>
 
+    <Style x:Key="ToggleButtonNoneStyle"
+           TargetType="{x:Type ToggleButton}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ToggleButton}">
+            <Border BorderThickness="{TemplateBinding BorderThickness}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    Background="{TemplateBinding Background}"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"></ContentPresenter>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="VerticalContentAlignment"
+              Value="Center"></Setter>
+      <Setter Property="HorizontalContentAlignment"
+              Value="Center"></Setter>
+      <Setter Property="BorderThickness"
+              Value="0"></Setter>
+    </Style>
+    
+    <Style x:Key="ToggleButtonSettingStyle"
+           TargetType="{x:Type ToggleButton}">
+      <Setter Property="Background"
+              Value="Orange"></Setter>
+      <Setter Property="Margin"
+              Value="5,5"></Setter>
+      <Setter Property="Padding"
+              Value="10,5"></Setter>
+      <Setter Property="FontSize"
+              Value="16"></Setter>
+      <Setter Property="Foreground"
+              Value="Brown"></Setter>
+      <Setter Property="BorderBrush"
+              Value="Transparent"></Setter>
+      <Setter Property="BorderThickness"
+              Value="2"></Setter>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ToggleButton}">
+            <Border x:Name="bdr"
+                    CornerRadius="5"
+                    Background="{TemplateBinding Background}"
+                    Margin="{TemplateBinding Margin}"
+                    Padding="{TemplateBinding Padding}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+              <ContentPresenter Margin="1"></ContentPresenter>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetName="bdr"
+                                      Storyboard.TargetProperty="Background.Color"
+                                      To="LemonChiffon"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetName="bdr"
+                                      Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsChecked"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color"
+                                      To="Red"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
     <Style TargetType="{x:Type TabControl}"
            x:Key="TabControlMainStyle">
       <Setter Property="BorderThickness"
@@ -415,31 +517,10 @@
         </Style>
         <Style TargetType="{x:Type Button}"
                BasedOn="{StaticResource ButtonSettingStyle}"></Style>
+        <Style TargetType="{x:Type ToggleButton }"
+               BasedOn="{StaticResource ToggleButtonSettingStyle}"></Style>
       </Style.Resources>
     </Style>
-
-    <Style x:Key="ToggleButtonNoneStyle"
-           TargetType="{x:Type ToggleButton}">
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type ToggleButton}">
-            <Border BorderThickness="{TemplateBinding BorderThickness}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    Background="{TemplateBinding Background}"
-                    Padding="{TemplateBinding Padding}">
-              <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"></ContentPresenter>
-            </Border>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-      <Setter Property="VerticalContentAlignment"
-              Value="Center"></Setter>
-      <Setter Property="HorizontalContentAlignment"
-              Value="Center"></Setter>
-      <Setter Property="BorderThickness"
-              Value="0"></Setter>
-    </Style>
-
+    
   </Application.Resources>
 </Application>

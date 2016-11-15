@@ -13,6 +13,8 @@ namespace YTY.amt
   {
     private string hawkempirePath;
     private int currentGameVersion;
+    private bool populationLimit;
+    private bool multipleQueue;
 
     public string HawkempirePath
     {
@@ -31,17 +33,42 @@ namespace YTY.amt
       set
       {
         currentGameVersion = value;
+        // TODO: copy game exe
         DAL.SaveCurrentGameVersion(this);
-        OnPropertyChanged(nameof(CurrentGameVersion));
+      }
+    }
+
+    public bool PopulationLimit
+    {
+      get { return populationLimit; }
+      set
+      {
+        populationLimit = value;
+        // TODO
+        DAL.SavePopulationLimit(this);
+        OnPropertyChanged(nameof(PopulationLimit));
+      }
+    }
+
+    public bool MultipleQueue
+    {
+      get { return multipleQueue; }
+      set
+      {
+        multipleQueue = value;
+        //TODO
+        DAL.SaveMultipleQueue(this);
+        OnPropertyChanged(nameof(MultipleQueue));
       }
     }
 
     public ConfigModel() { }
 
-    public ConfigModel(string hawkempirePath,int currentGameVersion)
+    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue)
     {
       this.hawkempirePath = hawkempirePath;
       this.currentGameVersion = currentGameVersion;
+      this.populationLimit = populationLimit;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

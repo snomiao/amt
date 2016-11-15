@@ -90,11 +90,11 @@
         启动游戏
       </Button>
       <ToggleButton Grid.Column="3"
-                    x:Name="tglShowGameList"
                     Height="50"
                     Width="20"
                     Margin="1,0,0,0"
-                    IsEnabled="{Binding IsValidHawkempirePath}">
+                    IsEnabled="{Binding IsValidHawkempirePath}"
+                    IsChecked="{Binding ElementName=pppGameList,Path=IsOpen,Mode=TwoWay}">
         <ToggleButton.Style>
           <Style TargetType="{x:Type ToggleButton}"
                  BasedOn="{StaticResource ToggleButtonNoneStyle}">
@@ -153,7 +153,7 @@
                   Stroke="White"
                   StrokeThickness="1"></Polyline>
       </ToggleButton>
-      <Popup IsOpen="{Binding ElementName=tglShowGameList,Path=IsChecked,Mode=TwoWay}"
+      <Popup x:Name="pppGameList"
              StaysOpen="False"
              Placement="Bottom"
              PlacementTarget="{Binding ElementName=btnStartGame}"
@@ -165,6 +165,8 @@
                       Padding="0,5"
                       Foreground="White"
                       FontSize="14"
+                      Command="{StaticResource SwitchAndStartGameCommand}"
+                      CommandParameter="{Binding}"
                       Content="{Binding Name}">
                 <Button.Style>
                   <Style TargetType="{x:Type Button}"
@@ -200,15 +202,13 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </Popup>
-      <TextBlock Grid.Column="2"
-                 Grid.ColumnSpan="2"
+      <TextBlock Grid.Column="0"
+                 Grid.ColumnSpan="4"
                  VerticalAlignment="Bottom"
-                 HorizontalAlignment="Center"
+                 HorizontalAlignment="Right"
                  FontSize="16"
                  Foreground="White"
                  Margin="0,0,0,10"
-                 TextWrapping="WrapWithOverflow"
-                 MaxWidth="185"
                  Text="{Binding CurrentGameVersion.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
       <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
@@ -231,19 +231,33 @@
                   <TextBlock></TextBlock>
                   <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
                 </StackPanel>
-                <DockPanel>
-                  <DockPanel.Resources>
-                    <Style TargetType="{x:Type Button}"
-                           BasedOn="{StaticResource ButtonSettingStyle}">
-                      <Setter Property="Command"
-                              Value="{StaticResource ConfigSwitchGameCommand}"></Setter>
+                <ListBox ItemsSource="{Binding GameVersionList}"
+                         SelectedItem="{Binding CurrentGameVersion,Mode=TwoWay}"
+                         BorderThickness="0">
+                  <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                      <Setter Property="Template">
+                        <Setter.Value>
+                          <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                            <ContentPresenter></ContentPresenter>
+                          </ControlTemplate>
+                        </Setter.Value>
+                      </Setter>
                     </Style>
-                  </DockPanel.Resources>
-                  <Button>帝国时代Ⅱ 1.5</Button>
-                  <Button>帝国时代Ⅱ 1.0C</Button>
-                  <Button>被遗忘的帝国</Button>
-                  <Button HorizontalAlignment="Right">启动帝国时代Ⅱ 1.0A</Button>
-                </DockPanel>
+                  </ListBox.ItemContainerStyle>
+                  <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                  </ListBox.ItemsPanel>
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"
+                                    Content="{Binding Name}">
+                      </ToggleButton>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">打开目录</TextBlock>
                 <TextBlock>单击按钮，打开当前版本的特定目录。</TextBlock>
                 <StackPanel Orientation="Horizontal">
@@ -270,8 +284,8 @@
                   <TextBlock>。请选择开启或关闭1000人口上限。</TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                  <Button>开启1000人口上限</Button>
-                  <Button>关闭1000人口上限</Button>
+                  <ToggleButton IsChecked="{Binding Config.PopulationLimit,Mode=TwoWay}">开启1000人口上限</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Config.PopulationLimit,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">关闭1000人口上限</ToggleButton>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">多队列训练</TextBlock>
                 <StackPanel Orientation="Horizontal">
@@ -280,8 +294,8 @@
                   <TextBlock>。请选择开启或关闭多队列训练。</TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                  <Button>开启多队列训练</Button>
-                  <Button>关闭多队列训练</Button>
+                  <ToggleButton IsChecked="{Binding Config.MultipleQueue,Mode=TwoWay}">开启多队列训练</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Config.MultipleQueue,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">关闭多队列训练</ToggleButton>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键</TextBlock>
                 <DockPanel>
