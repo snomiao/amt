@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.IO;
 using System.Diagnostics;
+using Size = System.Windows.Size;
 
 namespace YTY.amt
 {
@@ -17,6 +18,7 @@ namespace YTY.amt
     private bool multipleQueue;
     private string currentGameLanguage;
     private bool splash;
+    private Size resolution;
 
     public string HawkempirePath
     {
@@ -87,15 +89,27 @@ namespace YTY.amt
       }
     }
 
+    public Size Resolution
+    {
+      get { return resolution; }
+      set
+      {
+        resolution = value;
+        DAL.SaveResolution(this);
+        OnPropertyChanged(nameof(Resolution));
+      }
+    }
+
     public ConfigModel() { }
 
-    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue,string gameLanguage,bool splash)
+    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue,string gameLanguage,bool splash,Size resolution)
     {
       this.hawkempirePath = hawkempirePath;
       this.currentGameVersion = currentGameVersion;
       this.populationLimit = populationLimit;
       currentGameLanguage = gameLanguage;
       this.splash = splash;
+      this.resolution = resolution;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

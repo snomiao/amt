@@ -533,18 +533,24 @@
       </Setter>
     </Style>
 
-    <Style x:Key="ListBoxNoneStyle" TargetType="{x:Type ListBox}">
+    <Style x:Key="ListBoxNoneStyle"
+           TargetType="{x:Type ListBox}">
       <Setter Property="ItemContainerStyle"
               Value="{StaticResource ListBoxItemNoneStyle}"></Setter>
       <Setter Property="BorderThickness"
               Value="0"></Setter>
-      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
-              Value="Disabled"></Setter>
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate>
             <WrapPanel IsItemsHost="True"></WrapPanel>
           </ItemsPanelTemplate>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListBox}">
+            <ItemsPresenter></ItemsPresenter>
+          </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>

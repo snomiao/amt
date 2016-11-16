@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace YTY.amt
 {
@@ -15,6 +16,8 @@ namespace YTY.amt
     private ConfigModel config;
     private ObservableCollection<GameVersionModel> gameVersionList;
     private List<GameLanguageModel> gameLanguages;
+    private Size fullScreen = new Size(SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
+    private Size workingArea = new Size(SystemParameters.WorkArea.Width - 2 * SystemParameters.FixedFrameVerticalBorderWidth, SystemParameters.WorkArea.Height - 2 * SystemParameters.FixedFrameHorizontalBorderHeight);
 
     public bool WorkshopShown
     {
@@ -97,7 +100,7 @@ namespace YTY.amt
             new GameLanguageModel(){ Code="pl",Name="波兰语" },
             new GameLanguageModel(){ Code="bg",Name="保加利亚语" },
             new GameLanguageModel(){ Code="cs",Name="捷克语" },
-            new GameLanguageModel() { Code="sk",Name="斯洛伐克语" }
+            new GameLanguageModel(){ Code="sk",Name="斯洛伐克语" }
           };
         }
         return gameLanguages;
@@ -114,6 +117,23 @@ namespace YTY.amt
       }
     }
 
+    public List<Size> ScreenResolutions => Util.GetScreenResolutions();
+
+    public bool FullScreen
+    {
+      get { return config.Resolution == fullScreen; }
+      set
+      {
+        config.Resolution = fullScreen;
+      }
+    }
+
+    public bool WorkingArea
+    {
+      get { return config.Resolution == workingArea; }
+      set { config.Resolution = workingArea; }
+    }
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     protected void OnPropertyChanged(string propertyName)
@@ -127,6 +147,10 @@ namespace YTY.amt
       {
         case nameof(ConfigModel.HawkempirePath):
           OnPropertyChanged(nameof(IsValidHawkempirePath));
+          break;
+        case nameof(ConfigModel.Resolution):
+          OnPropertyChanged(nameof(FullScreen));
+          OnPropertyChanged(nameof(WorkingArea));
           break;
       }
     }

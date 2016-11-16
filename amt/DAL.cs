@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Diagnostics;
+using Size = System.Windows.Size;
 
 namespace YTY.amt
 {
@@ -93,8 +94,8 @@ namespace YTY.amt
     {
       try
       {
-        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int,gameLanguage text,splash int)");
-        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue,gameLanguage,splash FROM Config"))
+        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int,gameLanguage text,splash int,resolutionX int,resolutionY int)");
+        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue,gameLanguage,splash,resolutionX,resolutionY FROM Config"))
         {
           if(reader.Read())
           {
@@ -103,17 +104,18 @@ namespace YTY.amt
               reader.GetBoolean(2),
               reader.GetBoolean(3),
               reader.GetString(4),
-              reader.GetBoolean(5));
+              reader.GetBoolean(5),
+              new Size(reader.GetInt32(6), reader.GetInt32(7)));
           }
           else
-            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0,'zh',0)");
+            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0,'zh',0,1366,768)");
         }
       }
       catch (DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
-      return new ConfigModel("",-1,true,false,"zh",false);
+      return new ConfigModel("",-1,true,false,"zh",false,new Size(1366,768));
     }
 
     public static void SaveHawkempirePath(ConfigModel config)
@@ -144,6 +146,11 @@ namespace YTY.amt
     public static void SaveSplash(ConfigModel config)
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32(config.Splash)}");
+    }
+
+    public static void SaveResolution(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET resolutionX={(int)config.Resolution.Width},resolutionY={(int)config.Resolution.Height}");
     }
   }
 }

@@ -336,11 +336,28 @@
                   </TextBlock>
                   <TextBlock>。请选择或输入自定义数值。</TextBlock>
                 </StackPanel>
+                <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                         ItemsSource="{Binding ScreenResolutions}"
+                         SelectedItem="{Binding Config.Resolution,Mode=TwoWay}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}">
+                        <ToggleButton.Content>
+                          <TextBlock>
+                            <TextBlock.Text>
+                              <MultiBinding StringFormat="{}{0}×{1}">
+                                <Binding Path="Width"></Binding>
+                                <Binding Path="Height"></Binding>
+                              </MultiBinding>
+                            </TextBlock.Text></TextBlock>
+                        </ToggleButton.Content>
+                      </ToggleButton>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
                 <StackPanel Orientation="Horizontal">
-                  <ComboBox x:Name="lstResolution">
-                  </ComboBox>
-                  <Button>全屏</Button>
-                  <Button>窗口化全屏</Button>
+                  <ToggleButton IsChecked="{Binding FullScreen,Mode=TwoWay}">全屏</ToggleButton>
+                  <ToggleButton IsChecked="{Binding WorkingArea,Mode=TwoWay}">窗口化全屏</ToggleButton>
                   <Button  VerticalAlignment="Top">
                     <StackPanel Orientation="Horizontal">
                       <TextBlock>设置宽度为：</TextBlock>
