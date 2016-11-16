@@ -70,6 +70,7 @@
     </ApplicationDefinition>
     <Compile Include="ConfigModel.cs" />
     <Compile Include="DAL.cs" />
+    <Compile Include="GameLanguageModel.cs" />
     <Compile Include="GameVersionModel.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="MySqlOp.cs" />

@@ -231,25 +231,9 @@
                   <TextBlock></TextBlock>
                   <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
                 </StackPanel>
-                <ListBox ItemsSource="{Binding GameVersionList}"
-                         SelectedItem="{Binding CurrentGameVersion,Mode=TwoWay}"
-                         BorderThickness="0">
-                  <ListBox.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListBoxItem}">
-                      <Setter Property="Template">
-                        <Setter.Value>
-                          <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                            <ContentPresenter></ContentPresenter>
-                          </ControlTemplate>
-                        </Setter.Value>
-                      </Setter>
-                    </Style>
-                  </ListBox.ItemContainerStyle>
-                  <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <WrapPanel></WrapPanel>
-                    </ItemsPanelTemplate>
-                  </ListBox.ItemsPanel>
+                <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                         ItemsSource="{Binding GameVersionList}"
+                         SelectedItem="{Binding CurrentGameVersion,Mode=TwoWay}">
                   <ListBox.ItemTemplate>
                     <DataTemplate>
                       <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"
@@ -316,27 +300,17 @@
                   <TextBlock></TextBlock>
                   <TextBlock>。请选择游戏界面语言。</TextBlock>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                  <Button>中文</Button>
-                  <Button>英文</Button>
-                  <Button>日语</Button>
-                  <Button>西班牙语</Button>
-                  <ComboBox IsEditable="False">
-                    <ComboBoxItem Tag="bg">保加利亚语</ComboBoxItem>
-                    <ComboBoxItem Tag="cs">捷克语</ComboBoxItem>
-                    <ComboBoxItem Tag="de">德语</ComboBoxItem>
-                    <ComboBoxItem Tag="el">希腊语</ComboBoxItem>
-                    <ComboBoxItem Tag="fr">法语</ComboBoxItem>
-                    <ComboBoxItem Tag="hu">匈牙利语</ComboBoxItem>
-                    <ComboBoxItem Tag="it">意大利语</ComboBoxItem>
-                    <ComboBoxItem Tag="ko">朝鲜语</ComboBoxItem>
-                    <ComboBoxItem Tag="pl">波兰语</ComboBoxItem>
-                    <ComboBoxItem Tag="pt">葡萄牙语</ComboBoxItem>
-                    <ComboBoxItem Tag="ru">俄语</ComboBoxItem>
-                    <ComboBoxItem Tag="sk">斯洛伐克语</ComboBoxItem>
-                    <ComboBoxItem Tag="tr">土耳其语</ComboBoxItem>
-                  </ComboBox>
-                </StackPanel>
+                <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                         ItemsSource="{Binding GameLanguages}"
+                         SelectedItem="{Binding CurrentGameLanguage,Mode=TwoWay}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton Style="{StaticResource ToggleButtonSettingStyle}"
+                                    Content="{Binding Name}"
+                                    IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"></ToggleButton>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">开场影片</TextBlock>
                 <StackPanel Orientation="Horizontal">
                   <TextBlock>程序启动开场影片：</TextBlock>
@@ -344,8 +318,8 @@
                   <TextBlock>。请选择开启或关闭。</TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                  <Button>开场影片开启</Button>
-                  <Button>开场影片关闭</Button>
+                  <ToggleButton IsChecked="{Binding Config.Splash,Mode=TwoWay}">开场影片开启</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Config.Splash,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">开场影片关闭</ToggleButton>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">分辨率</TextBlock>
                 <StackPanel Orientation="Horizontal">

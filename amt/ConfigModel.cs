@@ -15,6 +15,8 @@ namespace YTY.amt
     private int currentGameVersion;
     private bool populationLimit;
     private bool multipleQueue;
+    private string currentGameLanguage;
+    private bool splash;
 
     public string HawkempirePath
     {
@@ -62,13 +64,38 @@ namespace YTY.amt
       }
     }
 
+    public string CurrentGameLanguage
+    {
+      get { return currentGameLanguage; }
+      set
+      {
+        currentGameLanguage = value;
+        //TODO
+        DAL.SaveGameLanguage(this);
+        OnPropertyChanged(nameof(CurrentGameLanguage));
+      }
+    }
+
+    public bool Splash
+    {
+      get { return splash; }
+      set
+      {
+        splash = value;
+        DAL.SaveSplash(this);
+        OnPropertyChanged(nameof(Splash));
+      }
+    }
+
     public ConfigModel() { }
 
-    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue)
+    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue,string gameLanguage,bool splash)
     {
       this.hawkempirePath = hawkempirePath;
       this.currentGameVersion = currentGameVersion;
       this.populationLimit = populationLimit;
+      currentGameLanguage = gameLanguage;
+      this.splash = splash;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

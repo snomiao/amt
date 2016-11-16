@@ -93,25 +93,27 @@ namespace YTY.amt
     {
       try
       {
-        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int)");
-        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue FROM Config"))
+        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int,gameLanguage text,splash int)");
+        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue,gameLanguage,splash FROM Config"))
         {
           if(reader.Read())
           {
             return new ConfigModel(reader.GetString(0),
               reader.GetInt32(1),
               reader.GetBoolean(2),
-              reader.GetBoolean(3));
+              reader.GetBoolean(3),
+              reader.GetString(4),
+              reader.GetBoolean(5));
           }
           else
-            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0)");
+            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0,'zh',0)");
         }
       }
       catch (DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
-      return new ConfigModel("",-1,true,false);
+      return new ConfigModel("",-1,true,false,"zh",false);
     }
 
     public static void SaveHawkempirePath(ConfigModel config)
@@ -132,6 +134,16 @@ namespace YTY.amt
     public static void SaveMultipleQueue(ConfigModel config)
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Config SET multipleQueue={Convert.ToInt32(config.MultipleQueue)}");
+    }
+
+    public static void SaveGameLanguage(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET gameLanguage='{config.CurrentGameLanguage}'");
+    }
+
+    public static void SaveSplash(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32(config.Splash)}");
     }
   }
 }
