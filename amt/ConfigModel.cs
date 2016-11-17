@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.IO;
 using System.Diagnostics;
-using Size = System.Windows.Size;
 
 namespace YTY.amt
 {
@@ -18,7 +17,10 @@ namespace YTY.amt
     private bool multipleQueue;
     private string currentGameLanguage;
     private bool splash;
-    private Size resolution;
+    private int resolutionX;
+    private int resolutionY;
+    private bool backgroundMusic;
+    private bool isEnglishCampaignNarration;
 
     public string HawkempirePath
     {
@@ -89,27 +91,63 @@ namespace YTY.amt
       }
     }
 
-    public Size Resolution
+    public int ResolutionX
     {
-      get { return resolution; }
+      get { return resolutionX; }
       set
       {
-        resolution = value;
-        DAL.SaveResolution(this);
-        OnPropertyChanged(nameof(Resolution));
+        resolutionX = value;
+        DAL.SaveResolutionX(this);
+        OnPropertyChanged(nameof(ResolutionX));
+      }
+    }
+
+    public int ResolutionY
+    {
+      get { return resolutionY; }
+      set
+      {
+        resolutionY = value;
+        DAL.SaveResolutionY(this);
+        OnPropertyChanged(nameof(ResolutionY));
+      }
+    }
+
+    public bool BackgroundMusic
+    {
+      get { return backgroundMusic; }
+      set
+      {
+        backgroundMusic = value;
+        DAL.SaveBackgroundMusic(this);
+        OnPropertyChanged(nameof(BackgroundMusic));
+      }
+    }
+
+    public bool IsEnglishCampaignNarration
+    {
+      get { return isEnglishCampaignNarration; }
+      set
+      {
+        isEnglishCampaignNarration = value;
+        DAL.SaveIsEnglishCampaignNarration(this);
+        OnPropertyChanged(nameof(IsEnglishCampaignNarration));
       }
     }
 
     public ConfigModel() { }
 
-    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue,string gameLanguage,bool splash,Size resolution)
+    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue,string gameLanguage,bool splash,int resolutionX,int resolutionY,bool backgroundMusic,bool isEnglishCampaignNarration)
     {
       this.hawkempirePath = hawkempirePath;
       this.currentGameVersion = currentGameVersion;
       this.populationLimit = populationLimit;
       currentGameLanguage = gameLanguage;
       this.splash = splash;
-      this.resolution = resolution;
+      this.resolutionX = resolutionX;
+      this.resolutionY = resolutionY;
+      this.backgroundMusic = backgroundMusic;
+      this.isEnglishCampaignNarration = isEnglishCampaignNarration;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

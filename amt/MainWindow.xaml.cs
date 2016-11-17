@@ -37,5 +37,10 @@ namespace YTY.amt
       if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
       txbHawkempirePath.Text = fbd.SelectedPath;
     }
+
+    private void TextBox_Error(object sender, ValidationErrorEventArgs e)
+    {
+      Debug.WriteLine(e.Action);
+    }
   }
 }

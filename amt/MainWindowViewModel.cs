@@ -16,8 +16,9 @@ namespace YTY.amt
     private ConfigModel config;
     private ObservableCollection<GameVersionModel> gameVersionList;
     private List<GameLanguageModel> gameLanguages;
-    private Size fullScreen = new Size(SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
-    private Size workingArea = new Size(SystemParameters.WorkArea.Width - 2 * SystemParameters.FixedFrameVerticalBorderWidth, SystemParameters.WorkArea.Height - 2 * SystemParameters.FixedFrameHorizontalBorderHeight);
+    private ResolutionModel fullScreen = new ResolutionModel { X = (int)SystemParameters.PrimaryScreenWidth, Y = (int)SystemParameters.PrimaryScreenHeight };
+    private ResolutionModel workingArea = new ResolutionModel { X = (int)(SystemParameters.WorkArea.Width - 2 * SystemParameters.FixedFrameVerticalBorderWidth), Y = (int)(SystemParameters.WorkArea.Height - 2 * SystemParameters.FixedFrameHorizontalBorderHeight) };
+    private ResolutionModel currentResolution;
 
     public bool WorkshopShown
     {
@@ -117,21 +118,37 @@ namespace YTY.amt
       }
     }
 
-    public List<Size> ScreenResolutions => Util.GetScreenResolutions();
+    public List<ResolutionModel> ScreenResolutions => Util.GetScreenResolutions();
+
+    public ResolutionModel CurrentResolution
+    {
+      get { return new ResolutionModel { X = config.ResolutionX, Y = config.ResolutionY }; }
+      set
+      {
+        config.ResolutionX = value.X;
+        config.ResolutionY = value.Y;
+        OnPropertyChanged(nameof(CurrentResolution));
+      }
+    }
 
     public bool FullScreen
     {
-      get { return config.Resolution == fullScreen; }
+      get { return fullScreen.X == config.ResolutionX && fullScreen.Y == config.ResolutionY; }
       set
       {
-        config.Resolution = fullScreen;
+        config.ResolutionX = fullScreen.X;
+        config.ResolutionY = fullScreen.Y;
       }
     }
 
     public bool WorkingArea
     {
-      get { return config.Resolution == workingArea; }
-      set { config.Resolution = workingArea; }
+      get { return workingArea.X == config.ResolutionX && workingArea.Y == config.ResolutionY; }
+      set
+      {
+        config.ResolutionX = workingArea.X;
+        config.ResolutionY = workingArea.Y;
+      }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -148,7 +165,9 @@ namespace YTY.amt
         case nameof(ConfigModel.HawkempirePath):
           OnPropertyChanged(nameof(IsValidHawkempirePath));
           break;
-        case nameof(ConfigModel.Resolution):
+        case nameof(ConfigModel.ResolutionX):
+        case nameof(ConfigModel.ResolutionY):
+          OnPropertyChanged(nameof(CurrentResolution));
           OnPropertyChanged(nameof(FullScreen));
           OnPropertyChanged(nameof(WorkingArea));
           break;

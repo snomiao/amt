@@ -9,7 +9,6 @@ using System.Windows.Threading;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Diagnostics;
-using Size = System.Windows.Size;
 
 namespace YTY.amt
 {
@@ -94,10 +93,10 @@ namespace YTY.amt
     {
       try
       {
-        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int,gameLanguage text,splash int,resolutionX int,resolutionY int)");
-        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue,gameLanguage,splash,resolutionX,resolutionY FROM Config"))
+        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int,gameLanguage text,splash int,resolutionX int,resolutionY,backgroundMusic int,isEnglishCampaignNarration int)");
+        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue,gameLanguage,splash,resolutionX,resolutionY,backgroundMusic,isEnglishCampaignNarration FROM Config"))
         {
-          if(reader.Read())
+          if (reader.Read())
           {
             return new ConfigModel(reader.GetString(0),
               reader.GetInt32(1),
@@ -105,17 +104,20 @@ namespace YTY.amt
               reader.GetBoolean(3),
               reader.GetString(4),
               reader.GetBoolean(5),
-              new Size(reader.GetInt32(6), reader.GetInt32(7)));
+              reader.GetInt32(6),
+              reader.GetInt32(7),
+              reader.GetBoolean(8),
+              reader.GetBoolean(9));
           }
           else
-            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0,'zh',0,1366,768)");
+            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0,'zh',0,1366,768,1,0)");
         }
       }
       catch (DbException ex)
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
-      return new ConfigModel("",-1,true,false,"zh",false,new Size(1366,768));
+      return new ConfigModel("", -1, true, false, "zh", false, 1366, 768,true,false);
     }
 
     public static void SaveHawkempirePath(ConfigModel config)
@@ -123,14 +125,14 @@ namespace YTY.amt
       ConfigOp.ExecuteNonQuery($"UPDATE Config SET hawkempirePath='{config.HawkempirePath}'");
     }
 
-    public static void SaveCurrentGameVersion(ConfigModel config )
+    public static void SaveCurrentGameVersion(ConfigModel config)
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Config SET currentGameVersion={config.CurrentGameVersion}");
     }
 
     public static void SavePopulationLimit(ConfigModel config)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32( config.PopulationLimit)}");
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32(config.PopulationLimit)}");
     }
 
     public static void SaveMultipleQueue(ConfigModel config)
@@ -145,12 +147,27 @@ namespace YTY.amt
 
     public static void SaveSplash(ConfigModel config)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32(config.Splash)}");
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET splash={Convert.ToInt32(config.Splash)}");
     }
 
-    public static void SaveResolution(ConfigModel config)
+    public static void SaveResolutionX(ConfigModel config)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET resolutionX={(int)config.Resolution.Width},resolutionY={(int)config.Resolution.Height}");
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET resolutionX={config.ResolutionX}");
     }
+
+    public static void SaveResolutionY(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET resolutionY={config.ResolutionY}");
+    }
+
+    public static void SaveBackgroundMusic(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET backgroundMusic={Convert.ToInt32(config.BackgroundMusic)}");
+    }
+    public static void SaveIsEnglishCampaignNarration(ConfigModel config)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET isEnglishCampaignNarration={Convert.ToInt32(config.IsEnglishCampaignNarration)}");
+    }
+
   }
 }

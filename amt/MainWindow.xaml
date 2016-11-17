@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YTY.amt"
+        xmlns:lib="clr-namespace:YTY;assembly=lib"
         mc:Ignorable="d"
         Title="帝国时代管家"
         Height="530"
@@ -338,7 +339,7 @@
                 </StackPanel>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
                          ItemsSource="{Binding ScreenResolutions}"
-                         SelectedItem="{Binding Config.Resolution,Mode=TwoWay}">
+                         SelectedValue="{Binding CurrentResolution,Mode=TwoWay}">
                   <ListBox.ItemTemplate>
                     <DataTemplate>
                       <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}">
@@ -346,8 +347,8 @@
                           <TextBlock>
                             <TextBlock.Text>
                               <MultiBinding StringFormat="{}{0}×{1}">
-                                <Binding Path="Width"></Binding>
-                                <Binding Path="Height"></Binding>
+                                <Binding Path="X"></Binding>
+                                <Binding Path="Y"></Binding>
                               </MultiBinding>
                             </TextBlock.Text></TextBlock>
                         </ToggleButton.Content>
@@ -356,22 +357,68 @@
                   </ListBox.ItemTemplate>
                 </ListBox>
                 <StackPanel Orientation="Horizontal">
+                  <StackPanel.Resources>
+                    <Style TargetType="{x:Type TextBlock}">
+                      <Setter Property="VerticalAlignment"
+                              Value="Center"></Setter>
+                    </Style>
+                    <Style TargetType="{x:Type TextBox}">
+                      <Setter Property="VerticalAlignment"
+                              Value="Center"></Setter>
+                      <Setter Property="Padding"
+                              Value="10,10"></Setter>
+                      <Setter Property="Validation.ErrorTemplate">
+                        <Setter.Value>
+                          <ControlTemplate>
+                            <Border BorderThickness="3"
+                                    BorderBrush="red"
+                                    Opacity="1">
+                              <Border.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                  <BeginStoryboard>
+                                    <Storyboard>
+                                      <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                       To="0"
+                                                       Duration="0:0:0.2"
+                                                       AutoReverse="True"
+                                                       RepeatBehavior="Forever"></DoubleAnimation>
+                                    </Storyboard>
+                                  </BeginStoryboard>
+                                </EventTrigger>
+                              </Border.Triggers>
+                              <AdornedElementPlaceholder></AdornedElementPlaceholder>
+                            </Border>
+                          </ControlTemplate>
+                        </Setter.Value>
+                      </Setter>
+                    </Style>
+                  </StackPanel.Resources>
                   <ToggleButton IsChecked="{Binding FullScreen,Mode=TwoWay}">全屏</ToggleButton>
                   <ToggleButton IsChecked="{Binding WorkingArea,Mode=TwoWay}">窗口化全屏</ToggleButton>
-                  <Button  VerticalAlignment="Top">
-                    <StackPanel Orientation="Horizontal">
-                      <TextBlock>设置宽度为：</TextBlock>
-                      <TextBox x:Name="txtResolutionWidth"
-                               Width="50"></TextBox>
-                    </StackPanel>
-                  </Button>
-                  <Button VerticalAlignment="Top">
-                    <StackPanel Orientation="Horizontal">
-                      <TextBlock>设置高度为：</TextBlock>
-                      <TextBox x:Name="txtResolutionHeight"
-                               Width="50"></TextBox>
-                    </StackPanel>
-                  </Button>
+                  <TextBlock>自定义宽度：</TextBlock>
+                  <TextBox Validation.Error="TextBox_Error">
+                    <TextBox.Text>
+                      <Binding Path="Config.ResolutionX"
+                               Mode="TwoWay"
+                               UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                          <lib:GreaterThanRule Min="800"></lib:GreaterThanRule>
+                        </Binding.ValidationRules>
+                      </Binding>
+                    </TextBox.Text>
+                  </TextBox>
+                  <TextBlock>自定义高度：</TextBlock>
+                  <TextBox>
+                    <TextBox.Text>
+                      <Binding Path="Config.ResolutionY"
+                               Mode="TwoWay"
+                               UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                          <lib:GreaterThanRule Min="600"></lib:GreaterThanRule>
+                        </Binding.ValidationRules>
+                      </Binding>
+                    </TextBox.Text>
+                  </TextBox>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">重组资料库</TextBlock>
                 <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
@@ -416,8 +463,8 @@
                 <TextBlock>。请选择开启或关闭背景音乐。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button>开启背景音乐</Button>
-                <Button>关闭背景音乐</Button>
+                <ToggleButton IsChecked="{Binding Config.BackgroundMusic,Mode=TwoWay}">开启背景音乐</ToggleButton>
+                <ToggleButton IsChecked="{Binding Config.BackgroundMusic,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">关闭背景音乐</ToggleButton>
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">战役语音语言</TextBlock>
               <StackPanel Orientation="Horizontal">
@@ -426,8 +473,8 @@
                 <TextBlock>。请选择战役语音。</TextBlock>
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <Button>英文战役语音</Button>
-                <Button>中文战役语音</Button>
+                <ToggleButton IsChecked="{Binding Config.IsEnglishCampaignNarration,Mode=TwoWay}">英文战役语音</ToggleButton>
+                <ToggleButton IsChecked="{Binding Config.IsEnglishCampaignNarration,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">中文战役语音</ToggleButton>
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">嘲讽音效语言</TextBlock>
               <StackPanel Orientation="Horizontal">
@@ -435,8 +482,7 @@
                 <TextBlock x:Name="txbTaunt" />
                 <TextBlock>。请选择嘲讽音效。</TextBlock>
               </StackPanel>
-              <WrapPanel x:Name="wrpTaunts"
-                         Orientation="Horizontal">
+              <WrapPanel>
                 <Button>英文嘲讽音效</Button>
                 <Button>中文嘲讽音效</Button>
               </WrapPanel>

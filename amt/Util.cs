@@ -12,25 +12,25 @@ namespace YTY.amt
   public static class Util
   {
     private static DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
-    private static List<Size> screenResolutions;
+    private static List<ResolutionModel> screenResolutions;
 
     public static DateTime FromUnixTimestamp(ulong unixTimestamp)
     {
       return UNIXTIMESTAMPBASE + TimeSpan.FromSeconds(unixTimestamp);
     }
 
-    public static List<Size> GetScreenResolutions()
+    public static List<ResolutionModel> GetScreenResolutions()
     {
       if (screenResolutions == null)
       {
-        var temp = new List<Size>();
+        var temp = new List<ResolutionModel>();
         var dm = new DEVMODE();
         var i = 0;
         while (EnumDisplaySettings(null, i++, ref dm))
         {
-          temp.Add(new Size(dm.dmPelsWidth, dm.dmPelsHeight));
+          temp.Add(new ResolutionModel { X = dm.dmPelsWidth, Y = dm.dmPelsHeight });
         }
-        screenResolutions = temp.Distinct().OrderBy(s => s.Width).ThenBy(s => s.Height).ToList();
+        screenResolutions = temp.Distinct().OrderBy(s => s.X).ThenBy(s => s.Y).ToList();
       }
       return screenResolutions;
     }

@@ -74,6 +74,7 @@
     <Compile Include="GameVersionModel.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="MySqlOp.cs" />
+    <Compile Include="ResolutionModel.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop.xaml.cs">
