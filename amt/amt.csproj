@@ -70,6 +70,8 @@
     </ApplicationDefinition>
     <Compile Include="ConfigModel.cs" />
     <Compile Include="DAL.cs" />
+    <Compile Include="Drs\DrsFile.cs" />
+    <Compile Include="Drs\DrsTable.cs" />
     <Compile Include="GameLanguageModel.cs" />
     <Compile Include="GameVersionModel.cs" />
     <Compile Include="MainWindowViewModel.cs" />
