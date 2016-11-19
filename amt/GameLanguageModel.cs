@@ -8,7 +8,7 @@ namespace YTY.amt
 {
   public class GameLanguageModel
   {
-    public string Code { get; set; }
+    public int ResourceId { get; set; }
 
     public string Name { get; set; }
   }

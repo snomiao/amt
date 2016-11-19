@@ -18,7 +18,6 @@ namespace YTY.amt
     private List<GameLanguageModel> gameLanguages;
     private ResolutionModel fullScreen = new ResolutionModel { X = (int)SystemParameters.PrimaryScreenWidth, Y = (int)SystemParameters.PrimaryScreenHeight };
     private ResolutionModel workingArea = new ResolutionModel { X = (int)(SystemParameters.WorkArea.Width - 2 * SystemParameters.FixedFrameVerticalBorderWidth), Y = (int)(SystemParameters.WorkArea.Height - 2 * SystemParameters.FixedFrameHorizontalBorderHeight) };
-    private ResolutionModel currentResolution;
 
     public bool WorkshopShown
     {
@@ -34,7 +33,7 @@ namespace YTY.amt
       {
         if (config == null)
         {
-          config = DAL.GetConfig();
+          config = ConfigModel.GetConfig();
           config.PropertyChanged += Config_PropertyChanged;
         }
         return config;
@@ -55,13 +54,7 @@ namespace YTY.amt
       {
         if (gameVersionList == null)
         {
-          gameVersionList = new ObservableCollection<GameVersionModel>(new[]
-          {
-            new GameVersionModel() { ResourceId=-1, Name="帝国时代Ⅱ 1.5",ExePath=@"exe\age2_x1.5.exe" },
-            new GameVersionModel() {ResourceId=-2,Name="帝国时代Ⅱ 1.0C",ExePath=@"exe\age2_x1.0c.exe" },
-            new GameVersionModel() {ResourceId=-3,Name="被遗忘的帝国",ExePath=@"exe\age2_x2.exe" },
-            new GameVersionModel() {ResourceId=-4,Name="WAIFor 触发扩展版",ExePath=@"exe\age2_wtep.exe" }
-          }); // TODO: concat with installed mods
+          gameVersionList = new ObservableCollection<GameVersionModel>(DAL.GetGameVersions()); 
         }
         return gameVersionList;
       }
@@ -85,23 +78,8 @@ namespace YTY.amt
         {
           gameLanguages = new List<GameLanguageModel>()
           {
-            new GameLanguageModel(){ Code="zh",Name="中文" },
-            new GameLanguageModel(){ Code="en",Name="英语" },
-            new GameLanguageModel(){ Code="ja",Name="日语"},
-            new GameLanguageModel(){ Code="de",Name="德语" },
-            new GameLanguageModel(){ Code="fr",Name="法语" },
-            new GameLanguageModel(){ Code="es",Name="西班牙语" },
-            new GameLanguageModel(){ Code="it",Name="意大利语" },
-            new GameLanguageModel(){ Code="pt",Name="葡萄牙语" },
-            new GameLanguageModel(){ Code="ru",Name="俄语" },
-            new GameLanguageModel(){ Code="ko",Name="朝鲜语" },
-            new GameLanguageModel(){ Code="hu",Name="匈牙利语" },
-            new GameLanguageModel(){ Code="el",Name="希腊语" },
-            new GameLanguageModel(){ Code="tr",Name="土耳其语" },
-            new GameLanguageModel(){ Code="pl",Name="波兰语" },
-            new GameLanguageModel(){ Code="bg",Name="保加利亚语" },
-            new GameLanguageModel(){ Code="cs",Name="捷克语" },
-            new GameLanguageModel(){ Code="sk",Name="斯洛伐克语" }
+            new GameLanguageModel(){ ResourceId=-1,Name="中文" },
+            new GameLanguageModel(){ ResourceId=-2,Name="英语" },
           };
         }
         return gameLanguages;
@@ -110,10 +88,10 @@ namespace YTY.amt
 
     public GameLanguageModel CurrentGameLanguage
     {
-      get { return GameLanguages.First(g => g.Code == config.CurrentGameLanguage); }
+      get { return GameLanguages.First(g => g.ResourceId == config.CurrentGameLanguage); }
       set
       {
-        config.CurrentGameLanguage = value.Code;
+        config.CurrentGameLanguage = value.ResourceId;
         OnPropertyChanged(nameof(CurrentGameLanguage));
       }
     }

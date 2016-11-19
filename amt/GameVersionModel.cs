@@ -13,5 +13,10 @@ namespace YTY.amt
     public string Name { get; set; }
 
     public string ExePath { get; set; }
+
+    public GameVersionModel()
+    {
+
+    }
   }
 }

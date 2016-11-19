@@ -130,7 +130,7 @@ namespace YTY.amt
       My.WorkshopWindowViewModel.CurrentView = WindowView.ShowingSelectedResource;
       try
       {
-        await viewModel.GetDetailsAsync();
+        await viewModel.GetResourceDetailsAsync();
       }
       catch (InvalidOperationException ex)
       {

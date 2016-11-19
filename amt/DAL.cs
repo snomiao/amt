@@ -65,7 +65,7 @@ namespace YTY.amt
       return ret;
     }
 
-    public static async Task GetDetailsAsync(this WorkshopResourceViewModel viewModel)
+    public static async Task GetResourceDetailsAsync(this WorkshopResourceViewModel viewModel)
     {
       try
       {
@@ -89,85 +89,97 @@ namespace YTY.amt
       }
     }
 
-    public static ConfigModel GetConfig()
+    public static List<GameVersionModel> GetGameVersions()
     {
-      try
+      var ret = new List<GameVersionModel>();
+      ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY,name text,exePath text)");
+      using (var reader = ConfigOp.ExecuteReader("SELECT id,name,exePath FROM GameVersions"))
       {
-        ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(hawkempirePath text,currentGameVersion int,populationLimit int,multipleQueue int,gameLanguage text,splash int,resolutionX int,resolutionY,backgroundMusic int,isEnglishCampaignNarration int)");
-        using (var reader = ConfigOp.ExecuteReader("SELECT hawkempirePath,currentGameVersion,populationLimit,multipleQueue,gameLanguage,splash,resolutionX,resolutionY,backgroundMusic,isEnglishCampaignNarration FROM Config"))
+        while (reader.Read())
         {
-          if (reader.Read())
+          ret.Add(new GameVersionModel()
           {
-            return new ConfigModel(reader.GetString(0),
-              reader.GetInt32(1),
-              reader.GetBoolean(2),
-              reader.GetBoolean(3),
-              reader.GetString(4),
-              reader.GetBoolean(5),
-              reader.GetInt32(6),
-              reader.GetInt32(7),
-              reader.GetBoolean(8),
-              reader.GetBoolean(9));
-          }
-          else
-            ConfigOp.ExecuteNonQuery("INSERT INTO Config VALUES('',-1,1,0,'zh',0,1366,768,1,0)");
+            ResourceId = reader.GetInt32(0),
+            Name = reader.GetString(1),
+            ExePath = reader.GetString(2)
+          });
         }
       }
-      catch (DbException ex)
+      AddGameVersionIfNotExists(ret, new GameVersionModel()
       {
-        throw new InvalidOperationException(ex.ToString(), ex);
+        ResourceId = -1,
+        Name = "帝国时代Ⅱ 1.5",
+        ExePath = @"exe\age2_x1.5.exe",
+      });
+      AddGameVersionIfNotExists(ret, new GameVersionModel()
+      {
+        ResourceId = -2,
+        Name = "帝国时代Ⅱ 1.0C",
+        ExePath = @"exe\age2_x1.0c.exe",
+      });
+      AddGameVersionIfNotExists(ret, new GameVersionModel()
+      {
+        ResourceId = -3,
+        Name = "被遗忘的帝国",
+        ExePath = @"exe\age2_x2.exe",
+      });
+      AddGameVersionIfNotExists(ret, new GameVersionModel()
+      {
+        ResourceId = -4,
+        Name = "WAIFor 触发扩展版",
+        ExePath = @"exe\age2_wtep.exe",
+      });
+      return ret;
+    }
+
+    private static void AddGameVersionIfNotExists(List<GameVersionModel> list, GameVersionModel model)
+    {
+      if (!list.Any(m => m.ResourceId == model.ResourceId))
+      {
+        list.Add(model);
+        AddGameVersion(model);
       }
-      return new ConfigModel("", -1, true, false, "zh", false, 1366, 768,true,false);
     }
 
-    public static void SaveHawkempirePath(ConfigModel config)
+    public static void AddGameVersion(GameVersionModel model)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET hawkempirePath='{config.HawkempirePath}'");
+      ConfigOp.ExecuteNonQuery($"INSERT INTO GameVersions(id,name,exePath,allShown) VALUES({model.ResourceId},'{model.Name}','{model.ExePath}')");
     }
 
-    public static void SaveCurrentGameVersion(ConfigModel config)
+    public static void SaveConfigString(string key, string value)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET currentGameVersion={config.CurrentGameVersion}");
+      ConfigOp.ExecuteNonQuery($"UPDATE Config SET value='{value}' WHERE key='{key}'");
     }
 
-    public static void SavePopulationLimit(ConfigModel config)
+    public static void SaveConfigInt(string key, int value)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET populationLimit={Convert.ToInt32(config.PopulationLimit)}");
+      SaveConfigString(key, value.ToString());
     }
 
-    public static void SaveMultipleQueue(ConfigModel config)
+    public static void SaveConfigBool(string key, bool value)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET multipleQueue={Convert.ToInt32(config.MultipleQueue)}");
+      SaveConfigInt(key, Convert.ToInt32(value));
     }
 
-    public static void SaveGameLanguage(ConfigModel config)
+    public static string GetConfigString(string key, string defaultValue)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET gameLanguage='{config.CurrentGameLanguage}'");
+      var ret = ConfigOp.ExecuteScalar<string>($"SELECT value FROM Config WHERE key='{key}'");
+      if (ret == null)
+        ConfigOp.ExecuteNonQuery($"INSERT INTO Config (key,value) VALUES('{key}','{defaultValue}')");
+      return ret ?? defaultValue;
     }
 
-    public static void SaveSplash(ConfigModel config)
+    public static int GetConfigInt(string key, int defaultValue)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET splash={Convert.ToInt32(config.Splash)}");
+      int ret;
+      if (!int.TryParse(GetConfigString(key, defaultValue.ToString()), out ret))
+        ret = defaultValue;
+      return ret;
     }
 
-    public static void SaveResolutionX(ConfigModel config)
+    public static bool GetConfigBool(string key, bool defaultValue)
     {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET resolutionX={config.ResolutionX}");
+      return Convert.ToBoolean(GetConfigInt(key, Convert.ToInt32(defaultValue)));
     }
-
-    public static void SaveResolutionY(ConfigModel config)
-    {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET resolutionY={config.ResolutionY}");
-    }
-
-    public static void SaveBackgroundMusic(ConfigModel config)
-    {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET backgroundMusic={Convert.ToInt32(config.BackgroundMusic)}");
-    }
-    public static void SaveIsEnglishCampaignNarration(ConfigModel config)
-    {
-      ConfigOp.ExecuteNonQuery($"UPDATE Config SET isEnglishCampaignNarration={Convert.ToInt32(config.IsEnglishCampaignNarration)}");
-    }
-
   }
 }

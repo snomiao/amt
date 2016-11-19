@@ -38,7 +38,8 @@
              Source="/resources;component/Resources/logo.png"
              Width="100"
              Height="100"
-             Margin="33,0,0,0"></Image>
+             Margin="33,0,0,0"
+             RenderOptions.BitmapScalingMode="Fant"></Image>
       <Image Grid.Column="1"
              Source="/resources;component/Resources/帝国时代管家.png"
              Width="334"
@@ -325,13 +326,11 @@
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">分辨率</TextBlock>
                 <StackPanel Orientation="Horizontal">
                   <TextBlock>当前分辨率：</TextBlock>
-                  <TextBlock x:Name="txbResolution">
+                  <TextBlock>
                     <TextBlock.Text>
                       <MultiBinding StringFormat="{}{0}×{1}">
-                        <Binding ElementName="txtResolutionWidth"
-                                 Path="Text"></Binding>
-                        <Binding ElementName="txtResolutionHeight"
-                                 Path="Text"></Binding>
+                        <Binding Path="Config.ResolutionX"></Binding>
+                        <Binding Path="Config.ResolutionY"></Binding>
                       </MultiBinding>
                     </TextBlock.Text>
                   </TextBlock>
@@ -424,15 +423,22 @@
                 <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
                 <Grid>
                   <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
                   </Grid.RowDefinitions>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"></ColumnDefinition>
                     <ColumnDefinition Width="auto"></ColumnDefinition>
                   </Grid.ColumnDefinitions>
+                  <Grid.Resources>
+                    <Style TargetType="{x:Type ToggleButton}"
+                           BasedOn="{StaticResource ToggleButtonOnOffStyle}">
+                      <Setter Property="Margin"
+                              Value="5"></Setter>
+                    </Style>
+                  </Grid.Resources>
                   <TextBlock Grid.Row="0"
                              Grid.Column="0">1.5 版</TextBlock>
                   <TextBlock Grid.Row="1"
@@ -442,13 +448,17 @@
                   <TextBlock Grid.Row="3"
                              Grid.Column="0">1.0A 版</TextBlock>
                   <ToggleButton Grid.Row="0"
-                                Grid.Column="1"></ToggleButton>
+                                Grid.Column="1"
+                                IsChecked="{Binding Config.AllShown_Aoc15}"></ToggleButton>
                   <ToggleButton Grid.Row="1"
-                                Grid.Column="1"></ToggleButton>
+                                Grid.Column="1"
+                                IsChecked="{Binding Config.AllShown_AocC}"></ToggleButton>
                   <ToggleButton Grid.Row="2"
-                                Grid.Column="1"></ToggleButton>
+                                Grid.Column="1"
+                                IsChecked="{Binding Config.AllShown_AoFE}"></ToggleButton>
                   <ToggleButton Grid.Row="3"
-                                Grid.Column="1"></ToggleButton>
+                                Grid.Column="1"
+                                IsChecked="{Binding Config.AllShown_AocA}"></ToggleButton>
                 </Grid>
               </StackPanel>
             </ScrollViewer>

@@ -36,12 +36,6 @@
               Value="NoResize"></Setter>
       <EventSetter Event="MouseLeftButtonDown"
                    Handler="Window_MouseLeftButtonDown"></EventSetter>
-      <Style.Resources>
-        <Style TargetType="{x:Type Image }">
-          <Setter Property="RenderOptions.BitmapScalingMode"
-                  Value="Fant"></Setter>
-        </Style>
-      </Style.Resources>
     </Style>
 
     <Style x:Key="ButtonNoneStyle"
@@ -357,6 +351,108 @@
       </Setter>
     </Style>
 
+    <Style x:Key="ToggleButtonOnOffStyle"
+           TargetType="{x:Type ToggleButton}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ToggleButton}">
+            <Grid Width="80"
+                  Height="40"
+                  Margin="{TemplateBinding Margin}">
+              <Rectangle x:Name="OuterRect"
+                         RadiusX="8"
+                         RadiusY="6"
+                         Fill="Orange"></Rectangle>
+              <Rectangle x:Name="InnerRect"
+                         Margin="3"
+                         RadiusX="6"
+                         RadiusY="4"
+                         Stroke="Brown"
+                         StrokeThickness="2"></Rectangle>
+              <Border x:Name="bdr"
+                      HorizontalAlignment="Left"
+                      Margin="55,0,0,0"
+                      Width="25"
+                      CornerRadius="0,5,5,0"
+                      Background="Brown"></Border>
+              <TextBlock x:Name="txb"
+                         Text="开启"
+                         FontSize="18"
+                         Foreground="Brown"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Margin="-10,0,0,0"></TextBlock>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsChecked"
+                       Value="True">
+                <Setter TargetName="txb"
+                        Property="Text"
+                        Value="关闭"></Setter>
+                <Setter TargetName="bdr"
+                        Property="CornerRadius"
+                        Value="5,0,0,5"></Setter>
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ThicknessAnimation Storyboard.TargetName="bdr"
+                                          Storyboard.TargetProperty="Margin"
+                                          To="0"
+                                          Duration="0:0:0.2"></ThicknessAnimation>
+                      <ColorAnimation Storyboard.TargetName="OuterRect"
+                                      Storyboard.TargetProperty="Fill.Color"
+                                      To="Gray"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ColorAnimation Storyboard.TargetName="bdr"
+                                      Storyboard.TargetProperty="Background.Color"
+                                      To="#434343"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ColorAnimation Storyboard.TargetName="InnerRect"
+                                      Storyboard.TargetProperty="Stroke.Color"
+                                      To="LightGray"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ColorAnimation Storyboard.TargetName="txb"
+                                      Storyboard.TargetProperty="Foreground.Color"
+                                      To="LightGray"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ThicknessAnimation Storyboard.TargetName="txb"
+                                          Storyboard.TargetProperty="Margin"
+                                          To="10,0,0,0"
+                                          Duration="0:0:0.2"></ThicknessAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ThicknessAnimation Storyboard.TargetName="bdr"
+                                          Storyboard.TargetProperty="Margin"
+                                          Duration="0:0:0.2"></ThicknessAnimation>
+                      <ColorAnimation Storyboard.TargetName="OuterRect"
+                                      Storyboard.TargetProperty="Fill.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ColorAnimation Storyboard.TargetName="bdr"
+                                      Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ColorAnimation Storyboard.TargetName="InnerRect"
+                                      Storyboard.TargetProperty="Stroke.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ColorAnimation Storyboard.TargetName="txb"
+                                      Storyboard.TargetProperty="Foreground.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                      <ThicknessAnimation Storyboard.TargetName="txb"
+                                          Storyboard.TargetProperty="Margin"
+                                          Duration="0:0:0.2"></ThicknessAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
     <Style TargetType="{x:Type TabControl}"
            x:Key="TabControlMainStyle">
       <Setter Property="BorderThickness"
@@ -466,6 +562,8 @@
                   Value="36"></Setter>
           <Setter Property="Margin"
                   Value="3"></Setter>
+          <Setter Property="RenderOptions.BitmapScalingMode"
+                  Value="Fant"></Setter>
         </Style>
       </Style.Resources>
     </Style>

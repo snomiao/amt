@@ -86,7 +86,8 @@
              Width="100"
              Height="100"
              Margin="30,0,0,0"
-             VerticalAlignment="Center"></Image>
+             VerticalAlignment="Center"
+             RenderOptions.BitmapScalingMode="Fant"></Image>
       <Image Grid.Column="1"
              Source="/resources;component/Resources/workshoptitle.png"
              Width="255"
@@ -103,6 +104,8 @@
                     Value="56"></Setter>
             <Setter Property="Margin"
                     Value="0,0,0,5"></Setter>
+            <Setter Property="RenderOptions.BitmapScalingMode"
+                    Value="Fant"></Setter>
           </Style>
           <Style TargetType="{x:Type TextBlock}">
             <Setter Property="HorizontalAlignment"
@@ -273,6 +276,7 @@
                        Width="50"
                        Height="50"
                        Margin="20,0,0,0"
+                       RenderOptions.BitmapScalingMode="Fant"
                        Source="{Binding Image}">
                 </Image>
                 <TextBlock Grid.Column="1"

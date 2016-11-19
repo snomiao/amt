@@ -15,12 +15,16 @@ namespace YTY.amt
     private int currentGameVersion;
     private bool populationLimit;
     private bool multipleQueue;
-    private string currentGameLanguage;
+    private int currentGameLanguage;
     private bool splash;
     private int resolutionX;
     private int resolutionY;
     private bool backgroundMusic;
     private bool isEnglishCampaignNarration;
+    private bool allShown_AocA;
+    private bool allShown_AocC;
+    private bool allShown_Aoc15;
+    private bool allShown_AoFE;
 
     public string HawkempirePath
     {
@@ -28,7 +32,7 @@ namespace YTY.amt
       set
       {
         hawkempirePath = value;
-        DAL.SaveHawkempirePath(this);
+        DAL.SaveConfigString(nameof(HawkempirePath), value);
         OnPropertyChanged(nameof(HawkempirePath));
       }
     }
@@ -40,7 +44,8 @@ namespace YTY.amt
       {
         currentGameVersion = value;
         // TODO: copy game exe
-        DAL.SaveCurrentGameVersion(this);
+        DAL.SaveConfigInt(nameof(CurrentGameVersion), value);
+        OnPropertyChanged(nameof(CurrentGameVersion));
       }
     }
 
@@ -51,7 +56,7 @@ namespace YTY.amt
       {
         populationLimit = value;
         // TODO
-        DAL.SavePopulationLimit(this);
+        DAL.SaveConfigBool(nameof(PopulationLimit), value);
         OnPropertyChanged(nameof(PopulationLimit));
       }
     }
@@ -63,19 +68,19 @@ namespace YTY.amt
       {
         multipleQueue = value;
         //TODO
-        DAL.SaveMultipleQueue(this);
+        DAL.SaveConfigBool(nameof(MultipleQueue), value);
         OnPropertyChanged(nameof(MultipleQueue));
       }
     }
 
-    public string CurrentGameLanguage
+    public int CurrentGameLanguage
     {
       get { return currentGameLanguage; }
       set
       {
         currentGameLanguage = value;
         //TODO
-        DAL.SaveGameLanguage(this);
+        DAL.SaveConfigInt(nameof(CurrentGameLanguage), value);
         OnPropertyChanged(nameof(CurrentGameLanguage));
       }
     }
@@ -86,7 +91,7 @@ namespace YTY.amt
       set
       {
         splash = value;
-        DAL.SaveSplash(this);
+        DAL.SaveConfigBool(nameof(Splash), value);
         OnPropertyChanged(nameof(Splash));
       }
     }
@@ -97,7 +102,7 @@ namespace YTY.amt
       set
       {
         resolutionX = value;
-        DAL.SaveResolutionX(this);
+        DAL.SaveConfigInt(nameof(ResolutionX), value);
         OnPropertyChanged(nameof(ResolutionX));
       }
     }
@@ -108,7 +113,7 @@ namespace YTY.amt
       set
       {
         resolutionY = value;
-        DAL.SaveResolutionY(this);
+        DAL.SaveConfigInt(nameof(ResolutionY), value);
         OnPropertyChanged(nameof(ResolutionY));
       }
     }
@@ -119,7 +124,7 @@ namespace YTY.amt
       set
       {
         backgroundMusic = value;
-        DAL.SaveBackgroundMusic(this);
+        DAL.SaveConfigBool(nameof(BackgroundMusic), value);
         OnPropertyChanged(nameof(BackgroundMusic));
       }
     }
@@ -130,24 +135,75 @@ namespace YTY.amt
       set
       {
         isEnglishCampaignNarration = value;
-        DAL.SaveIsEnglishCampaignNarration(this);
+        DAL.SaveConfigBool(nameof(IsEnglishCampaignNarration), value);
         OnPropertyChanged(nameof(IsEnglishCampaignNarration));
+      }
+    }
+
+    public bool AllShown_AocA
+    {
+      get { return allShown_AocA; }
+      set
+      {
+        allShown_AocA = value;
+        DAL.SaveConfigBool(nameof(AllShown_AocA), value);
+        OnPropertyChanged(nameof(AllShown_AocA));
+      }
+    }
+
+    public bool AllShown_AocC
+    {
+      get { return allShown_AocC; }
+      set
+      {
+        allShown_AocC = value;
+        DAL.SaveConfigBool(nameof(AllShown_AocC), value);
+        OnPropertyChanged(nameof(AllShown_AocC));
+      }
+    }
+
+    public bool AllShown_Aoc15
+    {
+      get { return allShown_Aoc15; }
+      set
+      {
+        allShown_Aoc15 = value;
+        DAL.SaveConfigBool(nameof(AllShown_Aoc15), value);
+        OnPropertyChanged(nameof(AllShown_Aoc15));
+      }
+    }
+
+    public bool AllShown_AoFE
+    {
+      get { return allShown_AoFE; }
+      set
+      {
+        allShown_AoFE = value;
+        DAL.SaveConfigBool(nameof(AllShown_AoFE), value);
+        OnPropertyChanged(nameof(AllShown_AoFE));
       }
     }
 
     public ConfigModel() { }
 
-    public ConfigModel(string hawkempirePath,int currentGameVersion,bool populationLimit,bool multipleQueue,string gameLanguage,bool splash,int resolutionX,int resolutionY,bool backgroundMusic,bool isEnglishCampaignNarration)
+    public static ConfigModel GetConfig()
     {
-      this.hawkempirePath = hawkempirePath;
-      this.currentGameVersion = currentGameVersion;
-      this.populationLimit = populationLimit;
-      currentGameLanguage = gameLanguage;
-      this.splash = splash;
-      this.resolutionX = resolutionX;
-      this.resolutionY = resolutionY;
-      this.backgroundMusic = backgroundMusic;
-      this.isEnglishCampaignNarration = isEnglishCampaignNarration;
+      var ret = new ConfigModel();
+      ret.hawkempirePath = DAL.GetConfigString(nameof(HawkempirePath), string.Empty);
+      ret.currentGameVersion = DAL.GetConfigInt(nameof(CurrentGameVersion), -1);
+      ret.populationLimit = DAL.GetConfigBool(nameof(PopulationLimit), true);
+      ret.multipleQueue = DAL.GetConfigBool(nameof(MultipleQueue), false);
+      ret.currentGameLanguage = DAL.GetConfigInt(nameof(CurrentGameLanguage), -1);
+      ret.splash = DAL.GetConfigBool(nameof(Splash), false);
+      ret.resolutionX = DAL.GetConfigInt(nameof(ResolutionX), 1366);
+      ret.resolutionY = DAL.GetConfigInt(nameof(ResolutionY), 768);
+      ret.backgroundMusic = DAL.GetConfigBool(nameof(BackgroundMusic), true);
+      ret.isEnglishCampaignNarration = DAL.GetConfigBool(nameof(IsEnglishCampaignNarration), false);
+      ret.allShown_AocA = DAL.GetConfigBool(nameof(AllShown_AocA), false);
+      ret.allShown_AocC = DAL.GetConfigBool(nameof(AllShown_AocC), false);
+      ret.allShown_Aoc15 = DAL.GetConfigBool(nameof(AllShown_Aoc15), false);
+      ret.allShown_AoFE = DAL.GetConfigBool(nameof(AllShown_AoFE), false);
+      return ret;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
