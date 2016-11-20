@@ -50,6 +50,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -72,11 +73,13 @@
     <Compile Include="DAL.cs" />
     <Compile Include="Drs\DrsFile.cs" />
     <Compile Include="Drs\DrsTable.cs" />
+    <Compile Include="FileChunkModel.cs" />
     <Compile Include="GameLanguageModel.cs" />
     <Compile Include="GameVersionModel.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="MySqlOp.cs" />
     <Compile Include="ResolutionModel.cs" />
+    <Compile Include="ResourceFileModel.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop.xaml.cs">

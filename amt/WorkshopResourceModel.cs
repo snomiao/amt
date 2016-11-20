@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace YTY.amt
 {
@@ -16,6 +17,7 @@ namespace YTY.amt
     private uint downloadCount;
     private string sourceUrl;
     private WorkshopResourceStatus status;
+    private List<ResourceFileModel> files;
 
     public uint Id { get; }
 
@@ -94,6 +96,16 @@ namespace YTY.amt
       }
     }
 
+    public List<ResourceFileModel> Files
+    {
+      get { return files; }
+      set
+      {
+        files = value;
+        OnPropertyChanged(nameof(Files));
+      }
+    }
+
     public WorkshopResourceStatus Status
     {
       get { return status; }
@@ -111,6 +123,17 @@ namespace YTY.amt
       Rating = rating;
       Type = type;
       Status = WorkshopResourceStatus.NotInstalled;
+    }
+
+    public async Task DownloadAsync()
+    {
+      Status = WorkshopResourceStatus.Installing;
+      await GetResourceFiles();
+    }
+
+    public async Task GetResourceFiles()
+    {
+      Files = await DAL.GetResourceFilesAsync(Id);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

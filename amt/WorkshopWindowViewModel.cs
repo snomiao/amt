@@ -12,17 +12,19 @@ namespace YTY.amt
 {
   public class WorkshopWindowViewModel : INotifyPropertyChanged
   {
-    private WindowView view;
+    private int currentTab;
     private ObservableCollection<WorkshopResourceViewModel> workshopResources;
     private WorkshopResourceViewModel selectedItem;
+    private ICollectionView workshopResourcesView;
+    private ICollectionView downloadingResourcesView;
 
-    public WindowView CurrentView
+    public int CurrentTab
     {
-      get { return view; }
+      get { return currentTab; }
       set
       {
-        view = value;
-        OnPropertyChanged(nameof(CurrentView));
+        currentTab = value;
+        OnPropertyChanged(nameof(CurrentTab));
       }
     }
 
@@ -32,11 +34,31 @@ namespace YTY.amt
       set
       {
         workshopResources = value;
+        WorkshopResourcesView = CollectionViewSource.GetDefaultView(workshopResources);
+        DownloadingResourcesView = new CollectionViewSource() { Source = workshopResources }.View;
+        DownloadingResourcesView.Filter = o => (o as WorkshopResourceViewModel).Model.Status == WorkshopResourceStatus.Installing;
+      }
+    }
+
+    public ICollectionView WorkshopResourcesView
+    {
+      get { return workshopResourcesView; }
+      set
+      {
+        workshopResourcesView = value;
         OnPropertyChanged(nameof(WorkshopResourcesView));
       }
     }
 
-    public ICollectionView WorkshopResourcesView => CollectionViewSource.GetDefaultView(workshopResources);
+    public ICollectionView DownloadingResourcesView
+    {
+      get { return downloadingResourcesView; }
+      set
+      {
+        downloadingResourcesView = value;
+        OnPropertyChanged(nameof(DownloadingResourcesView));
+      }
+    }
 
     public WorkshopResourceViewModel SelectedItem
     {
@@ -60,11 +82,5 @@ namespace YTY.amt
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-  }
-
-  public enum WindowView
-  {
-    ShowingResourceList,
-    ShowingSelectedResource
   }
 }

@@ -9,11 +9,15 @@ using System.Windows.Threading;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace YTY.amt
 {
   public static class DAL
   {
+    public const int CHUNKSIZE = 65536;
+    private const string WORKSHOPSERVER = "http://121.42.152.168/ssrc/";
     private static IPEndPoint WORKSHOPDBSERVER = new IPEndPoint(IPAddress.Parse("121.42.152.168"), 3306);
     private const string WORKSHOPDBUSER = "amtclient";
     private const string WORKSHOPDBPASSWORD = "read@hawkempire";
@@ -22,6 +26,8 @@ namespace YTY.amt
     private static Dictionary<string, WorkshopResourceType> dic_String_Type;
     private static MySqlOp WorkshopOp = new MySqlOp(WORKSHOPDBSERVER, WORKSHOPDBUSER, WORKSHOPDBPASSWORD, WORKSHOPDBNAME);
     private static SqliteOp ConfigOp = new SqliteOp(CONFIGFILE);
+    private static HttpClientHandler handler = new HttpClientHandler();
+    private static HttpClient client = new HttpClient(handler, false);
 
     static DAL()
     {
@@ -37,6 +43,8 @@ namespace YTY.amt
         {"tau",WorkshopResourceType.Taunt },
         {"undefined", WorkshopResourceType.Undefined }
       };
+      handler.CookieContainer = new CookieContainer();
+      client.BaseAddress = new Uri(WORKSHOPSERVER);
     }
 
     public static async Task<ObservableCollection<WorkshopResourceModel>> GetWorkshopResourcesAsync(IProgress<WorkshopResourceModel> progress)
@@ -65,21 +73,21 @@ namespace YTY.amt
       return ret;
     }
 
-    public static async Task GetResourceDetailsAsync(this WorkshopResourceViewModel viewModel)
+    public static async Task GetResourceDetailsAsync(this WorkshopResourceModel model)
     {
       try
       {
-        using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT t_update,totalsize,count_download,author_name,content,b_gamebase,fromurl FROM res WHERE id={viewModel.Model.Id}"))
+        using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT t_update,totalsize,count_download,author_name,content,b_gamebase,fromurl FROM res WHERE id={model.Id}"))
         {
           while (await reader.ReadAsync())
           {
-            viewModel.Model.UpdateDate = Util.FromUnixTimestamp(await reader.GetFieldValueAsync<ulong>(0));
-            viewModel.Model.TotalSize = await reader.GetFieldValueAsync<ulong>(1);
-            viewModel.Model.DownloadCount = await reader.GetFieldValueAsync<uint>(2);
-            viewModel.Model.AuthorName = await reader.GetFieldValueAsync<string>(3);
-            viewModel.Model.Discription = await reader.GetFieldValueAsync<string>(4);
-            viewModel.Model.GameVersion = (GameVersion)await reader.GetFieldValueAsync<uint>(5);
-            viewModel.Model.SourceUrl = await reader.GetFieldValueAsync<string>(6);
+            model.UpdateDate = Util.FromUnixTimestamp(await reader.GetFieldValueAsync<ulong>(0));
+            model.TotalSize = await reader.GetFieldValueAsync<ulong>(1);
+            model.DownloadCount = await reader.GetFieldValueAsync<uint>(2);
+            model.AuthorName = await reader.GetFieldValueAsync<string>(3);
+            model.Discription = await reader.GetFieldValueAsync<string>(4);
+            model.GameVersion = (GameVersion)await reader.GetFieldValueAsync<uint>(5);
+            model.SourceUrl = await reader.GetFieldValueAsync<string>(6);
           }
         }
       }
@@ -87,6 +95,39 @@ namespace YTY.amt
       {
         throw new InvalidOperationException(ex.ToString(), ex);
       }
+    }
+
+    public async static Task GetCookie()
+    {
+      //var response = await client.PostAsync("login.php", new FormUrlEncodedContent(new[] {
+      //  new KeyValuePair<string,string>("pmd5", "10f0dce340bc2008d8e620ffce2537ca"),
+      //  new KeyValuePair<string,string>("u","amt") }));
+      // await client.GetStringAsync("res.php?action=ls&res=6");
+    }
+
+    public static async Task<List<ResourceFileModel>> GetResourceFilesAsync(uint workshopResourceid)
+    {
+      var ret = new List<ResourceFileModel>();
+      using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT id,PathFile(id),t_update,size FROM resfile WHERE resid={workshopResourceid}"))
+      {
+        while (await reader.ReadAsync())
+        {
+          var file = new ResourceFileModel();
+          file.Id = await reader.GetFieldValueAsync<uint>(0);
+          file.Path = await reader.GetFieldValueAsync<string>(1);
+          file.UpdateDate = Util.FromUnixTimestamp(await reader.GetFieldValueAsync<ulong>(2));
+          file.Size = await reader.GetFieldValueAsync<uint>(3);
+          ret.Add(file);
+        }
+      }
+      return ret;
+    }
+
+    public static async Task GetChunk(uint fileId,int chunkId)
+    {
+      var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.UInt2CSID(fileId)}");
+      request.Headers.Range = new RangeHeaderValue(chunkId * CHUNKSIZE, (chunkId + 1) * CHUNKSIZE - 1);
+      await (await client.SendAsync(request)).Content.ReadAsByteArrayAsync();
     }
 
     public static List<GameVersionModel> GetGameVersions()

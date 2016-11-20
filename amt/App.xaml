@@ -16,6 +16,7 @@
     <local:WorkshopWindowViewModel x:Key="WorkshopWindowViewModel"></local:WorkshopWindowViewModel>
     <local:ShowSelectedResourceViewCommand x:Key="ShowSelectedResourceViewCommand"></local:ShowSelectedResourceViewCommand>
     <local:ShowResourceListViewCommand x:Key="ShowResourceListViewCommand"></local:ShowResourceListViewCommand>
+    <local:DownloadResourceCommand x:Key="DownloadResourceCommand"></local:DownloadResourceCommand>
     <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:FilterResourceCommand x:Key="FilterResourceCommand"></local:FilterResourceCommand>
     <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>
@@ -34,6 +35,10 @@
               Value="True"></Setter>
       <Setter Property="ResizeMode"
               Value="NoResize"></Setter>
+      <Setter Property="BorderThickness"
+              Value="1"></Setter>
+      <Setter Property="BorderBrush"
+              Value="DarkBlue"></Setter>
       <EventSetter Event="MouseLeftButtonDown"
                    Handler="Window_MouseLeftButtonDown"></EventSetter>
     </Style>
@@ -457,12 +462,12 @@
            x:Key="TabControlMainStyle">
       <Setter Property="BorderThickness"
               Value="0"></Setter>
+      <Setter Property="Background"
+              Value="Transparent"></Setter>
       <Style.Resources>
         <Style TargetType="{x:Type TabPanel}">
           <Setter Property="HorizontalAlignment"
                   Value="Center"></Setter>
-          <Setter Property="Background"
-                  Value="Black"></Setter>
         </Style>
         <Style TargetType="{x:Type TabItem }">
           <Setter Property="Template">
@@ -495,13 +500,7 @@
                            Value="True">
                     <Setter TargetName="elli"
                             Property="Fill"
-                            Value="Transparent"></Setter>
-                    <Setter TargetName="elli"
-                            Property="Stroke"
-                            Value="Transparent"></Setter>
-                    <Setter TargetName="txb"
-                            Property="Foreground"
-                            Value="Transparent"></Setter>
+                            Value="Red"></Setter>
                   </Trigger>
                   <Trigger Property="IsSelected"
                            Value="True">

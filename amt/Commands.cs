@@ -127,10 +127,10 @@ namespace YTY.amt
     {
       var viewModel = parameter as WorkshopResourceViewModel;
       My.WorkshopWindowViewModel.SelectedItem = viewModel;
-      My.WorkshopWindowViewModel.CurrentView = WindowView.ShowingSelectedResource;
+      My.WorkshopWindowViewModel.CurrentTab = 1;
       try
       {
-        await viewModel.GetResourceDetailsAsync();
+        await viewModel.Model.GetResourceDetailsAsync();
       }
       catch (InvalidOperationException ex)
       {
@@ -151,7 +151,7 @@ namespace YTY.amt
     public void Execute(object parameter)
     {
       My.WorkshopWindowViewModel.SelectedItem = null;
-      My.WorkshopWindowViewModel.CurrentView = WindowView.ShowingResourceList;
+      My.WorkshopWindowViewModel.CurrentTab = 0;
     }
   }
 
@@ -178,6 +178,24 @@ namespace YTY.amt
         My.WorkshopWindowViewModel.WorkshopResourcesView.Filter = item => (item as WorkshopResourceViewModel).Model.Type == filter;
       }
       My.ShowResourceListViewCommand.Execute(null);
+    }
+  }
+
+  public class DownloadResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public async void Execute(object parameter)
+    {
+      var model = parameter as WorkshopResourceModel;
+      model.DownloadAsync();
+      My.WorkshopWindowViewModel.DownloadingResourcesView.Refresh();
+      My.WorkshopWindowViewModel.CurrentTab = 2;
     }
   }
 }

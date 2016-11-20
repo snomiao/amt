@@ -11,8 +11,15 @@ namespace YTY.amt
 {
   public static class Util
   {
+    private const string CSIDDIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!-._~";
+    private static int NUMCSIDDIGITS;
     private static DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
     private static List<ResolutionModel> screenResolutions;
+
+    static Util()
+    {
+      NUMCSIDDIGITS = CSIDDIGITS.Length;
+    }
 
     public static DateTime FromUnixTimestamp(ulong unixTimestamp)
     {
@@ -33,6 +40,28 @@ namespace YTY.amt
         screenResolutions = temp.Distinct().OrderBy(s => s.X).ThenBy(s => s.Y).ToList();
       }
       return screenResolutions;
+    }
+
+    public static uint CSID2UInt(string csid)
+    {
+      int weight = 1;
+      return (uint)csid.Aggregate(0, (sum, digit) =>
+      {
+        sum += CSIDDIGITS.IndexOf(digit) * weight;
+        weight *= NUMCSIDDIGITS;
+        return sum;
+      });
+    }
+
+    public static string UInt2CSID(uint value)
+    {
+      var ret = string.Empty;
+      do
+      {
+        ret += CSIDDIGITS[(int)value % NUMCSIDDIGITS];
+        value = (uint)((int)value / NUMCSIDDIGITS);
+      } while (value > 0);
+      return ret;
     }
 
     [StructLayout(LayoutKind.Sequential)]

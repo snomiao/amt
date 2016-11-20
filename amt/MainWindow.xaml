@@ -500,19 +500,6 @@
           </TabItem>
           <TabItem Header="联机">
             <StackPanel>
-              <TextBlock>腾讯对战平台</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnStartTxdz"></Button>
-                <TextBlock x:Name="txbTxdz"
-                           VerticalAlignment="Center"></TextBlock>
-              </StackPanel>
-              <TextBlock>浩方对战平台</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <Button></Button>
-                <Button>选择安装路径</Button>
-                <TextBlock x:Name="txbHoldfastPath"
-                           VerticalAlignment="Center"></TextBlock>
-              </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">修复补丁</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <Button>
