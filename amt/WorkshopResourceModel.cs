@@ -129,6 +129,10 @@ namespace YTY.amt
     {
       Status = WorkshopResourceStatus.Installing;
       await GetResourceFiles();
+      foreach(var f in Files)
+      {
+        await f.DownloadAsync();
+      } 
     }
 
     public async Task GetResourceFiles()

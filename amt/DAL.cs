@@ -123,11 +123,29 @@ namespace YTY.amt
       return ret;
     }
 
-    public static async Task GetChunk(uint fileId,int chunkId)
+    public static List<FileChunkModel> LoadChunks(uint fileId)
+    {
+      var ret = new List<FileChunkModel>();
+      using (var reader = ConfigOp.ExecuteReader($"SELECT Id FROM Chunks WHERE FileId={fileId}"))
+      {
+        while (reader.Read())
+        {
+          ret.Add(new FileChunkModel() { FileId = fileId, Id = reader.GetInt32(0) });
+        }
+      }
+      return ret;
+    }
+
+    public static void SaveChunks(this ResourceFileModel fileModel)
+    {
+      ConfigOp.ExecuteNonQueryTransaction(fileModel.Chunks.Select(c => $"INSERT INTO Chunks (FileId,Id,Finished) VALUES({c.FileId},{c.Id},0)"));
+    }
+
+    public static async Task<byte[]> GetChunk(uint fileId,int chunkId)
     {
       var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.UInt2CSID(fileId)}");
       request.Headers.Range = new RangeHeaderValue(chunkId * CHUNKSIZE, (chunkId + 1) * CHUNKSIZE - 1);
-      await (await client.SendAsync(request)).Content.ReadAsByteArrayAsync();
+      return await (await client.SendAsync(request)).Content.ReadAsByteArrayAsync();
     }
 
     public static List<GameVersionModel> GetGameVersions()
@@ -184,7 +202,12 @@ namespace YTY.amt
 
     public static void AddGameVersion(GameVersionModel model)
     {
-      ConfigOp.ExecuteNonQuery($"INSERT INTO GameVersions(id,name,exePath,allShown) VALUES({model.ResourceId},'{model.Name}','{model.ExePath}')");
+      ConfigOp.ExecuteNonQuery($"INSERT INTO GameVersions(id,name,exePath) VALUES({model.ResourceId},'{model.Name}','{model.ExePath}')");
+    }
+
+    public static void EnsureTablesExist()
+    {
+      ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(key text,value text)");
     }
 
     public static void SaveConfigString(string key, string value)
