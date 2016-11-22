@@ -23,12 +23,12 @@ namespace YTY.amt
       InitializeComponent();
     }
 
-    private async void wnd_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void wnd_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
       if (!(bool)e.NewValue) return;
       try
       {
-        await My.WorkshopWindowViewModel.InitAsync();
+        var _ = My.WorkshopWindowViewModel.Init();
       }
       catch (InvalidOperationException ex)
       {

@@ -23,60 +23,72 @@ namespace YTY.amt
       connectionString = builder.ConnectionString;
     }
 
-    public async Task<T> ExecuteScalar<T>(string sql)
+    public Task<T> ExecuteScalar<T>(string sql)
     {
-      using (var connection = new MySqlConnection(connectionString))
+      return Task.Run(() =>
       {
-        await connection.OpenAsync();
-        using (var command = new MySqlCommand(sql, connection))
+        using (var connection = new MySqlConnection(connectionString))
         {
-          return (T)await command.ExecuteScalarAsync();
-        }
-      }
-    }
-
-    public async Task<DbDataReader> ExecuteReaderAsync(string sql)
-    {
-      var connection = new MySqlConnection(connectionString);
-      await connection.OpenAsync();
-      using (var command = new MySqlCommand(sql, connection))
-      {
-        return await command.ExecuteReaderAsync();
-      }
-    }
-
-    public async Task<int> ExecuteNonQueryAsync(string sql)
-    {
-      using (var connection = new MySqlConnection(connectionString))
-      {
-        await connection.OpenAsync();
-        using (var command = new MySqlCommand(sql, connection))
-        {
-          return await command.ExecuteNonQueryAsync();
-        }
-      }
-    }
-
-    public async Task ExecuteNonQueryTransaction(IEnumerable<string> sqls)
-    {
-      using (var connection = new MySqlConnection(connectionString))
-      {
-        await connection.OpenAsync();
-        using (var transaction = connection.BeginTransaction())
-        {
-          using (var command = new MySqlCommand())
+          connection.Open();
+          using (var command = new MySqlCommand(sql, connection))
           {
-            command.Connection = connection;
-            command.Transaction = transaction;
-            foreach (var sql in sqls)
-            {
-              command.CommandText = sql;
-              await command.ExecuteNonQueryAsync();
-            }
+            return (T)command.ExecuteScalar();
           }
-          transaction.Commit();
         }
-      }
+      });
+    }
+
+    public Task<MySqlDataReader> ExecuteReaderAsync(string sql)
+    {
+      return Task.Run(() =>
+      {
+        var connection = new MySqlConnection(connectionString);
+        connection.Open();
+        using (var command = new MySqlCommand(sql, connection))
+        {
+          return command.ExecuteReader();
+        }
+      });
+    }
+
+    public Task<int> ExecuteNonQueryAsync(string sql)
+    {
+      return Task.Run(() =>
+      {
+        using (var connection = new MySqlConnection(connectionString))
+        {
+          connection.Open();
+          using (var command = new MySqlCommand(sql, connection))
+          {
+            return command.ExecuteNonQuery();
+          }
+        }
+      });
+    }
+
+    public Task ExecuteNonQueryTransaction(IEnumerable<string> sqls)
+    {
+      return Task.Run(() =>
+      {
+        using (var connection = new MySqlConnection(connectionString))
+        {
+          connection.Open();
+          using (var transaction = connection.BeginTransaction())
+          {
+            using (var command = new MySqlCommand())
+            {
+              command.Connection = connection;
+              command.Transaction = transaction;
+              foreach (var sql in sqls)
+              {
+                command.CommandText = sql;
+                command.ExecuteNonQuery();
+              }
+            }
+            transaction.Commit();
+          }
+        }
+      });
     }
   }
 }

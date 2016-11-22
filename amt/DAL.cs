@@ -54,13 +54,13 @@ namespace YTY.amt
       {
         using (var reader = await WorkshopOp.ExecuteReaderAsync("SELECT id,name,votereview,e_type FROM res"))
         {
-          while (await reader.ReadAsync())
+          while (reader.Read())
           {
             var model = new WorkshopResourceModel(
-              await reader.GetFieldValueAsync<uint>(0),
-             await reader.GetFieldValueAsync<string>(1),
-             await reader.GetFieldValueAsync<uint>(2),
-             dic_String_Type[await reader.GetFieldValueAsync<string>(3)]);
+             reader.GetUInt32(0),
+             reader.GetString(1),
+             reader.GetUInt32(2),
+             dic_String_Type[reader.GetString(3)]);
             ret.Add(model);
             progress.Report(model);
           }
@@ -79,15 +79,15 @@ namespace YTY.amt
       {
         using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT t_update,totalsize,count_download,author_name,content,b_gamebase,fromurl FROM res WHERE id={model.Id}"))
         {
-          while (await reader.ReadAsync())
+          while (reader.Read())
           {
-            model.UpdateDate = Util.FromUnixTimestamp(await reader.GetFieldValueAsync<ulong>(0));
-            model.TotalSize = await reader.GetFieldValueAsync<ulong>(1);
-            model.DownloadCount = await reader.GetFieldValueAsync<uint>(2);
-            model.AuthorName = await reader.GetFieldValueAsync<string>(3);
-            model.Discription = await reader.GetFieldValueAsync<string>(4);
-            model.GameVersion = (GameVersion)await reader.GetFieldValueAsync<uint>(5);
-            model.SourceUrl = await reader.GetFieldValueAsync<string>(6);
+            model.UpdateDate = Util.FromUnixTimestamp(reader.GetUInt64(0));
+            model.TotalSize = reader.GetUInt64(1);
+            model.DownloadCount = reader.GetUInt32(2);
+            model.AuthorName = reader.GetString(3);
+            model.Discription = reader.GetString(4);
+            model.GameVersion = (GameVersion)reader.GetUInt32(5);
+            model.SourceUrl = reader.GetString(6);
           }
         }
       }
@@ -110,13 +110,13 @@ namespace YTY.amt
       var ret = new List<ResourceFileModel>();
       using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT id,PathFile(id),t_update,size FROM resfile WHERE resid={workshopResourceid}"))
       {
-        while (await reader.ReadAsync())
+        while (reader.Read())
         {
           var file = new ResourceFileModel();
-          file.Id = await reader.GetFieldValueAsync<uint>(0);
-          file.Path = await reader.GetFieldValueAsync<string>(1);
-          file.UpdateDate = Util.FromUnixTimestamp(await reader.GetFieldValueAsync<ulong>(2));
-          file.Size = await reader.GetFieldValueAsync<uint>(3);
+          file.Id = reader.GetUInt32(0);
+          file.Path = reader.GetString(1);
+          file.UpdateDate = Util.FromUnixTimestamp(reader.GetUInt64(2));
+          file.Size = reader.GetUInt32(3);
           ret.Add(file);
         }
       }
@@ -141,7 +141,7 @@ namespace YTY.amt
       ConfigOp.ExecuteNonQueryTransaction(fileModel.Chunks.Select(c => $"INSERT INTO Chunks (FileId,Id,Finished) VALUES({c.FileId},{c.Id},0)"));
     }
 
-    public static async Task<byte[]> GetChunk(uint fileId,int chunkId)
+    public static async Task<byte[]> GetChunk(uint fileId, int chunkId)
     {
       var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.UInt2CSID(fileId)}");
       request.Headers.Range = new RangeHeaderValue(chunkId * CHUNKSIZE, (chunkId + 1) * CHUNKSIZE - 1);
@@ -151,7 +151,6 @@ namespace YTY.amt
     public static List<GameVersionModel> GetGameVersions()
     {
       var ret = new List<GameVersionModel>();
-      ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY,name text,exePath text)");
       using (var reader = ConfigOp.ExecuteReader("SELECT id,name,exePath FROM GameVersions"))
       {
         while (reader.Read())
@@ -207,7 +206,9 @@ namespace YTY.amt
 
     public static void EnsureTablesExist()
     {
-      ConfigOp.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS Config(key text,value text)");
+      ConfigOp.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Config(key text,value text);
+        CREATE TABLE IF NOT EXISTS Chunks(FileId int,Id int,Finished int,PRIMARY KEY(FileId,Id));    
+        CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY, name text, exePath text)");
     }
 
     public static void SaveConfigString(string key, string value)

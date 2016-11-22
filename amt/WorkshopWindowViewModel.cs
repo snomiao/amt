@@ -70,7 +70,7 @@ namespace YTY.amt
       }
     }
 
-    public async Task InitAsync()
+    public async Task Init()
     {
       WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>();
       await DAL.GetWorkshopResourcesAsync(new Progress<WorkshopResourceModel>(model => workshopResources.Add(new WorkshopResourceViewModel(model))));
