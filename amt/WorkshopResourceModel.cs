@@ -16,7 +16,6 @@ namespace YTY.amt
     private GameVersion gameVersion;
     private uint downloadCount;
     private string sourceUrl;
-    private WorkshopResourceStatus status;
     private List<ResourceFileModel> files;
 
     public uint Id { get; }
@@ -106,14 +105,12 @@ namespace YTY.amt
       }
     }
 
-    public WorkshopResourceStatus Status
+    public WorkshopResourceStatus Status { get; set; }
+
+    public void UpdateStatus(WorkshopResourceStatus value)
     {
-      get { return status; }
-      set
-      {
-        status = value;
-        OnPropertyChanged(nameof(Status));
-      }
+      Status = value;
+      OnPropertyChanged(nameof(Status));
     }
 
     public WorkshopResourceModel(uint id, string name, uint rating, WorkshopResourceType type)
@@ -127,17 +124,22 @@ namespace YTY.amt
 
     public async Task DownloadAsync()
     {
-      Status = WorkshopResourceStatus.Installing;
-      await GetResourceFiles();
-      foreach(var f in Files)
+      switch (Status)
+      {
+        case WorkshopResourceStatus.NotInstalled:
+          Status = WorkshopResourceStatus.Installing;
+          Files = await DAL.GetResourceFilesAsync(Id);
+          this.SaveFiles();
+          break;
+        case WorkshopResourceStatus.Installing:
+
+          break;
+      }
+
+      foreach (var f in Files)
       {
         await f.DownloadAsync();
-      } 
-    }
-
-    public async Task GetResourceFiles()
-    {
-      Files = await DAL.GetResourceFilesAsync(Id);
+      }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

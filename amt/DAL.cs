@@ -65,6 +65,19 @@ namespace YTY.amt
             progress.Report(model);
           }
         }
+        using (var reader = ConfigOp.ExecuteReader("SELECT Id,Size,UpdateDate,Status FROM Resources"))
+        {
+          while(reader.Read())
+          {
+            var resource = ret.FirstOrDefault(r => r.Id == reader.GetInt32(0));
+            if(resource!=null)
+            {
+              resource.TotalSize = (ulong)reader.GetInt64(1);
+              resource.UpdateDate = reader.GetDateTime(2);
+              resource.Status =  (WorkshopResourceStatus) reader.GetInt32(3);
+            }
+          }
+        }
       }
       catch (MySqlException ex)
       {
@@ -121,6 +134,11 @@ namespace YTY.amt
         }
       }
       return ret;
+    }
+
+    public static void SaveFiles(this WorkshopResourceModel resource)
+    {
+      ConfigOp.ExecuteNonQueryTransaction(resource.Files.Select(f => $"INSERT INTO Files (Id,Size,Path,UpdateDate,Sha1,Status) vALUES({f.Id},{f.Size},'{f.Path}','{f.UpdateDate}','{f.Sha1}',{(int)f.Status});"));
     }
 
     public static List<FileChunkModel> LoadChunks(uint fileId)
@@ -204,9 +222,11 @@ namespace YTY.amt
       ConfigOp.ExecuteNonQuery($"INSERT INTO GameVersions(id,name,exePath) VALUES({model.ResourceId},'{model.Name}','{model.ExePath}')");
     }
 
-    public static void EnsureTablesExist()
+    public static void CreateTablesIfNotExist()
     {
       ConfigOp.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Config(key text,value text);
+        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate string,LastChangeDate string,LastFileChangeDate string,Size int,Rate int,NumDownloads int,Type int,Status int);
+        CREATE TABLE IF NOT EXISTS Files(Id int PRIMARY KEY,Size int,Path text,UpdateDate text,Sha1 text,Status int);
         CREATE TABLE IF NOT EXISTS Chunks(FileId int,Id int,Finished int,PRIMARY KEY(FileId,Id));    
         CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY, name text, exePath text)");
     }

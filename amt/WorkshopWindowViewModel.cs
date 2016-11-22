@@ -74,6 +74,7 @@ namespace YTY.amt
     {
       WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>();
       await DAL.GetWorkshopResourcesAsync(new Progress<WorkshopResourceModel>(model => workshopResources.Add(new WorkshopResourceViewModel(model))));
+
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

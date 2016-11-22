@@ -189,7 +189,7 @@ namespace YTY.amt
     public static ConfigModel GetConfig()
     {
       var ret = new ConfigModel();
-      DAL.EnsureTablesExist();
+      DAL.CreateTablesIfNotExist();
       ret.hawkempirePath = DAL.GetConfigString(nameof(HawkempirePath), string.Empty);
       ret.currentGameVersion = DAL.GetConfigInt(nameof(CurrentGameVersion), -1);
       ret.populationLimit = DAL.GetConfigBool(nameof(PopulationLimit), true);
