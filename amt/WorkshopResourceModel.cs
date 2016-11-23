@@ -9,24 +9,65 @@ namespace YTY.amt
 {
   public class WorkshopResourceModel : INotifyPropertyChanged
   {
+    private int authorId;
     private string authorName;
-    private ulong totalSize;
-    private DateTime updateDate;
+    private WorkshopResourceType type;
+    private string name;
+    private int rating;
+    private long totalSize;
+    private DateTime createDate;
+    private DateTime lastChangeDate;
+    private DateTime lastFileChangeDate;
     private string discription;
     private GameVersion gameVersion;
-    private uint downloadCount;
+    private int downloadCount;
     private string sourceUrl;
+    private WorkshopResourceStatus status;
     private List<ResourceFileModel> files;
 
-    public uint Id { get; }
+    public int Id { get; }
 
-    public WorkshopResourceType Type { get; }
+    public WorkshopResourceType Type
+    {
+      get { return type; }
+      set
+      {
+        type = value;
+        OnPropertyChanged(nameof(Type));
+      }
+    }
 
-    public string Name { get; }
+    public DateTime CreateDate
+    {
+      get { return createDate; }
+      set
+      {
+        createDate = value;
+        OnPropertyChanged(nameof(CreateDate));
+      }
+    }
 
-    public uint Rating { get; }
+    public string Name
+    {
+      get { return name; }
+      set
+      {
+        name = value;
+        OnPropertyChanged(nameof(Name));
+      }
+    }
 
-    public ulong TotalSize
+    public int Rating
+    {
+      get { return rating; }
+      set
+      {
+        rating = value;
+        OnPropertyChanged(nameof(Rating));
+      }
+    }
+
+    public long TotalSize
     {
       get { return totalSize; }
       set
@@ -36,13 +77,33 @@ namespace YTY.amt
       }
     }
 
-    public DateTime UpdateDate
+    public DateTime LastChangeDate
     {
-      get { return updateDate; }
+      get { return lastChangeDate; }
       set
       {
-        updateDate = value;
-        OnPropertyChanged(nameof(UpdateDate));
+        lastChangeDate = value;
+        OnPropertyChanged(nameof(LastChangeDate));
+      }
+    }
+
+    public DateTime LastFileChangeDate
+    {
+      get { return lastFileChangeDate; }
+      set
+      {
+        lastFileChangeDate = value;
+        OnPropertyChanged(nameof(LastFileChangeDate));
+      }
+    }
+
+    public int AuthorId
+    {
+      get { return authorId; }
+      set
+      {
+        authorId = value;
+        OnPropertyChanged(nameof(AuthorId));
       }
     }
 
@@ -51,7 +112,8 @@ namespace YTY.amt
       get { return authorName; }
       set
       {
-        authorName = value; OnPropertyChanged(nameof(AuthorName));
+        authorName = value;
+        OnPropertyChanged(nameof(AuthorName));
       }
     }
 
@@ -75,7 +137,7 @@ namespace YTY.amt
       }
     }
 
-    public uint DownloadCount
+    public int DownloadCount
     {
       get { return downloadCount; }
       set
@@ -105,21 +167,24 @@ namespace YTY.amt
       }
     }
 
-    public WorkshopResourceStatus Status { get; set; }
+    public WorkshopResourceStatus Status
+    {
+      get { return status; }
+      set
+      {
+        status = value;
+        OnPropertyChanged(nameof(Status));
+      }
+    }
 
     public void UpdateStatus(WorkshopResourceStatus value)
     {
       Status = value;
-      OnPropertyChanged(nameof(Status));
     }
 
-    public WorkshopResourceModel(uint id, string name, uint rating, WorkshopResourceType type)
+    public WorkshopResourceModel(int id)
     {
       Id = id;
-      Name = name;
-      Rating = rating;
-      Type = type;
-      Status = WorkshopResourceStatus.NotInstalled;
     }
 
     public async Task DownloadAsync()

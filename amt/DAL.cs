@@ -6,28 +6,24 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Windows.Threading;
-using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Web.Script.Serialization;
+using System.Collections;
 
 namespace YTY.amt
 {
   public static class DAL
   {
     public const int CHUNKSIZE = 65536;
-    private const string WORKSHOPSERVER = "http://121.42.152.168/ssrc/";
-    private static IPEndPoint WORKSHOPDBSERVER = new IPEndPoint(IPAddress.Parse("121.42.152.168"), 3306);
-    private const string WORKSHOPDBUSER = "amtclient";
-    private const string WORKSHOPDBPASSWORD = "read@hawkempire";
-    private const string WORKSHOPDBNAME = "ssrc";
     private const string CONFIGFILE = "config.db";
     private static Dictionary<string, WorkshopResourceType> dic_String_Type;
-    private static MySqlOp WorkshopOp = new MySqlOp(WORKSHOPDBSERVER, WORKSHOPDBUSER, WORKSHOPDBPASSWORD, WORKSHOPDBNAME);
     private static SqliteOp ConfigOp = new SqliteOp(CONFIGFILE);
     private static HttpClientHandler handler = new HttpClientHandler();
     private static HttpClient client = new HttpClient(handler, false);
+    private static JavaScriptSerializer jsonSerializer = new JavaScriptSerializer();
 
     static DAL()
     {
@@ -44,46 +40,44 @@ namespace YTY.amt
         {"undefined", WorkshopResourceType.Undefined }
       };
       handler.CookieContainer = new CookieContainer();
-      client.BaseAddress = new Uri(WORKSHOPSERVER);
     }
 
-    public static async Task<ObservableCollection<WorkshopResourceModel>> GetWorkshopResourcesAsync(IProgress<WorkshopResourceModel> progress)
+    public static ObservableCollection<WorkshopResourceModel> GetLocalResources()
     {
       var ret = new ObservableCollection<WorkshopResourceModel>();
-      try
+      using (var reader = ConfigOp.ExecuteReader("SELECT Id,CreateDate,LastChangeDate,LastFileChangeDate,Size,Rating,NumDownloads,AuthorId,AuthorName,Discription,GameVersion,Url,Type,Status FROM Resources"))
       {
-        using (var reader = await WorkshopOp.ExecuteReaderAsync("SELECT id,name,votereview,e_type FROM res"))
+        while (reader.Read())
         {
-          while (reader.Read())
+          var resource = new WorkshopResourceModel(reader.GetInt32(0))
           {
-            var model = new WorkshopResourceModel(
-             reader.GetUInt32(0),
-             reader.GetString(1),
-             reader.GetUInt32(2),
-             dic_String_Type[reader.GetString(3)]);
-            ret.Add(model);
-            progress.Report(model);
-          }
+            CreateDate = reader.GetDateTime(1),
+            LastChangeDate = reader.GetDateTime(2),
+            LastFileChangeDate = reader.GetDateTime(3),
+            TotalSize = reader.GetInt64(4),
+            Rating = reader.GetInt32(5),
+            DownloadCount = reader.GetInt32(6),
+            AuthorId = reader.GetInt32(7),
+            AuthorName = reader.GetString(8),
+            Discription = reader.GetString(9),
+            GameVersion = (GameVersion)reader.GetInt32(10),
+            SourceUrl = reader.GetString(11),
+            Type = (WorkshopResourceType)reader.GetInt32(12),
+            Status = (WorkshopResourceStatus)reader.GetInt32(13)
+          };
         }
-        using (var reader = ConfigOp.ExecuteReader("SELECT Id,Size,UpdateDate,Status FROM Resources"))
-        {
-          while(reader.Read())
-          {
-            var resource = ret.FirstOrDefault(r => r.Id == reader.GetInt32(0));
-            if(resource!=null)
-            {
-              resource.TotalSize = (ulong)reader.GetInt64(1);
-              resource.UpdateDate = reader.GetDateTime(2);
-              resource.Status =  (WorkshopResourceStatus) reader.GetInt32(3);
-            }
-          }
-        }
-      }
-      catch (MySqlException ex)
-      {
-        throw new InvalidOperationException(ex.ToString(), ex);
       }
       return ret;
+    }
+
+    public static async Task<IEnumerable<WorkshopResourceModel>> RefreshResourcesAsync()
+    {
+      var json = await client.GetStringAsync("api/?q=lsres");
+      var resources = jsonSerializer.Deserialize<List<Dictionary<string,int>>>(json);
+      return resources.Select(dic => new WorkshopResourceModel(dic["id"])
+      {
+       
+      });
     }
 
     public static async Task GetResourceDetailsAsync(this WorkshopResourceModel model)
@@ -94,7 +88,7 @@ namespace YTY.amt
         {
           while (reader.Read())
           {
-            model.UpdateDate = Util.FromUnixTimestamp(reader.GetUInt64(0));
+            model.LastChangeDate = Util.FromUnixTimestamp(reader.GetUInt64(0));
             model.TotalSize = reader.GetUInt64(1);
             model.DownloadCount = reader.GetUInt32(2);
             model.AuthorName = reader.GetString(3);
@@ -225,7 +219,7 @@ namespace YTY.amt
     public static void CreateTablesIfNotExist()
     {
       ConfigOp.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Config(key text,value text);
-        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate string,LastChangeDate string,LastFileChangeDate string,Size int,Rate int,NumDownloads int,Type int,Status int);
+        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate text,LastChangeDate text,LastFileChangeDate text,Size int,Rating int,NumDownloads int,AuthorId int,AuthorName text,Discription text,GameVersion int,Url text,Type int,Status int);
         CREATE TABLE IF NOT EXISTS Files(Id int PRIMARY KEY,Size int,Path text,UpdateDate text,Sha1 text,Status int);
         CREATE TABLE IF NOT EXISTS Chunks(FileId int,Id int,Finished int,PRIMARY KEY(FileId,Id));    
         CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY, name text, exePath text)");
@@ -265,6 +259,16 @@ namespace YTY.amt
     public static bool GetConfigBool(string key, bool defaultValue)
     {
       return Convert.ToBoolean(GetConfigInt(key, Convert.ToInt32(defaultValue)));
+    }
+
+    private class JSON_Resource
+    {
+      public int id { get; set; }
+      public int t_fileup { get; set; }
+      public int t_update { get; set; }
+      public int votereview { get; set; }
+      public int votecomment { get; set; }
+      public int count_download { get; set; }
     }
   }
 }
