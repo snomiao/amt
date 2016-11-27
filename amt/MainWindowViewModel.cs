@@ -18,6 +18,8 @@ namespace YTY.amt
     private List<GameLanguageModel> gameLanguages;
     private ResolutionModel fullScreen = new ResolutionModel { X = (int)SystemParameters.PrimaryScreenWidth, Y = (int)SystemParameters.PrimaryScreenHeight };
     private ResolutionModel workingArea = new ResolutionModel { X = (int)(SystemParameters.WorkArea.Width - 2 * SystemParameters.FixedFrameVerticalBorderWidth), Y = (int)(SystemParameters.WorkArea.Height - 2 * SystemParameters.FixedFrameHorizontalBorderHeight) };
+    
+    public ConfigModel Config { get { return config; } }
 
     public bool WorkshopShown
     {
@@ -27,24 +29,11 @@ namespace YTY.amt
       }
     }
 
-    public ConfigModel Config
-    {
-      get
-      {
-        if (config == null)
-        {
-          config = ConfigModel.GetConfig();
-          config.PropertyChanged += Config_PropertyChanged;
-        }
-        return config;
-      }
-    }
-
     public bool IsValidHawkempirePath
     {
       get
       {
-        return File.Exists(Path.Combine(Config.HawkempirePath, "empires2.exe"));
+        return File.Exists(Path.Combine(config.HawkempirePath, "empires2.exe"));
       }
     }
 
@@ -54,7 +43,7 @@ namespace YTY.amt
       {
         if (gameVersionList == null)
         {
-          gameVersionList = new ObservableCollection<GameVersionModel>(DAL.GetGameVersions()); 
+          gameVersionList = new ObservableCollection<GameVersionModel>(DAL.GetGameVersions());
         }
         return gameVersionList;
       }
@@ -130,6 +119,12 @@ namespace YTY.amt
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
+
+    public MainWindowViewModel()
+    {
+      config = ConfigModel.CurrentConfig;
+      config.PropertyChanged += Config_PropertyChanged;
+    }
 
     protected void OnPropertyChanged(string propertyName)
     {

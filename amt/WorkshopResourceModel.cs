@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace YTY.amt
 {
@@ -15,15 +16,15 @@ namespace YTY.amt
     private string name;
     private int rating;
     private long totalSize;
-    private DateTime createDate;
-    private DateTime lastChangeDate;
-    private DateTime lastFileChangeDate;
+    private int createDate;
+    private int lastChangeDate;
+    private int lastFileChangeDate;
     private string discription;
     private GameVersion gameVersion;
     private int downloadCount;
     private string sourceUrl;
     private WorkshopResourceStatus status;
-    private List<ResourceFileModel> files;
+    private ObservableCollection<ResourceFileModel> files;
 
     public int Id { get; }
 
@@ -37,7 +38,7 @@ namespace YTY.amt
       }
     }
 
-    public DateTime CreateDate
+    public int CreateDate
     {
       get { return createDate; }
       set
@@ -77,7 +78,7 @@ namespace YTY.amt
       }
     }
 
-    public DateTime LastChangeDate
+    public int LastChangeDate
     {
       get { return lastChangeDate; }
       set
@@ -87,7 +88,7 @@ namespace YTY.amt
       }
     }
 
-    public DateTime LastFileChangeDate
+    public int LastFileChangeDate
     {
       get { return lastFileChangeDate; }
       set
@@ -157,13 +158,16 @@ namespace YTY.amt
       }
     }
 
-    public List<ResourceFileModel> Files
+    public ObservableCollection<ResourceFileModel> Files
     {
-      get { return files; }
-      set
+      get
       {
-        files = value;
-        OnPropertyChanged(nameof(Files));
+        if (files == null)
+        {
+          files = new ObservableCollection<ResourceFileModel>(DAL.GetLocalResourceFiles(Id));
+          OnPropertyChanged(nameof(Files));
+        }
+        return files;
       }
     }
 
@@ -180,6 +184,7 @@ namespace YTY.amt
     public void UpdateStatus(WorkshopResourceStatus value)
     {
       Status = value;
+      DAL.UpdateResourceStatus(Id, value);
     }
 
     public WorkshopResourceModel(int id)
@@ -187,19 +192,50 @@ namespace YTY.amt
       Id = id;
     }
 
-    public async Task DownloadAsync()
+    public async Task InstallAsync()
     {
+      IEnumerable<ResourceFileModel> updatedFiles = null;
+      Tuple<int, List<ResourceFileModel>> serviceResult = null;
       switch (Status)
       {
         case WorkshopResourceStatus.NotInstalled:
-          Status = WorkshopResourceStatus.Installing;
-          Files = await DAL.GetResourceFilesAsync(Id);
-          this.SaveFiles();
+          serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id);
+          updatedFiles = serviceResult.Item2
+            .Where(f => f.Status == ResourceFileStatus.NotDownloaded);
+          updatedFiles.ToList().ForEach(f => Files.Add(f));
+          UpdateStatus(WorkshopResourceStatus.Installing);
           break;
         case WorkshopResourceStatus.Installing:
 
           break;
+        case WorkshopResourceStatus.NeedUpdate:
+          serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id, LastFileChangeDate);
+          updatedFiles = serviceResult.Item2;
+          foreach (var updatedFile in updatedFiles)
+          {
+            var localFile = Files.FirstOrDefault(l => l.Id == updatedFile.Id);
+            if (localFile == null)
+            // new resource file
+            {
+              Files.Add(updatedFile);
+            }
+            else
+            // resource file exists locally
+            {
+              localFile.Sha1 = updatedFile.Sha1;
+              localFile.Size = updatedFile.Size;
+              localFile.UpdateDate = updatedFile.UpdateDate;
+              localFile.Status = updatedFile.Status;
+              if (updatedFile.Status == ResourceFileStatus.Deleted)
+              {
+
+              }
+            }
+          }
+          DAL.UpdateResourceLastFileChange(Id, serviceResult.Item1);
+          break;
       }
+      DAL.SaveResourceFileModels(updatedFiles);
 
       foreach (var f in Files)
       {
@@ -241,9 +277,13 @@ namespace YTY.amt
 
   public enum WorkshopResourceStatus
   {
-    NotInstalled,
+    Editing = 1,
+    Published,
+    Deleted,
+    NotInstalled = 101,
     Installing,
     Installed,
+    NeedUpdate,
     Activated
   }
 }

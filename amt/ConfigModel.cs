@@ -11,6 +11,8 @@ namespace YTY.amt
 {
   public class ConfigModel : INotifyPropertyChanged
   {
+    private static ConfigModel currentConfig;
+
     private string hawkempirePath;
     private int currentGameVersion;
     private bool populationLimit;
@@ -25,6 +27,7 @@ namespace YTY.amt
     private bool allShown_AocC;
     private bool allShown_Aoc15;
     private bool allShown_AoFE;
+    private int workshopTimestamp;
 
     public string HawkempirePath
     {
@@ -184,27 +187,45 @@ namespace YTY.amt
       }
     }
 
+    public int WorkshopTimestamp
+    {
+      get { return workshopTimestamp; }
+      set
+      {
+        workshopTimestamp = value;
+        DAL.SaveConfigInt(nameof(WorkshopTimestamp), value);
+        OnPropertyChanged(nameof(WorkshopTimestamp));
+      }
+    }
+
     public ConfigModel() { }
 
-    public static ConfigModel GetConfig()
+    public static ConfigModel CurrentConfig
     {
-      var ret = new ConfigModel();
-      DAL.CreateTablesIfNotExist();
-      ret.hawkempirePath = DAL.GetConfigString(nameof(HawkempirePath), string.Empty);
-      ret.currentGameVersion = DAL.GetConfigInt(nameof(CurrentGameVersion), -1);
-      ret.populationLimit = DAL.GetConfigBool(nameof(PopulationLimit), true);
-      ret.multipleQueue = DAL.GetConfigBool(nameof(MultipleQueue), false);
-      ret.currentGameLanguage = DAL.GetConfigInt(nameof(CurrentGameLanguage), -1);
-      ret.splash = DAL.GetConfigBool(nameof(Splash), false);
-      ret.resolutionX = DAL.GetConfigInt(nameof(ResolutionX), 1366);
-      ret.resolutionY = DAL.GetConfigInt(nameof(ResolutionY), 768);
-      ret.backgroundMusic = DAL.GetConfigBool(nameof(BackgroundMusic), true);
-      ret.isEnglishCampaignNarration = DAL.GetConfigBool(nameof(IsEnglishCampaignNarration), false);
-      ret.allShown_AocA = DAL.GetConfigBool(nameof(AllShown_AocA), false);
-      ret.allShown_AocC = DAL.GetConfigBool(nameof(AllShown_AocC), false);
-      ret.allShown_Aoc15 = DAL.GetConfigBool(nameof(AllShown_Aoc15), false);
-      ret.allShown_AoFE = DAL.GetConfigBool(nameof(AllShown_AoFE), false);
-      return ret;
+      get
+      {
+        if (currentConfig == null)
+        {
+          currentConfig = new ConfigModel();
+          DAL.CreateTablesIfNotExist();
+          currentConfig.hawkempirePath = DAL.GetConfigString(nameof(HawkempirePath), string.Empty);
+          currentConfig.currentGameVersion = DAL.GetConfigInt(nameof(CurrentGameVersion), -1);
+          currentConfig.populationLimit = DAL.GetConfigBool(nameof(PopulationLimit), true);
+          currentConfig.multipleQueue = DAL.GetConfigBool(nameof(MultipleQueue), false);
+          currentConfig.currentGameLanguage = DAL.GetConfigInt(nameof(CurrentGameLanguage), -1);
+          currentConfig.splash = DAL.GetConfigBool(nameof(Splash), false);
+          currentConfig.resolutionX = DAL.GetConfigInt(nameof(ResolutionX), 1366);
+          currentConfig.resolutionY = DAL.GetConfigInt(nameof(ResolutionY), 768);
+          currentConfig.backgroundMusic = DAL.GetConfigBool(nameof(BackgroundMusic), true);
+          currentConfig.isEnglishCampaignNarration = DAL.GetConfigBool(nameof(IsEnglishCampaignNarration), false);
+          currentConfig.allShown_AocA = DAL.GetConfigBool(nameof(AllShown_AocA), false);
+          currentConfig.allShown_AocC = DAL.GetConfigBool(nameof(AllShown_AocC), false);
+          currentConfig.allShown_Aoc15 = DAL.GetConfigBool(nameof(AllShown_Aoc15), false);
+          currentConfig.allShown_AoFE = DAL.GetConfigBool(nameof(AllShown_AoFE), false);
+          currentConfig.workshopTimestamp = DAL.GetConfigInt(nameof(WorkshopTimestamp), 0);
+        }
+        return currentConfig;
+      }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

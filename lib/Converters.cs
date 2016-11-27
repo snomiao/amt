@@ -12,7 +12,7 @@ namespace YTY
   {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      var numBytes = (ulong)value;
+      var numBytes = (long)value;
       if (numBytes < 0)
         throw new ArgumentOutOfRangeException(">=0");
       if (numBytes < 1024)

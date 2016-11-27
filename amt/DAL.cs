@@ -40,68 +40,98 @@ namespace YTY.amt
         {"undefined", WorkshopResourceType.Undefined }
       };
       handler.CookieContainer = new CookieContainer();
+      client.BaseAddress = new Uri("http://121.42.152.168/ssrc/");
     }
 
-    public static ObservableCollection<WorkshopResourceModel> GetLocalResources()
+    public static List<WorkshopResourceModel> GetLocalResources()
     {
-      var ret = new ObservableCollection<WorkshopResourceModel>();
-      using (var reader = ConfigOp.ExecuteReader("SELECT Id,CreateDate,LastChangeDate,LastFileChangeDate,Size,Rating,NumDownloads,AuthorId,AuthorName,Discription,GameVersion,Url,Type,Status FROM Resources"))
+      var ret = new List<WorkshopResourceModel>();
+      using (var reader = ConfigOp.ExecuteReader("SELECT Id,CreateDate,LastChangeDate,LastFileChangeDate,Size,Rating,NumDownloads,AuthorId,AuthorName,Name,Discription,GameVersion,Url,Type,Status FROM Resources"))
       {
         while (reader.Read())
         {
           var resource = new WorkshopResourceModel(reader.GetInt32(0))
           {
-            CreateDate = reader.GetDateTime(1),
-            LastChangeDate = reader.GetDateTime(2),
-            LastFileChangeDate = reader.GetDateTime(3),
+            CreateDate = reader.GetInt32(1),
+            LastChangeDate = reader.GetInt32(2),
+            LastFileChangeDate = reader.GetInt32(3),
             TotalSize = reader.GetInt64(4),
             Rating = reader.GetInt32(5),
             DownloadCount = reader.GetInt32(6),
             AuthorId = reader.GetInt32(7),
             AuthorName = reader.GetString(8),
-            Discription = reader.GetString(9),
-            GameVersion = (GameVersion)reader.GetInt32(10),
-            SourceUrl = reader.GetString(11),
-            Type = (WorkshopResourceType)reader.GetInt32(12),
-            Status = (WorkshopResourceStatus)reader.GetInt32(13)
+            Name = reader.GetString(9),
+            Discription = reader.GetString(10),
+            GameVersion = (GameVersion)reader.GetInt32(11),
+            SourceUrl = reader.GetString(12),
+            Type = (WorkshopResourceType)reader.GetInt32(13),
+            Status = (WorkshopResourceStatus)reader.GetInt32(14)
           };
+          ret.Add(resource);
         }
       }
       return ret;
     }
 
-    public static async Task<IEnumerable<WorkshopResourceModel>> RefreshResourcesAsync()
+    public static List<ResourceFileModel> GetLocalResourceFiles(int resourceId)
     {
-      var json = await client.GetStringAsync("api/?q=lsres");
-      var resources = jsonSerializer.Deserialize<List<Dictionary<string,int>>>(json);
-      return resources.Select(dic => new WorkshopResourceModel(dic["id"])
+      var ret = new List<ResourceFileModel>();
+      using (var reader = ConfigOp.ExecuteReader($"SELECT Id,UpdateDate,Size,Path,Sha1,Status FROM Files WHERE ResId={resourceId}"))
       {
-       
-      });
-    }
-
-    public static async Task GetResourceDetailsAsync(this WorkshopResourceModel model)
-    {
-      try
-      {
-        using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT t_update,totalsize,count_download,author_name,content,b_gamebase,fromurl FROM res WHERE id={model.Id}"))
+        while (reader.Read())
         {
-          while (reader.Read())
+          var resource = new ResourceFileModel()
           {
-            model.LastChangeDate = Util.FromUnixTimestamp(reader.GetUInt64(0));
-            model.TotalSize = reader.GetUInt64(1);
-            model.DownloadCount = reader.GetUInt32(2);
-            model.AuthorName = reader.GetString(3);
-            model.Discription = reader.GetString(4);
-            model.GameVersion = (GameVersion)reader.GetUInt32(5);
-            model.SourceUrl = reader.GetString(6);
-          }
+            ResId = resourceId,
+            Id = reader.GetInt32(0),
+            UpdateDate = reader.GetInt32(1),
+            Size = reader.GetInt32(2),
+            Path = reader.GetString(3),
+            Sha1 = reader.GetString(4),
+            Status = (ResourceFileStatus)reader.GetInt32(5)
+          };
+          ret.Add(resource);
         }
       }
-      catch (MySqlException ex)
-      {
-        throw new InvalidOperationException(ex.ToString(), ex);
-      }
+      return ret;
+    }
+
+
+    public static async Task<Tuple<int, List<WorkshopResourceModel>>> GetUpdatedServerResourcesAsync()
+    {
+      var json = await client.GetStringAsync($"api/?q=lsres&t={ConfigModel.CurrentConfig.WorkshopTimestamp}");
+      if (string.IsNullOrEmpty(json))
+        throw new InvalidOperationException();
+      var obj = jsonSerializer.Deserialize<IDictionary<string, object>>(json);
+      var latestTimestamp = (int)obj["t"];
+      var resources = obj["r"] as IEnumerable<object>;
+      return Tuple.Create(latestTimestamp,
+        resources.Select(resource =>
+          {
+            var dic = resource as IDictionary<string, object>;
+            return new WorkshopResourceModel((int)dic["id"])
+            {
+              LastFileChangeDate = (int)dic["tf"],
+              LastChangeDate = (int)dic["tu"],
+              Rating = (int)dic["vr"],
+              DownloadCount = (int)dic["cd"],
+              CreateDate = (int)dic["tc"],
+              AuthorId = (int)dic["ai"],
+              AuthorName = dic["an"] as string,
+              Name = dic["n"] as string,
+              Discription = dic["co"] as string,
+              GameVersion = (GameVersion)dic["gb"],
+              SourceUrl = dic["ur"] as string,
+              Type = dic_String_Type[dic["ty"] as string],
+              Status = (WorkshopResourceStatus)dic["st"]
+            };
+          }).ToList()
+        );
+    }
+
+    public static async Task GetResourceImagesAsync(this WorkshopResourceModel model)
+    {
+
     }
 
     public async static Task GetCookie()
@@ -112,30 +142,94 @@ namespace YTY.amt
       // await client.GetStringAsync("res.php?action=ls&res=6");
     }
 
-    public static async Task<List<ResourceFileModel>> GetResourceFilesAsync(uint workshopResourceid)
+    public static async Task<Tuple<int, List<ResourceFileModel>>> GetResourceUpdatedFilesAsync(int workshopResourceid, int timestamp = 0)
     {
-      var ret = new List<ResourceFileModel>();
-      using (var reader = await WorkshopOp.ExecuteReaderAsync($"SELECT id,PathFile(id),t_update,size FROM resfile WHERE resid={workshopResourceid}"))
-      {
-        while (reader.Read())
+      var json = await client.GetStringAsync($"api/?q=lsfile&resid={Util.Int2CSID(workshopResourceid)}&t={timestamp}");
+      if (string.IsNullOrEmpty(json))
+        throw new InvalidOperationException();
+      var obj = jsonSerializer.Deserialize<IDictionary<string, object>>(json);
+      var lastFileChange = (int)obj["t"];
+      var files = obj["r"] as IEnumerable<object>;
+      return Tuple.Create(lastFileChange,
+        files.Select(f =>
         {
-          var file = new ResourceFileModel();
-          file.Id = reader.GetUInt32(0);
-          file.Path = reader.GetString(1);
-          file.UpdateDate = Util.FromUnixTimestamp(reader.GetUInt64(2));
-          file.Size = reader.GetUInt32(3);
-          ret.Add(file);
-        }
-      }
-      return ret;
+          var dic = f as IDictionary<string, object>;
+          return new ResourceFileModel()
+          {
+            ResId = workshopResourceid,
+            Id = (int)dic["id"],
+            Size = (int)dic["s"],
+            Path = dic["p"] as string,
+            Sha1 = dic["h"] as string,
+            UpdateDate = (int)dic["t"],
+            Status = (ResourceFileStatus)dic["d"]
+          };
+        }).ToList()
+        );
     }
 
-    public static void SaveFiles(this WorkshopResourceModel resource)
+    public static void SaveResourceModels(IEnumerable<WorkshopResourceModel> models)
     {
-      ConfigOp.ExecuteNonQueryTransaction(resource.Files.Select(f => $"INSERT INTO Files (Id,Size,Path,UpdateDate,Sha1,Status) vALUES({f.Id},{f.Size},'{f.Path}','{f.UpdateDate}','{f.Sha1}',{(int)f.Status});"));
+      ConfigOp.ExecuteNonQueryTransaction(models.Select(model => $@"INSERT OR REPLACE INTO Resources(
+Id,CreateDate,LastChangeDate,LastFileChangeDate,Size,Rating,NumDownloads,AuthorId,AuthorName,Name,Discription,GameVersion,Url,Type,Status)
+VALUES({model.Id},
+{model.CreateDate},
+{model.LastFileChangeDate},
+{model.LastChangeDate},
+{model.TotalSize},
+{model.Rating},
+{model.DownloadCount},
+{model.AuthorId},
+'{Util.EscapeSqliteString(model.AuthorName)}',
+'{Util.EscapeSqliteString(model.Name)}',
+'{Util.EscapeSqliteString(model.Discription)}',
+{(int)model.GameVersion},
+'{model.SourceUrl}',
+{(int)model.Type},
+{(int)model.Status}
+)"));
     }
 
-    public static List<FileChunkModel> LoadChunks(uint fileId)
+    public static void SaveResourceFileModels(IEnumerable<ResourceFileModel> models)
+    {
+      ConfigOp.ExecuteNonQueryTransaction(models.Select(model => $@"INSERT OR REPLACE INTO Files(
+ResId,Id,Size,Path,UpdateDate,Sha1,Status) 
+VALUES({model.ResId},
+{model.Id},
+{model.Size},
+'{model.Path}',
+{model.UpdateDate},
+'{model.Sha1}',
+{(int)model.Status}
+)"));
+    }
+
+    public static void UpdateResourceLastFileChange(int id, int lastFileChange)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Resources SET LastFileChangeDate={lastFileChange} WHERE Id={id}");
+    }
+
+    public static void UpdateResourceStatus(int id, WorkshopResourceStatus status)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Resources SET Status={(int)status} WHERE Id={id}");
+    }
+
+    public static void UpdateResourceFileStatus(int id,ResourceFileStatus status)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Files SET Status={(int)status} WHERE Id={id}");
+    }
+
+    public static void UpdateFileChunkFinished(int fileId, int id,bool finished)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Chunks SET Finished={Convert.ToInt32(finished)} WHERE FileId={fileId}");
+    }
+
+    public static void DeleteFileChunks(int fileId)
+    {
+      ConfigOp.ExecuteNonQuery($"DELETE FROM Chunks WHERE FileId={fileId}");
+    }
+
+    public static List<FileChunkModel> LoadChunks(int fileId)
     {
       var ret = new List<FileChunkModel>();
       using (var reader = ConfigOp.ExecuteReader($"SELECT Id FROM Chunks WHERE FileId={fileId}"))
@@ -153,9 +247,9 @@ namespace YTY.amt
       ConfigOp.ExecuteNonQueryTransaction(fileModel.Chunks.Select(c => $"INSERT INTO Chunks (FileId,Id,Finished) VALUES({c.FileId},{c.Id},0)"));
     }
 
-    public static async Task<byte[]> GetChunk(uint fileId, int chunkId)
+    public static async Task<byte[]> GetChunk(int fileId, int chunkId)
     {
-      var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.UInt2CSID(fileId)}");
+      var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.Int2CSID(fileId)}");
       request.Headers.Range = new RangeHeaderValue(chunkId * CHUNKSIZE, (chunkId + 1) * CHUNKSIZE - 1);
       return await (await client.SendAsync(request)).Content.ReadAsByteArrayAsync();
     }
@@ -219,8 +313,8 @@ namespace YTY.amt
     public static void CreateTablesIfNotExist()
     {
       ConfigOp.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Config(key text,value text);
-        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate text,LastChangeDate text,LastFileChangeDate text,Size int,Rating int,NumDownloads int,AuthorId int,AuthorName text,Discription text,GameVersion int,Url text,Type int,Status int);
-        CREATE TABLE IF NOT EXISTS Files(Id int PRIMARY KEY,Size int,Path text,UpdateDate text,Sha1 text,Status int);
+        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate int,LastChangeDate int,LastFileChangeDate int,Size int,Rating int,NumDownloads int,AuthorId int,AuthorName text,Name text,Discription text,GameVersion int,Url text,Type int,Status int);
+        CREATE TABLE IF NOT EXISTS Files(ResId int,Id int PRIMARY KEY,Size int,Path text,UpdateDate int,Sha1 text,Status int);
         CREATE TABLE IF NOT EXISTS Chunks(FileId int,Id int,Finished int,PRIMARY KEY(FileId,Id));    
         CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY, name text, exePath text)");
     }
@@ -259,16 +353,6 @@ namespace YTY.amt
     public static bool GetConfigBool(string key, bool defaultValue)
     {
       return Convert.ToBoolean(GetConfigInt(key, Convert.ToInt32(defaultValue)));
-    }
-
-    private class JSON_Resource
-    {
-      public int id { get; set; }
-      public int t_fileup { get; set; }
-      public int t_update { get; set; }
-      public int votereview { get; set; }
-      public int votecomment { get; set; }
-      public int count_download { get; set; }
     }
   }
 }

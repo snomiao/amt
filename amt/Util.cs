@@ -21,7 +21,7 @@ namespace YTY.amt
       NUMCSIDDIGITS = CSIDDIGITS.Length;
     }
 
-    public static DateTime FromUnixTimestamp(ulong unixTimestamp)
+    public static DateTime FromUnixTimestamp(int unixTimestamp)
     {
       return UNIXTIMESTAMPBASE + TimeSpan.FromSeconds(unixTimestamp);
     }
@@ -42,7 +42,7 @@ namespace YTY.amt
       return screenResolutions;
     }
 
-    public static uint CSID2UInt(string csid)
+    public static uint CSID2Int(string csid)
     {
       int weight = 1;
       return (uint)csid.Aggregate(0, (sum, digit) =>
@@ -53,16 +53,22 @@ namespace YTY.amt
       });
     }
 
-    public static string UInt2CSID(uint value)
+    public static string Int2CSID(int value)
     {
       var ret = string.Empty;
       do
       {
-        ret += CSIDDIGITS[(int)value % NUMCSIDDIGITS];
-        value = (uint)((int)value / NUMCSIDDIGITS);
+        ret += CSIDDIGITS[value % NUMCSIDDIGITS];
+        value = value / NUMCSIDDIGITS;
       } while (value > 0);
       return ret;
     }
+
+    public static string EscapeSqliteString(string toEscape)
+    {
+      return toEscape.Replace("'", "''");
+    }
+
 
     [StructLayout(LayoutKind.Sequential)]
     private struct DEVMODE

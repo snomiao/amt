@@ -34,6 +34,15 @@ namespace YTY.amt
       set
       {
         workshopResources = value;
+        workshopResources.CollectionChanged += (s, e) =>
+        {
+          foreach (WorkshopResourceViewModel added in e.NewItems)
+            added.PropertyChanged += WorkshopResource_PropertyChanged;
+          foreach (WorkshopResourceViewModel removed in e.OldItems)
+            removed.PropertyChanged -= WorkshopResource_PropertyChanged;
+        };
+        foreach(var r in  workshopResources)
+          r.Model.PropertyChanged += WorkshopResource_PropertyChanged;
         WorkshopResourcesView = CollectionViewSource.GetDefaultView(workshopResources);
         DownloadingResourcesView = new CollectionViewSource() { Source = workshopResources }.View;
         DownloadingResourcesView.Filter = o => (o as WorkshopResourceViewModel).Model.Status == WorkshopResourceStatus.Installing;
@@ -72,9 +81,56 @@ namespace YTY.amt
 
     public async Task Init()
     {
-      WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>();
-      await DAL.GetWorkshopResourcesAsync(new Progress<WorkshopResourceModel>(model => workshopResources.Add(new WorkshopResourceViewModel(model))));
+      var localResources = DAL.GetLocalResources();
+      WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>(localResources.Select(r => new WorkshopResourceViewModel(r)));
+      try
+      {
+        var serviceResult = await DAL.GetUpdatedServerResourcesAsync();
+        var updatedResources = serviceResult.Item2;
+        foreach (var updatedResource in updatedResources)
+        {
+          var localResource = localResources.FirstOrDefault(l => l.Id == updatedResource.Id);
+          if (localResource == null)
+          // resource does not exist locally
+          {
+            updatedResource.Status = WorkshopResourceStatus.NotInstalled;
+            WorkshopResources.Add(new WorkshopResourceViewModel(updatedResource));
+          }
+          else
+          // resource exists locally
+          {
+            if (updatedResource.LastChangeDate > localResource.LastChangeDate)
+            // resource metadata updated
+            {
+              localResource.Rating = updatedResource.Rating;
+              localResource.DownloadCount = updatedResource.DownloadCount;
+              localResource.Name = updatedResource.Name;
+              localResource.Discription = updatedResource.Discription;
+              localResource.GameVersion = updatedResource.GameVersion;
+              localResource.SourceUrl = updatedResource.SourceUrl;
+              localResource.LastChangeDate = updatedResource.LastChangeDate;
+              if (updatedResource.Status == WorkshopResourceStatus.Deleted)
+              // resource has been deleted from server
+              {
 
+              }
+            }
+            if (updatedResource.LastFileChangeDate > localResource.LastFileChangeDate)
+            // resource file list updated
+            {
+              localResource.UpdateStatus(WorkshopResourceStatus.NeedUpdate);
+            }
+            updatedResource.LastFileChangeDate = localResource.LastFileChangeDate;
+            updatedResource.Status = localResource.Status;
+          }
+        }
+        DAL.SaveResourceModels(updatedResources);
+        ConfigModel.CurrentConfig.WorkshopTimestamp = serviceResult.Item1;
+      }
+      catch (InvalidOperationException)
+      {
+        throw;
+      }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -82,6 +138,12 @@ namespace YTY.amt
     protected void OnPropertyChanged(string propertyName)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void WorkshopResource_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == "Status")
+        DownloadingResourcesView.Refresh();
     }
   }
 }

@@ -12,13 +12,15 @@ namespace YTY.amt
     private ResourceFileStatus status;
     private List<FileChunkModel> chunks;
 
-    public uint Id { get; set; }
+    public int ResId { get; set; }
 
-    public uint Size { get; set; }
+    public int Id { get; set; }
+
+    public int Size { get; set; }
 
     public string Path { get; set; }
 
-    public DateTime UpdateDate { get; set; }
+    public int UpdateDate { get; set; }
 
     public string Sha1 { get; set; }
 
@@ -30,6 +32,12 @@ namespace YTY.amt
         status = value;
         OnPropertyChanged(nameof(Status));
       }
+    }
+
+    public void UpdateStatus(ResourceFileStatus value)
+    {
+      Status = value;
+      DAL.UpdateResourceFileStatus(Id,value);
     }
 
     public List<FileChunkModel> Chunks
@@ -46,8 +54,8 @@ namespace YTY.amt
     {
       switch (status)
       {
-        case ResourceFileStatus.Ready:
-          Chunks = Enumerable.Range(0, (int)(Size + DAL.CHUNKSIZE - 1) / DAL.CHUNKSIZE).Select(i => new FileChunkModel() { FileId = Id, Id = i}).ToList();
+        case ResourceFileStatus.NotDownloaded:
+          Chunks = Enumerable.Range(0, (Size + DAL.CHUNKSIZE - 1) / DAL.CHUNKSIZE).Select(i => new FileChunkModel() { FileId = Id, Id = i }).ToList();
           this.SaveChunks();
           break;
         case ResourceFileStatus.Downloading:
@@ -57,13 +65,16 @@ namespace YTY.amt
           throw new InvalidOperationException("file already finished");
       }
       var tasks = chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync()).ToList();
+      UpdateStatus(ResourceFileStatus.Downloading);
       var numTasks = tasks.Count();
       for (var i = 0; i < numTasks; i++)
       {
-        var finished = await Task.WhenAny();
+        var finished = await Task.WhenAny(tasks);
         tasks.Remove(finished);
         await finished;
       }
+      UpdateStatus(ResourceFileStatus.Finished);
+      DAL.DeleteFileChunks(Id);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -77,8 +88,9 @@ namespace YTY.amt
 
   public enum ResourceFileStatus
   {
-    Ready,
-    Downloading,
+    NotDownloaded,
+    Deleted,
+    Downloading = 101,
     Finished
   }
 }

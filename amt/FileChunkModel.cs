@@ -11,7 +11,7 @@ namespace YTY.amt
   {
     private bool finished;
 
-    public uint FileId { get; set; }
+    public int FileId { get; set; }
 
     public int Id { get; set; }
 
@@ -23,6 +23,12 @@ namespace YTY.amt
         finished = value;
         OnPropertyChanged(nameof(Finished));
       }
+    }
+
+    public void UpdateFinished(bool finished)
+    {
+      Finished = finished;
+      DAL.UpdateFileChunkFinished(FileId, Id, finished);
     }
 
     public byte[] Data { get; private set; }

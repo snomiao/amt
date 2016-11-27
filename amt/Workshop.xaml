@@ -10,7 +10,7 @@
         Width="990"
         Style="{StaticResource WindowGeneralStyle}"
         x:Name="wnd"
-        IsVisibleChanged="wnd_IsVisibleChanged"
+        Loaded="wnd_Loaded"
         DataContext="{Binding Source={StaticResource WorkshopWindowViewModel}}">
   <Grid>
     <Grid.RowDefinitions>
@@ -36,7 +36,7 @@
         <Setter Property="Background"
                 Value="{Binding Path=ButtonBackground}"></Setter>
         <Setter Property="Command"
-                Value="{StaticResource DownloadResourceCommand}"></Setter>
+                Value="{StaticResource InstallResourceCommand}"></Setter>
         <Setter Property="CommandParameter"
                 Value="{Binding Model}"></Setter>
       </Style>
@@ -332,7 +332,7 @@
                 <TextBlock.Text>
                   <MultiBinding StringFormat="作者：{0} 更新时间：{1:d}">
                     <Binding Path="Model.AuthorName"></Binding>
-                    <Binding Path="Model.UpdateDate"></Binding>
+                    <Binding Path="Model.LastFileChangeDate"></Binding>
                   </MultiBinding>
                 </TextBlock.Text>
               </TextBlock>

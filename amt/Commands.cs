@@ -130,7 +130,7 @@ namespace YTY.amt
       My.WorkshopWindowViewModel.CurrentTab = 1;
       try
       {
-        await viewModel.Model.GetResourceDetailsAsync();
+        await viewModel.Model.GetResourceImagesAsync();
       }
       catch (InvalidOperationException ex)
       {
@@ -181,7 +181,7 @@ namespace YTY.amt
     }
   }
 
-  public class DownloadResourceCommand : ICommand
+  public class InstallResourceCommand : ICommand
   {
     public event EventHandler CanExecuteChanged;
 
@@ -193,9 +193,10 @@ namespace YTY.amt
     public async void Execute(object parameter)
     {
       var model = parameter as WorkshopResourceModel;
-      model.DownloadAsync();
+      var task = model.InstallAsync();
       My.WorkshopWindowViewModel.DownloadingResourcesView.Refresh();
       My.WorkshopWindowViewModel.CurrentTab = 2;
+      await task;
     }
   }
 }
