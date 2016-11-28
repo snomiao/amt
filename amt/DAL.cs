@@ -67,6 +67,15 @@ namespace YTY.amt
             Type = (WorkshopResourceType)reader.GetInt32(13),
             Status = (WorkshopResourceStatus)reader.GetInt32(14)
           };
+          if (resource.Status == WorkshopResourceStatus.Installing)
+          {
+            resource.LocalLoadFiles();
+            foreach (var file in resource.Files)
+            {
+              if (file.Status == ResourceFileStatus.Downloading)
+                file.LocalLoadChunks();
+            }
+          }
           ret.Add(resource);
         }
       }
@@ -114,6 +123,7 @@ namespace YTY.amt
               LastFileChangeDate = (int)dic["tf"],
               LastChangeDate = (int)dic["tu"],
               Rating = (int)dic["vr"],
+              TotalSize = (int)dic["ts"],
               DownloadCount = (int)dic["cd"],
               CreateDate = (int)dic["tc"],
               AuthorId = (int)dic["ai"],
@@ -197,7 +207,7 @@ ResId,Id,Size,Path,UpdateDate,Sha1,Status)
 VALUES({model.ResId},
 {model.Id},
 {model.Size},
-'{model.Path}',
+'{Util.EscapeSqliteString(model.Path)}',
 {model.UpdateDate},
 '{model.Sha1}',
 {(int)model.Status}
@@ -214,12 +224,12 @@ VALUES({model.ResId},
       ConfigOp.ExecuteNonQuery($"UPDATE Resources SET Status={(int)status} WHERE Id={id}");
     }
 
-    public static void UpdateResourceFileStatus(int id,ResourceFileStatus status)
+    public static void UpdateResourceFileStatus(int id, ResourceFileStatus status)
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Files SET Status={(int)status} WHERE Id={id}");
     }
 
-    public static void UpdateFileChunkFinished(int fileId, int id,bool finished)
+    public static void UpdateFileChunkFinished(int fileId, int id, bool finished)
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Chunks SET Finished={Convert.ToInt32(finished)} WHERE FileId={fileId}");
     }

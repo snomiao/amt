@@ -18,6 +18,17 @@ namespace YTY.amt
 
     public int Size { get; set; }
 
+    public int FinishedSize
+    {
+      get
+      {
+        if (status == ResourceFileStatus.Finished)
+          return Size;
+        else
+          return chunks.Count(c => c.Finished) * DAL.CHUNKSIZE;
+      }
+    }
+
     public string Path { get; set; }
 
     public int UpdateDate { get; set; }
@@ -37,7 +48,7 @@ namespace YTY.amt
     public void UpdateStatus(ResourceFileStatus value)
     {
       Status = value;
-      DAL.UpdateResourceFileStatus(Id,value);
+      DAL.UpdateResourceFileStatus(Id, value);
     }
 
     public List<FileChunkModel> Chunks
@@ -50,6 +61,11 @@ namespace YTY.amt
       }
     }
 
+    public void LocalLoadChunks()
+    {
+      Chunks = DAL.LoadChunks(Id);
+    }
+
     public async Task DownloadAsync()
     {
       switch (status)
@@ -57,21 +73,21 @@ namespace YTY.amt
         case ResourceFileStatus.NotDownloaded:
           Chunks = Enumerable.Range(0, (Size + DAL.CHUNKSIZE - 1) / DAL.CHUNKSIZE).Select(i => new FileChunkModel() { FileId = Id, Id = i }).ToList();
           this.SaveChunks();
+          UpdateStatus(ResourceFileStatus.Downloading);
           break;
         case ResourceFileStatus.Downloading:
-          Chunks = DAL.LoadChunks(Id);
           break;
         default:
           throw new InvalidOperationException("file already finished");
       }
       var tasks = chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync()).ToList();
-      UpdateStatus(ResourceFileStatus.Downloading);
       var numTasks = tasks.Count();
       for (var i = 0; i < numTasks; i++)
       {
         var finished = await Task.WhenAny(tasks);
         tasks.Remove(finished);
-        await finished;
+        var finishedChunk = await finished;
+        OnPropertyChanged(nameof(FinishedSize));
       }
       UpdateStatus(ResourceFileStatus.Finished);
       DAL.DeleteFileChunks(Id);

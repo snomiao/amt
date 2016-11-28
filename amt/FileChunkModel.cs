@@ -33,10 +33,11 @@ namespace YTY.amt
 
     public byte[] Data { get; private set; }
 
-    public async Task DownloadAsync()
+    public async Task<FileChunkModel> DownloadAsync()
     {
       Data = await DAL.GetChunk(FileId, Id);
       Finished = true;
+      return this;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

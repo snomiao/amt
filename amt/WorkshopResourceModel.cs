@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace YTY.amt
 {
@@ -77,6 +78,12 @@ namespace YTY.amt
         OnPropertyChanged(nameof(TotalSize));
       }
     }
+
+    public long FinishedSize
+    {
+      get { return files.Where(f => f.Status == ResourceFileStatus.Finished).Sum(f => f.Size) + files.Where(f => f.Status == ResourceFileStatus.Downloading).Sum(f => f.FinishedSize); }
+    }
+
 
     public int LastChangeDate
     {
@@ -164,11 +171,26 @@ namespace YTY.amt
       {
         if (files == null)
         {
-          files = new ObservableCollection<ResourceFileModel>(DAL.GetLocalResourceFiles(Id));
-          OnPropertyChanged(nameof(Files));
+          files = new ObservableCollection<ResourceFileModel>();
+          files.CollectionChanged += Files_CollectionChanged;
         }
         return files;
       }
+      set
+      {
+        files = value;
+        OnPropertyChanged(nameof(Files));
+      }
+    }
+
+    public void Files_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.NewItems != null)
+        foreach (ResourceFileModel f in e.NewItems)
+          f.PropertyChanged += File_PropertyChanged;
+      if (e.OldItems != null)
+        foreach (ResourceFileModel f in e.OldItems)
+          f.PropertyChanged -= File_PropertyChanged;
     }
 
     public WorkshopResourceStatus Status
@@ -192,17 +214,37 @@ namespace YTY.amt
       Id = id;
     }
 
+    public void LocalLoadFiles()
+    {
+      foreach (var f in DAL.GetLocalResourceFiles(Id))
+      {
+        Files.Add(f);
+      }
+      foreach (var f in Files)
+      {
+        f.PropertyChanged += File_PropertyChanged;
+      }
+    }
+
+    public void File_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(FinishedSize))
+      {
+        OnPropertyChanged(nameof(FinishedSize));
+      }
+    }
+
     public async Task InstallAsync()
     {
-      IEnumerable<ResourceFileModel> updatedFiles = null;
+      List<ResourceFileModel> updatedFiles = null;
       Tuple<int, List<ResourceFileModel>> serviceResult = null;
       switch (Status)
       {
         case WorkshopResourceStatus.NotInstalled:
           serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id);
           updatedFiles = serviceResult.Item2
-            .Where(f => f.Status == ResourceFileStatus.NotDownloaded);
-          updatedFiles.ToList().ForEach(f => Files.Add(f));
+            .Where(f => f.Status == ResourceFileStatus.NotDownloaded).ToList();
+          updatedFiles.ForEach(f => Files.Add(f));
           UpdateStatus(WorkshopResourceStatus.Installing);
           break;
         case WorkshopResourceStatus.Installing:

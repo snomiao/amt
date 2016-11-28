@@ -5,11 +5,14 @@ using System.Text;
 using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Data;
 
 namespace YTY.amt
 {
   public class WorkshopResourceViewModel : INotifyPropertyChanged
   {
+    private ICollectionView downloadingFilesView;
+
     public WorkshopResourceModel Model { get; }
 
     public string ButtonText
@@ -80,6 +83,31 @@ namespace YTY.amt
       }
     }
 
+    public string ProgressText
+    {
+      get
+      {
+        return $"{ My.ByteCountToTextConverter.Convert(Model.FinishedSize, null, null, null)} / {My.ByteCountToTextConverter.Convert(Model.TotalSize, null, null, null)} ({(double)Model.FinishedSize / Model.TotalSize:P1})";
+      }
+    }
+
+    public ICollectionView DownloadingFilesView
+    {
+      get
+      {
+        if (downloadingFilesView == null)
+        {
+          downloadingFilesView = CollectionViewSource.GetDefaultView(Model.Files);
+          downloadingFilesView.Filter = o =>
+            {
+              var model = o as ResourceFileModel;
+              return model.Status == ResourceFileStatus.NotDownloaded || model.Status == ResourceFileStatus.Downloading;
+            };
+        }
+        return downloadingFilesView;
+      }
+    }
+
     public WorkshopResourceViewModel(WorkshopResourceModel model)
     {
       Model = model;
@@ -106,6 +134,9 @@ namespace YTY.amt
           break;
         case "Type":
           OnPropertyChanged(nameof(Image));
+          break;
+        case "FinishedSize":
+          OnPropertyChanged(nameof(ProgressText));
           break;
       }
     }

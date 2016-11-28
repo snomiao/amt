@@ -388,11 +388,24 @@
                       <RowDefinition Height="auto"></RowDefinition>
                       <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
+                    <ProgressBar Grid.Row="0"
+                                 Maximum="{Binding Model.TotalSize}"
+                                 Value="{Binding Model.FinishedSize,Mode=OneWay}"></ProgressBar>
                     <TextBlock Grid.Row="0"
-                               Text="{Binding Model.Name}"
-                               HorizontalAlignment="Center"></TextBlock>
+                               Text="{Binding ProgressText}"></TextBlock>
+                    <Grid Grid.Row="0">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0"
+                                 Text="{Binding Model.Name}"
+                                 FontSize="16"
+                                 HorizontalAlignment="Center"></TextBlock>
+                      <Button Grid.Column="1"></Button>
+                    </Grid>
                     <ItemsControl Grid.Row="1"
-                                  ItemsSource="{Binding Model.Files}">
+                                  ItemsSource="{Binding DownloadingFilesView}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate>
                           <Border Margin="5,0"
@@ -403,7 +416,8 @@
                                 <RowDefinition Height="auto"></RowDefinition>
                                 <RowDefinition Height="*"></RowDefinition>
                               </Grid.RowDefinitions>
-                              <TextBlock Grid.Row="0" Text="{Binding Path}"></TextBlock>
+                              <TextBlock Grid.Row="0"
+                                         Text="{Binding Path}"></TextBlock>
                               <ItemsControl Grid.Row="1"
                                             ItemsSource="{Binding Chunks}">
                                 <ItemsControl.ItemsPanel>
@@ -420,11 +434,6 @@
                                                Fill="Yellow">
                                       <Rectangle.Style>
                                         <Style TargetType="{x:Type Rectangle}">
-                                          <!--<Setter Property="Fill">
-                                            <Setter.Value>
-                                              <SolidColorBrush Color="Yellow"></SolidColorBrush>
-                                            </Setter.Value>
-                                          </Setter>-->
                                           <Style.Triggers>
                                             <DataTrigger Binding="{Binding Finished}"
                                                          Value="True">

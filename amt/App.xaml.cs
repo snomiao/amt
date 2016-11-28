@@ -52,5 +52,7 @@ namespace YTY.amt
     }
 
     public static CreateProcessCommand CreateProcessCommand => App.FindResource(nameof(CreateProcessCommand)) as CreateProcessCommand;
+
+    public static ByteCountToTextConverter ByteCountToTextConverter => App.FindResource(nameof(ByteCountToTextConverter)) as ByteCountToTextConverter;
   }
 }

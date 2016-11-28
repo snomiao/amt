@@ -36,12 +36,14 @@ namespace YTY.amt
         workshopResources = value;
         workshopResources.CollectionChanged += (s, e) =>
         {
-          foreach (WorkshopResourceViewModel added in e.NewItems)
-            added.PropertyChanged += WorkshopResource_PropertyChanged;
-          foreach (WorkshopResourceViewModel removed in e.OldItems)
-            removed.PropertyChanged -= WorkshopResource_PropertyChanged;
+          if (e.NewItems != null)
+            foreach (WorkshopResourceViewModel added in e.NewItems)
+              added.PropertyChanged += WorkshopResource_PropertyChanged;
+          if (e.OldItems != null)
+            foreach (WorkshopResourceViewModel removed in e.OldItems)
+              removed.PropertyChanged -= WorkshopResource_PropertyChanged;
         };
-        foreach(var r in  workshopResources)
+        foreach (var r in workshopResources)
           r.Model.PropertyChanged += WorkshopResource_PropertyChanged;
         WorkshopResourcesView = CollectionViewSource.GetDefaultView(workshopResources);
         DownloadingResourcesView = new CollectionViewSource() { Source = workshopResources }.View;
@@ -94,7 +96,8 @@ namespace YTY.amt
           // resource does not exist locally
           {
             updatedResource.Status = WorkshopResourceStatus.NotInstalled;
-            WorkshopResources.Add(new WorkshopResourceViewModel(updatedResource));
+            var New = new WorkshopResourceViewModel(updatedResource);
+            WorkshopResources.Add(New);
           }
           else
           // resource exists locally

@@ -14,7 +14,12 @@ namespace YTY
     public SqliteOp(string database)
     {
       this.database = database;
-      connectionString = new SQLiteConnectionStringBuilder() { DataSource = database }.ConnectionString;
+      connectionString = new SQLiteConnectionStringBuilder()
+      {
+        DataSource = database,
+        Pooling=true,
+        JournalMode= SQLiteJournalModeEnum.Wal
+      }.ConnectionString;
     }
 
     public T ExecuteScalar<T>(string sql)
