@@ -19,8 +19,14 @@ namespace YTY
     private float version2;
     private List<Player> players;
     private byte[] originalFileName;
+    private List<int> stringTableInfos;
+    private List<byte[]> stringInfos;
+    private int hasBitmap;
+    private int bitmapX;
+    private int bitmapY;
+    private BITMAPDIB bitmap;
 
-    public IEnumerable< Player> Players { get; }
+    public List<Player> Players { get; }
 
     public ScxFile(string fileName)
     {
@@ -51,18 +57,19 @@ namespace YTY
           {
             nextUid = dr.ReadInt32();
             version2 = dr.ReadSingle();
-            for(var i = 0; i<16;i++)
+            players = new List<Player>(16);
+            for (var i = 0; i < 16; i++)
             {
               players.Add(new Player()
               {
                 name = dr.ReadBytes(256)
               });
             }
-            for(var i=0;i<16;i++)
+            for (var i = 0; i < 16; i++)
             {
               players[i].Name_StringTable = dr.ReadInt32();
             }
-            for(var i=0;i<16;i++)
+            for (var i = 0; i < 16; i++)
             {
               players[i].isActive = dr.ReadInt32();
               players[i].isHuman = dr.ReadInt32();
@@ -71,6 +78,61 @@ namespace YTY
             }
             dr.ReadBytes(9);
             originalFileName = dr.ReadBytes(dr.ReadInt16());
+            stringTableInfos = new List<int>(6);
+            for(var i =0;i<5;i++)
+            {
+              stringTableInfos.Add(dr.ReadInt32());
+            }
+            if (GetVersion() >= ScxVersion.Version122)
+              stringTableInfos.Add(dr.ReadInt32());
+            stringInfos = new List<byte[]>(10);
+            for(var i =0;i<9;i++)
+            {
+              stringInfos.Add(dr.ReadBytes(dr.ReadInt16()));
+            }
+            if (GetVersion() >= ScxVersion.Version122)
+              stringInfos.Add(dr.ReadBytes(dr.ReadInt16()));
+            hasBitmap = dr.ReadInt32();
+            bitmapX = dr.ReadInt32();
+            bitmapY = dr.ReadInt32();
+            dr.ReadBytes(2);
+            if(bitmapX>0&&bitmapY>0)
+            {
+              bitmap = new BITMAPDIB()
+              {
+                Size = dr.ReadInt32(),
+                Width = dr.ReadInt32(),
+                Height = dr.ReadInt32(),
+                Planes = dr.ReadInt32(),
+                BitCount = dr.ReadInt32(),
+                Compression = dr.ReadInt32(),
+                SizeImage = dr.ReadInt32(),
+                XPelsPerMeter = dr.ReadInt32(),
+                YPelsPerMeter = dr.ReadInt32(),
+                ClrUsed = dr.ReadInt32(),
+                ClrImportant = dr.ReadInt32(),
+                Colors = new List<RGB>(256)
+              };
+              for(var i =0;i<256;i++)
+              {
+                bitmap.Colors.Add(new RGB()
+                {
+                  Red = dr.ReadByte(),
+                  Green = dr.ReadByte(),
+                  Blue = dr.ReadByte(),
+                });
+                dr.ReadByte();
+              }
+              bitmap.ImageData = dr.ReadBytes(((bitmapX - 1) / 4 + 1) * 4 * bitmapY);
+            }
+            for(var i= 0;i<32;i++)
+            {
+              dr.ReadBytes(dr.ReadInt16());
+            }
+            for(var i = 0;i<16;i++)
+            {
+              players[i].ai = dr.ReadBytes(dr.ReadInt16());
+            }
           }
         }
       }
@@ -115,6 +177,30 @@ namespace YTY
     public StartAge StartAge { get; set; }
   }
 
+  public class BITMAPDIB
+  {
+    public int Size { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public int Planes { get; set; }
+    public int BitCount { get; set; }
+    public int Compression { get; set; }
+    public int SizeImage { get; set; }
+    public int XPelsPerMeter { get; set; }
+    public int YPelsPerMeter { get; set; }
+    public int ClrUsed { get; set; }
+    public int ClrImportant { get; set; }
+    public List<RGB> Colors { get; set; }
+    public byte[] ImageData { get; set; }
+  }
+
+  public  class RGB
+  {
+    public byte Red { get; set; }
+    public byte Green { get; set; }
+    public byte Blue { get; set; }
+  }
+
   public enum DiplomacyInt
   {
     Allied,
@@ -124,7 +210,7 @@ namespace YTY
 
   public enum StartAge
   {
-    None=-1,
+    None = -1,
     Dark,
     Feudal,
     Castle,
