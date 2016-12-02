@@ -49,7 +49,9 @@ namespace YTY
     public List<Trigger> Triggers { get; }
     public List<int> TriggersOrder { get; }
     public int HasAiFile { get; set; }
-    public Dictionary<byte[],byte[]> AiFiles { get; }
+    public Dictionary<byte[], byte[]> AiFiles { get; }
+
+    private List<int> unknownInt32s;
 
     private ScxFile()
     {
@@ -79,9 +81,10 @@ namespace YTY
         if (FormatVersion == 3)
         {
           br.ReadBytes(8);
-          var c = br.ReadInt32();
-          for (var i = 0; i < c; i++)
-            br.ReadInt32();
+          var unknownCount = br.ReadInt32();
+          unknownInt32s = new List<int>(unknownCount);
+          for (var i = 0; i < unknownCount; i++)
+            unknownInt32s.Add(br.ReadInt32());
         }
         using (var ds = new DeflateStream(stream, CompressionMode.Decompress))
         {
@@ -363,11 +366,11 @@ namespace YTY
             HasAiFile = dr.ReadInt32();
             if (dr.ReadInt32() == 1)
               dr.ReadBytes(396);
-            if(HasAiFile==1)
+            if (HasAiFile == 1)
             {
               var numAiFiles = dr.ReadInt32();
               AiFiles = new Dictionary<byte[], byte[]>(numAiFiles);
-              for(var i=0;i<numAiFiles;i++)
+              for (var i = 0; i < numAiFiles; i++)
               {
                 AiFiles.Add(dr.ReadBytes(dr.ReadInt32()), dr.ReadBytes(dr.ReadInt32()));
               }
@@ -379,8 +382,8 @@ namespace YTY
 
     public MemoryStream GetStream()
     {
-      var ms1 = new MemoryStream();
-      using (var bw1 = new BinaryWriter(ms1, Encoding.Default, true))
+      var ret = new MemoryStream();
+      using (var bw1 = new BinaryWriter(ret, Encoding.Default, true))
       {
         bw1.Write(Version);
         bw1.Write(Instruction.Length + 20);
@@ -389,18 +392,50 @@ namespace YTY
         bw1.Write(Instruction);
         bw1.Write(0);
         bw1.Write(PlayerCount);
-        if(FormatVersion==3)
+        if (FormatVersion == 3)
         {
           bw1.Write(1000);
           bw1.Write(1);
-          
+          bw1.Write(unknownInt32s.Count);
+          foreach (var u in unknownInt32s)
+            bw1.Write(u);
         }
         using (var ms = new MemoryStream())
+        using (var bw = new BinaryWriter(ms))
+        using (var cs = new DeflateStream(ret, CompressionMode.Compress))
         {
-
+          bw.Write(NextUid);
+          bw.Write(Version2);
+          foreach (var p in Players)
+            bw.Write(ZeroAppend(p.Name, 256));
+          foreach (var p in Players)
+            bw.Write(p.Name_StringTable);
+          foreach(var p in Players)
+          {
+            bw.Write(p.IsActive);
+            bw.Write(p.IsHuman);
+            bw.Write(p.Civilization);
+            bw.Write(4);
+          }
+          bw.Write(1);
+          bw.Write((byte)0);
+          bw.Write(-1.0f);
+          bw.Write((short)OriginalFileName.Length);
+          bw.Write(OriginalFileName);
+          foreach (var s in StringTableInfos)
+            bw.Write(s);
+          foreach(var s in StringInfos)
+          {
+            bw.Write((short)s.Length);
+            bw.Write(s);
+          }
+          bw.Write(HasBitmap);
+          bw.Write(BitmapX);
+          bw.Write(BitmapY);
+          bw.Write(1s);
         }
       }
-        return ms1;
+      return ret;
     }
 
     private ScxVersion GetVersion()
@@ -416,11 +451,16 @@ namespace YTY
       else
         return ScxVersion.Version126;
     }
+
+    private static byte[] ZeroAppend(byte[] input,int totalLength)
+    {
+      return input.Concat(new byte[totalLength - input.Length]).ToArray();
+    }
   }
 
   public class Player
   {
-    public byte[] Name;
+    public byte[] Name { get; set; }
     public int Name_StringTable { get; set; }
     public int IsActive { get; set; }
     public int IsHuman { get; set; }
