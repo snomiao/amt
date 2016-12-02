@@ -76,6 +76,9 @@
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="ResolutionModel.cs" />
     <Compile Include="ResourceFileModel.cs" />
+    <Compile Include="ScenarioTranslator.xaml.cs">
+      <DependentUpon>ScenarioTranslator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Util.cs" />
     <Compile Include="WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop.xaml.cs">
@@ -96,6 +99,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ScenarioTranslator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Workshop.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

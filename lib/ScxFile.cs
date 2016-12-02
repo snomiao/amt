@@ -52,6 +52,8 @@ namespace YTY
     public Dictionary<byte[], byte[]> AiFiles { get; }
 
     private List<int> unknownInt32s;
+    private int unknownFlag;
+    private byte[] unknownBlock;
 
     private ScxFile()
     {
@@ -364,8 +366,9 @@ namespace YTY
               TriggersOrder.Add(dr.ReadInt32());
             }
             HasAiFile = dr.ReadInt32();
-            if (dr.ReadInt32() == 1)
-              dr.ReadBytes(396);
+            unknownFlag = dr.ReadInt32();
+            if (unknownFlag == 1)
+              unknownBlock = dr.ReadBytes(396);
             if (HasAiFile == 1)
             {
               var numAiFiles = dr.ReadInt32();
@@ -410,7 +413,7 @@ namespace YTY
             bw.Write(ZeroAppend(p.Name, 256));
           foreach (var p in Players)
             bw.Write(p.Name_StringTable);
-          foreach(var p in Players)
+          foreach (var p in Players)
           {
             bw.Write(p.IsActive);
             bw.Write(p.IsHuman);
@@ -424,7 +427,7 @@ namespace YTY
           bw.Write(OriginalFileName);
           foreach (var s in StringTableInfos)
             bw.Write(s);
-          foreach(var s in StringInfos)
+          foreach (var s in StringInfos)
           {
             bw.Write((short)s.Length);
             bw.Write(s);
@@ -432,7 +435,205 @@ namespace YTY
           bw.Write(HasBitmap);
           bw.Write(BitmapX);
           bw.Write(BitmapY);
-          bw.Write(1s);
+          bw.Write((short)1);
+          if (BitmapX > 0 && BitmapY > 0)
+          {
+            bw.Write(Bitmap.Size);
+            bw.Write(Bitmap.Width);
+            bw.Write(Bitmap.Height);
+            bw.Write(Bitmap.Planes);
+            bw.Write(Bitmap.BitCount);
+            bw.Write(Bitmap.Compression);
+            bw.Write(Bitmap.SizeImage);
+            bw.Write(Bitmap.XPelsPerMeter);
+            bw.Write(Bitmap.YPelsPerMeter);
+            bw.Write(Bitmap.ClrUsed);
+            bw.Write(Bitmap.ClrImportant);
+            foreach (var rgb in Bitmap.Colors)
+            {
+              bw.Write(rgb.Red);
+              bw.Write(rgb.Green);
+              bw.Write(rgb.Blue);
+              bw.Write((byte)0);
+            }
+            bw.Write(Bitmap.ImageData);
+          }
+          bw.Seek(64, SeekOrigin.Current);
+          foreach (var p in Players)
+          {
+            bw.Write((short)p.Ai.Length);
+            bw.Write(p.Ai);
+          }
+          foreach (var p in Players)
+          {
+            bw.Write(0L);
+            bw.Write(p.AiFile.Length);
+            bw.Write(p.AiFile);
+          }
+          foreach (var p in Players)
+            bw.Write(p.Personality);
+          bw.Write(-99);
+          bw.Write(Conquest);
+          bw.Write(Relics);
+          bw.Write(Explored);
+          bw.Write(AllMustMeet);
+          bw.Write(Mode);
+          bw.Write(Score);
+          bw.Write(Time);
+          foreach (var p in Players)
+            foreach (var d in p.Diplomacies)
+              bw.Write((int)d);
+          bw.Seek(11520, SeekOrigin.Current);
+          bw.Write(-99);
+          foreach (var p in Players)
+            bw.Write(p.AlliedVictory);
+          if (GetVersion() >= ScxVersion.Version123)
+          {
+            bw.Write(LockTeams);
+            bw.Write(PlayerChooseTeams);
+            bw.Write(RandomStartPoints);
+            bw.Write(MaxTeams);
+          }
+          foreach (var p in Players)
+            bw.Write(p.DisabledTechs.Count(d => d >= 0));
+          foreach (var p in Players)
+            foreach (var d in p.DisabledTechs)
+              bw.Write(d);
+          foreach (var p in Players)
+            bw.Write(p.DisabledUnits.Count(d => d >= 0));
+          foreach (var p in Players)
+            foreach (var d in p.DisabledUnits)
+              bw.Write(d);
+          foreach (var p in Players)
+            bw.Write(p.DisabledBuildings.Count(d => d >= 0));
+          foreach (var p in Players)
+            foreach (var d in p.DisabledBuildings)
+              bw.Write(d);
+          bw.Write(0L);
+          bw.Write(AllTechs);
+          foreach (var p in Players)
+            bw.Write((int)p.StartAge + (GetVersion() > ScxVersion.Version126 ? 2 : 0));
+          bw.Write(-99);
+          bw.Write(CameraX);
+          bw.Write(CameraY);
+          if (GetVersion() >= ScxVersion.Version122)
+            bw.Write((int)MapType);
+          if (GetVersion() >= ScxVersion.Version124)
+            bw.Write(0m);
+          bw.Write(MapX);
+          bw.Write(MapY);
+          foreach (var m in Map)
+          {
+            bw.Write(m.Id);
+            bw.Write(m.Elevation);
+          }
+          bw.Write(9);
+          foreach (var r in Resources)
+          {
+            bw.Write(r.Food);
+            bw.Write(r.Wood);
+            bw.Write(r.Gold);
+            bw.Write(r.Stone);
+            bw.Write(r.Ore);
+            bw.Write(0);
+            if (GetVersion() >= ScxVersion.Version122)
+              bw.Write(r.PopulationLimit);
+          }
+          foreach (var units in Units)
+          {
+            bw.Write(units.Count);
+            foreach (var u in units)
+            {
+              bw.Write(u.PosX);
+              bw.Write(u.PosY);
+              bw.Write(u.PosZ);
+              bw.Write(u.Id);
+              bw.Write(u.UnitClass);
+              bw.Write(u.State);
+              bw.Write(u.Rotation);
+              bw.Write(u.Frame);
+              bw.Write(u.Garrison);
+            }
+          }
+          bw.Write(9);
+          foreach (var m in PlayerMiscs)
+          {
+            bw.Write((short)m.Name.Length);
+            bw.Write(m.CameraX);
+            bw.Write(m.CameraY);
+            bw.Write(0);
+            bw.Write(m.AlliedVictory);
+            bw.Write((short)9);
+            foreach (var d in m.Diplomacies)
+              bw.Write((byte)d);
+            foreach (var d in m.Diplomacies2)
+              bw.Write((int)d);
+            bw.Write((int)m.Color);
+            bw.Write(2.0f);
+            bw.Seek(17, SeekOrigin.Current);
+            bw.Write(-1);
+          }
+          bw.Write(1.6);
+          bw.Write((byte)0);
+          bw.Write(Triggers.Count);
+          foreach (var t in Triggers)
+          {
+            bw.Write(t.IsEnabled);
+            bw.Write(t.IsLooping);
+            bw.Write((byte)0);
+            bw.Write(t.IsObjective);
+            bw.Write(t.DiscriptionOrder);
+            bw.Write(0);
+            bw.Write(t.Discription.Length);
+            bw.Write(t.Discription);
+            bw.Write(t.Name.Length);
+            bw.Write(t.Name);
+            bw.Write(t.Effects.Count);
+            foreach (var e in t.Effects)
+            {
+              bw.Write((int)e.Type);
+              bw.Write(e.Fields.Count);
+              foreach (var f in e.Fields)
+                bw.Write(f);
+              bw.Write(e.Text.Length);
+              bw.Write(e.Text);
+              bw.Write(e.SoundFile.Length);
+              bw.Write(e.SoundFile);
+              foreach (var u in e.UnitIDs)
+                bw.Write(u);
+            }
+            foreach (var e in t.EffectsOrder)
+              bw.Write(e);
+            bw.Write(t.Conditions.Count);
+            foreach (var c in t.Conditions)
+            {
+              bw.Write((int)c.Type);
+              bw.Write(c.Fields.Count);
+              foreach (var f in c.Fields)
+                bw.Write(f);
+            }
+            foreach (var c in t.ConditionsOrder)
+              bw.Write(c);
+          }
+          foreach (var t in TriggersOrder)
+            bw.Write(t);
+          bw.Write(HasAiFile);
+          bw.Write(unknownFlag);
+          if (unknownFlag == 1)
+            bw.Write(unknownBlock);
+          if (HasAiFile == 1)
+          {
+            bw.Write(AiFiles.Count);
+            foreach (var a in AiFiles)
+            {
+              bw.Write(a.Key.Length);
+              bw.Write(a.Key);
+              bw.Write(a.Value.Length);
+              bw.Write(a.Value);
+            }
+          }
+          ms.Seek(0, SeekOrigin.Begin);
+          ms.CopyTo(cs);
         }
       }
       return ret;
@@ -452,7 +653,7 @@ namespace YTY
         return ScxVersion.Version126;
     }
 
-    private static byte[] ZeroAppend(byte[] input,int totalLength)
+    private static byte[] ZeroAppend(byte[] input, int totalLength)
     {
       return input.Concat(new byte[totalLength - input.Length]).ToArray();
     }
