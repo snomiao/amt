@@ -12,6 +12,7 @@ namespace YTY.amt
   public class NodeViewModel : INotifyPropertyChanged
   {
     private bool sourceError;
+    private bool destError;
     private string header;
     private byte[] sourceBytes;
     private string source;
@@ -19,7 +20,8 @@ namespace YTY.amt
     private string to;
     private List<NodeViewModel> children;
     private Visibility visibility;
-    private string toolTipText;
+    private string sourceErrorText;
+    private string destErrorText;
 
     public bool HasContent { get; set; }
 
@@ -63,6 +65,16 @@ namespace YTY.amt
       }
     }
 
+    public bool DestError
+    {
+      get { return destError; }
+      set
+      {
+        destError = value;
+        OnPropertyChanged(nameof(DestError));
+      }
+    }
+
     public string To
     {
       get { return to; }
@@ -70,6 +82,7 @@ namespace YTY.amt
       {
         to = value;
         OnPropertyChanged(nameof(To));
+        OnSetDest();
       }
     }
 
@@ -93,18 +106,31 @@ namespace YTY.amt
       }
     }
 
-    public string ToolTipText
+    public string SourceErrorText
     {
-      get { return toolTipText; }
+      get { return sourceErrorText; }
       set
       {
-        toolTipText = value;
-        OnPropertyChanged(nameof(ToolTipText));
+        sourceErrorText = value;
+        OnPropertyChanged(nameof(SourceErrorText));
       }
     }
 
-    public NodeViewModel(bool hasContent=true)
+    public string DestErrorText
     {
+      get { return destErrorText; }
+      set
+      {
+        destErrorText = value;
+        OnPropertyChanged(nameof(DestErrorText));
+      }
+    }
+
+    public NodeType Flags { get; set; }
+
+    public NodeViewModel(bool hasContent = true)
+    {
+      children = new List<NodeViewModel>();
       HasContent = hasContent;
       My.ScenarioTranslatorViewModel.PropertyChanged += ScenarioTranslatorViewModel_PropertyChanged;
     }
@@ -120,18 +146,59 @@ namespace YTY.amt
       catch (DecoderFallbackException ex)
       {
         SourceError = true;
-        ToolTipText = $"【警告】位于字节流位置 {ex.Index} 处的字节 {BitConverter.ToString(ex.BytesUnknown)} 无法使用 {My.ScenarioTranslatorViewModel.FromEncoding.EncodingName} 解码。\n若这是一个错误，请考虑改变原文编码。";
+        SourceErrorText = $"【警告】位于字节流位置 {ex.Index} 处的字节 {BitConverter.ToString(ex.BytesUnknown)} 无法使用 {My.ScenarioTranslatorViewModel.FromEncoding.EncodingName} 解码。\n请检查原文编码是否合适。";
         Source = Encoding.GetEncoding(My.ScenarioTranslatorViewModel.FromEncoding.CodePage).GetString(sourceBytes).TrimEnd('\0');
+      }
+    }
+
+    private void OnSetDest()
+    {
+      try
+      {
+        DestError = false;
+        toBytes = My.ScenarioTranslatorViewModel.ToEncoding.GetBytes(To + '\0');
+      }
+      catch (EncoderFallbackException ex)
+      {
+        DestError = true;
+        DestErrorText = $"【警告】位于字符串位置 {ex.Index} 处的字符 {ex.CharUnknown} 无法使用 {My.ScenarioTranslatorViewModel.ToEncoding.EncodingName} 编码。\n请检查译文字符串是否错误，译文编码是否合适。";
+        toBytes = Encoding.GetEncoding(My.ScenarioTranslatorViewModel.ToEncoding.CodePage).GetBytes(To + '\0');
       }
     }
 
     private void ScenarioTranslatorViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName == nameof(ScenarioTranslatorViewModel.FromEncoding))
+      switch (e.PropertyName)
       {
-        SetSource();
-        OnPropertyChanged(nameof(SourceError));
+        case nameof(ScenarioTranslatorViewModel.FromEncoding):
+          SetSource();
+          OnPropertyChanged(nameof(SourceError));
+          break;
+        case nameof(ScenarioTranslatorViewModel.ToEncoding):
+          OnSetDest();
+          OnPropertyChanged(nameof(DestError));
+          break;
+        case nameof(ScenarioTranslatorViewModel.Hide):
+          Visibility = CalcVisibility();
+          break;
       }
+    }
+
+    private Visibility CalcVisibility()
+    {
+      if (!My.ScenarioTranslatorViewModel.Hide)
+        return Visibility.Visible;
+      if (Flags.HasFlag(NodeType.TriggerName))
+        return Visibility.Collapsed;
+      if (Flags.HasFlag(NodeType.TriggerDesc) || Flags.HasFlag(NodeType.TriggerContent))
+        return string.IsNullOrWhiteSpace(Source) ? Visibility.Collapsed : Visibility.Visible;
+      if (!Flags.HasFlag(NodeType.Trigger))
+        return Visibility.Visible;
+      if (Flags.HasFlag(NodeType.IsObjective))
+        return Visibility.Visible;
+      if (Children.Where(n => n.Flags.HasFlag(NodeType.TriggerContent) || n.Flags.HasFlag(NodeType.TriggerDesc)).Any(n => !string.IsNullOrWhiteSpace(n.Source)))
+        return Visibility.Visible;
+      return Visibility.Collapsed;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -140,5 +207,16 @@ namespace YTY.amt
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+  }
+
+  [Flags]
+  public enum NodeType
+  {
+    None = 0,
+    Trigger = 1,
+    TriggerName = 2,
+    TriggerContent = 4,
+    IsObjective = 8,
+    TriggerDesc = 0x10
   }
 }

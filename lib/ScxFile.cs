@@ -648,6 +648,22 @@ namespace YTY
       return ret;
     }
 
+    public void Save()
+    {
+      using (var fs = new FileStream(FileName, FileMode.Create))
+      {
+        GetStream().CopyTo(fs);
+      }
+    }
+
+    public void SaveAs(string fileName)
+    {
+      using (var fs = new FileStream(fileName, FileMode.Create))
+      {
+        GetStream().CopyTo(fs);
+      }
+    }
+
     private ScxVersion GetVersion()
     {
       if (Version[2] == 0x31)

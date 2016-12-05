@@ -8,57 +8,38 @@
         DataContext="{StaticResource ScenarioTranslatorViewModel}">
   <Window.Resources>
     <local:OpenScenarioCommand x:Key="OpenScenarioCommand"></local:OpenScenarioCommand>
+    <local:SaveScenarioCommand x:Key="SaveScenarioCommand"></local:SaveScenarioCommand>
+    <local:SaveScenarioAsCommand x:Key="SaveScenarioAsCommand"></local:SaveScenarioAsCommand>
+    <local:CloseScenarioCommand x:Key="CloseScenarioCommand"></local:CloseScenarioCommand>
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="auto"></RowDefinition>
       <RowDefinition Height="auto"></RowDefinition>
       <RowDefinition Height="*"></RowDefinition>
       <RowDefinition Height="auto"></RowDefinition>
     </Grid.RowDefinitions>
     <Menu Grid.Row="0">
       <Menu.Resources>
+        <local:CopyAllCommand x:Key="CopyAllCommand"></local:CopyAllCommand>
+        <local:EmptyAllNamesCommand x:Key="EmptyAllNamesCommand"></local:EmptyAllNamesCommand>
+        <local:NumberNamesCommand x:Key="NumberNamesCommand"></local:NumberNamesCommand>
         <Style TargetType="{x:Type Bold}">
           <Setter Property="FontSize"
                   Value="14"></Setter>
+          <Setter Property="Foreground"
+                  Value="Blue"></Setter>
         </Style>
       </Menu.Resources>
       <MenuItem Header="文件">
         <MenuItem Header="打开..."
                   Command="{StaticResource OpenScenarioCommand}"></MenuItem>
-        <MenuItem Header="保存"></MenuItem>
-        <MenuItem Header="场景..."></MenuItem>
-        <MenuItem Header="关闭文件"></MenuItem>
+        <MenuItem Header="保存"
+                  Command="{StaticResource SaveScenarioCommand}"></MenuItem>
+        <MenuItem Header="另存为..."
+                  Command="{StaticResource SaveScenarioAsCommand}"></MenuItem>
+        <MenuItem Header="关闭文件"
+                  Command="{StaticResource CloseScenarioCommand}"></MenuItem>
         <Separator></Separator>
-        <MenuItem Header="退出"></MenuItem>
-      </MenuItem>
-      <MenuItem Header="常用功能">
-        <MenuItem>
-          <MenuItem.Header>
-            <TextBlock><Bold>拷贝所有</Bold>原文内容到译文</TextBlock>
-          </MenuItem.Header>
-        </MenuItem>
-        <MenuItem IsCheckable="True">
-          <MenuItem.Header>
-            <TextBlock><Bold>隐藏</Bold>所有不是任务目标的触发事件的名称和描述</TextBlock>
-          </MenuItem.Header>
-        </MenuItem>
-        <MenuItem>
-          <MenuItem.Header>
-            <TextBlock>将所有触发事件名称<Bold>设为空白</Bold></TextBlock>
-          </MenuItem.Header>
-        </MenuItem>
-        <MenuItem>
-          <MenuItem.Header>
-            <StackPanel Orientation="Horizontal">
-              <TextBlock>将所有触发事件名称<Bold>编号</Bold>，前缀为：</TextBlock>
-              <TextBox x:Name="txtPrefix"
-                       Padding="5,2"
-                       Width="auto"
-                       xml:space="preserve">触发事件 </TextBox>
-            </StackPanel>
-          </MenuItem.Header>
-        </MenuItem>
         <MenuItem>
           <MenuItem.Header>
             <TextBlock>译文<Bold>导出</Bold>到文本文档</TextBlock>
@@ -69,108 +50,246 @@
             <TextBlock>从文本文档<Bold>导入</Bold>译文</TextBlock>
           </MenuItem.Header>
         </MenuItem>
+        <Separator></Separator>
+        <MenuItem Header="退出"></MenuItem>
+      </MenuItem>
+      <MenuItem Header="常用功能"
+                IsEnabled="{Binding FileOpened}">
+        <MenuItem Command="{StaticResource CopyAllCommand}">
+          <MenuItem.Header>
+            <TextBlock><Bold>拷贝</Bold>所有原文内容到译文</TextBlock>
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem IsCheckable="True"
+                  IsChecked="{Binding Hide,Mode=TwoWay}">
+          <MenuItem.Header>
+            <TextBlock><Bold>隐藏</Bold>无文本触发</TextBlock>
+          </MenuItem.Header>
+          <MenuItem.ToolTip>
+            <ToolTip>
+              <TextBlock>
+                开启后，隐藏下列条目：<LineBreak></LineBreak>
+                所有触发名称；<LineBreak></LineBreak>
+                内容为空白的触发描述；<LineBreak></LineBreak>
+                内容为空白的触发效果；<LineBreak></LineBreak>
+                内容全为空，且不是任务目标的触发。
+              </TextBlock>
+            </ToolTip>
+          </MenuItem.ToolTip>
+        </MenuItem>
+        <MenuItem Command="{StaticResource EmptyAllNamesCommand}">
+          <MenuItem.Header>
+            <TextBlock>将所有触发事件名称设为<Bold>空白</Bold></TextBlock>
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem Command="{StaticResource NumberNamesCommand}">
+          <MenuItem.Header>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock>将所有触发事件名称<Bold>编号</Bold>，前缀为：</TextBlock>
+              <TextBox Width="auto"
+                       xml:space="preserve"
+                       Text="{Binding Prefix}"
+                       Foreground="DarkRed"
+                       FontSize="14"></TextBox>
+            </StackPanel>
+          </MenuItem.Header>
+        </MenuItem>
+      </MenuItem>
+      <MenuItem Header="翻译辅助">
+        <MenuItem IsCheckable="True"
+                  IsChecked="{Binding Forgot,Mode=TwoWay}">
+          <MenuItem.Header>
+            <TextBlock>开启<Bold>编码错误</Bold>提示标记</TextBlock>
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem IsCheckable="True"
+                  IsChecked="{Binding Forgot,Mode=TwoWay}">
+          <MenuItem.Header>
+            <TextBlock>开启<Bold>漏译</Bold>提示标记</TextBlock>
+          </MenuItem.Header>
+        </MenuItem>
       </MenuItem>
     </Menu>
-    <Grid Grid.Row="2">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="auto"></RowDefinition>
-        <RowDefinition Height="2*"></RowDefinition>
-        <RowDefinition Height="auto"></RowDefinition>
-        <RowDefinition Height="*"></RowDefinition>
-        <RowDefinition Height="auto"></RowDefinition>
-        <RowDefinition Height="auto"></RowDefinition>
-      </Grid.RowDefinitions>
+    <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="*"></ColumnDefinition>
-        <ColumnDefinition Width="2*"></ColumnDefinition>
       </Grid.ColumnDefinitions>
-      <TextBlock>可翻译内容：</TextBlock>
-      <TextBlock Grid.Column="2">原文：</TextBlock>
-      <TreeView x:Name="Tree"
-                Grid.Row="1"
-                Grid.ColumnSpan="2"
-                Grid.RowSpan="3"
-                VirtualizingStackPanel.IsVirtualizing="True"
-                ItemsSource="{Binding Nodes}">
-        <TreeView.ItemTemplate>
-          <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
-            <TextBlock Text="{Binding Path=Header}">
-              <TextBlock.Style>
-                <Style TargetType="{x:Type TextBlock}">
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding SourceError}"
-                                 Value="True">
-                      <Setter Property="Background"
-                              Value="Red"></Setter>
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </TextBlock.Style>
-            </TextBlock>
-          </HierarchicalDataTemplate>
-        </TreeView.ItemTemplate>
-        <TreeView.ItemContainerStyle>
-          <Style TargetType="{x:Type TreeViewItem}">
-            <Setter Property="IsExpanded"
-                    Value="True"></Setter>
-            <Setter Property="Visibility"
-                    Value="{Binding Path=Visibility}"></Setter>
-          </Style>
-        </TreeView.ItemContainerStyle>
-      </TreeView>
-      <TextBox Grid.Row="1"
-               Grid.Column="2"
-               DataContext="{Binding ElementName=Tree,Path=SelectedItem}"
-               IsReadOnly="True"
-               TextWrapping="Wrap"
-               VerticalScrollBarVisibility="Auto"
-               BorderThickness="2"
-               Text="{Binding Source,Mode=OneWay}">
-        <TextBox.Style>
-          <Style TargetType="{x:Type TextBox}">
-            <Style.Triggers>
-              <DataTrigger Binding="{Binding SourceError}"
-                           Value="True">
-                <Setter Property="BorderBrush"
-                        Value="Red"></Setter>
-                <Setter Property="ToolTip">
-                  <Setter.Value>
-                    <ToolTip>
-                      <TextBlock Text="{Binding ToolTipText}"></TextBlock>
-                    </ToolTip>
-                  </Setter.Value>
-                </Setter>
-              </DataTrigger>
-            </Style.Triggers>
-          </Style>
-        </TextBox.Style>
-      </TextBox>
-      <TextBlock Grid.Row="2"
-                 Grid.Column="2">译文：</TextBlock>
-      <TextBox x:Name="txtDst"
-               Grid.Row="3"
-               Grid.Column="2"
-               Grid.RowSpan="3"
-               TextWrapping="Wrap"
-               AcceptsReturn="True"
-               VerticalScrollBarVisibility="Auto"
-               Text="{Binding ElementName=Tree, Path=SelectedItem.To,Mode=TwoWay}"
-               IsEnabled="{Binding ElementName=Tree,Path=SelectedItem.HasContent}"></TextBox>
-      <TextBlock Grid.Row="4">原文编码：</TextBlock>
-      <ComboBox Grid.Row="4"
-                Grid.Column="1"
-                ItemsSource="{Binding Encodings}"
-                DisplayMemberPath="EncodingName"
-                SelectedItem="{Binding FromEncoding,Mode=TwoWay}"
-                SelectedValuePath="CodePage"
-                SelectedValue="1251"></ComboBox>
-      <TextBlock Grid.Row="5">译文编码：</TextBlock>
-      <ComboBox x:Name="cboDst"
-                Grid.Row="5"
-                Grid.Column="1"></ComboBox>
+      <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="auto"></RowDefinition>
+          <RowDefinition Height="*"></RowDefinition>
+          <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0">可翻译内容：</TextBlock>
+        <TreeView x:Name="Tree"
+                  Grid.Row="1"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  ItemsSource="{Binding Nodes}">
+          <TreeView.Resources>
+          </TreeView.Resources>
+          <TreeView.ItemTemplate>
+            <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"></ColumnDefinition>
+                  <ColumnDefinition Width="auto"></ColumnDefinition>
+                  <ColumnDefinition Width="auto"></ColumnDefinition>
+                  <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                  <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Margin"
+                            Value="1"></Setter>
+                    <Setter Property="Padding"
+                            Value="1"></Setter>
+                  </Style>
+                </Grid.Resources>
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Path=Header}">
+                  <!--<TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding SourceError}"
+                                     Value="True">
+                          <Setter Property="Background"
+                                  Value="Orange"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding DestError}"
+                                     Value="True">
+                          <Setter Property="Background"
+                                  Value="Red"></Setter>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </TextBlock.Style>-->
+                </TextBlock>
+                <TextBlock Grid.Column="1"
+                           Background="Red"
+                           Foreground="Green"
+                           Visibility="{Binding SourceError,Converter={StaticResource BoolToVisibilityConverter}}">原</TextBlock>
+                <TextBlock Grid.Column="2"
+                           Background="Green"
+                           Foreground="Red"
+                           Visibility="{Binding DestError,Converter={StaticResource BoolToVisibilityConverter}}">译</TextBlock>
+                <TextBlock Grid.Column="3"
+                           Background="Blue"
+                           Foreground="Yellow"
+                           Visibility="{Binding Forgot,Converter={StaticResource BoolToVisibilityConverter}}">漏</TextBlock>
+              </Grid>
+            </HierarchicalDataTemplate>
+          </TreeView.ItemTemplate>
+          <TreeView.ItemContainerStyle>
+            <Style TargetType="{x:Type TreeViewItem}">
+              <Setter Property="IsExpanded"
+                      Value="True"></Setter>
+              <Setter Property="Visibility"
+                      Value="{Binding Path=Visibility}"></Setter>
+            </Style>
+          </TreeView.ItemContainerStyle>
+        </TreeView>
+        <Grid Grid.Row="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Row="0"
+                     Grid.Column="0">原文编码：</TextBlock>
+          <ComboBox Grid.Row="0"
+                    Grid.Column="1"
+                    ItemsSource="{Binding FromEncodings}"
+                    DisplayMemberPath="EncodingName"
+                    SelectedItem="{Binding FromEncoding,Mode=TwoWay}"
+                    SelectedValuePath="CodePage"
+                    SelectedValue="1251"
+                    IsEnabled="{Binding FileOpened}"></ComboBox>
+          <TextBlock Grid.Row="1"
+                     Grid.Column="0">译文编码：</TextBlock>
+          <ComboBox Grid.Row="1"
+                    Grid.Column="1"
+                    ItemsSource="{Binding ToEncodings}"
+                    DisplayMemberPath="EncodingName"
+                    SelectedItem="{Binding ToEncoding,Mode=TwoWay}"
+                    SelectedValuePath="CodePage"
+                    SelectedValue="936"
+                    IsEnabled="{Binding FileOpened}"></ComboBox>
+        </Grid>
+      </Grid>
+      <GridSplitter Grid.Column="1"
+                    Width="5"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"></GridSplitter>
+      <Grid Grid.Column="2"
+            DataContext="{Binding ElementName=Tree,Path=SelectedItem}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="auto"></RowDefinition>
+          <RowDefinition Height="*"></RowDefinition>
+          <RowDefinition Height="auto"></RowDefinition>
+          <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0">原文：</TextBlock>
+        <TextBox Grid.Row="1"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"
+                 BorderThickness="2"
+                 Text="{Binding Source,Mode=OneWay}">
+          <TextBox.Style>
+            <Style TargetType="{x:Type TextBox}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding SourceError}"
+                             Value="True">
+                  <Setter Property="BorderBrush"
+                          Value="Red"></Setter>
+                  <Setter Property="ToolTip">
+                    <Setter.Value>
+                      <ToolTip ToolTipService.InitialShowDelay="0"
+                               ToolTipService.BetweenShowDelay="0">
+                        <TextBlock Text="{Binding SourceErrorText}"></TextBlock>
+                      </ToolTip>
+                    </Setter.Value>
+                  </Setter>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBox.Style>
+        </TextBox>
+        <TextBlock Grid.Row="2">译文：</TextBlock>
+        <TextBox Grid.Row="3"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Auto"
+                 BorderThickness="2"
+                 Text="{Binding To,Mode=TwoWay}"
+                 IsEnabled="{Binding HasContent}">
+          <TextBox.Style>
+            <Style TargetType="{x:Type TextBox}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding DestError}"
+                             Value="True">
+                  <Setter Property="BorderBrush"
+                          Value="Red"></Setter>
+                  <Setter Property="ToolTip">
+                    <Setter.Value>
+                      <ToolTip ToolTipService.InitialShowDelay="0"
+                               ToolTipService.BetweenShowDelay="0">
+                        <TextBlock Text="{Binding DestErrorText}"></TextBlock>
+                      </ToolTip>
+                    </Setter.Value>
+                  </Setter>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBox.Style>
+        </TextBox>
+      </Grid>
     </Grid>
-    <StatusBar Grid.Row="3">
+    <StatusBar Grid.Row="2">
       <StatusBarItem>
         <TextBlock></TextBlock>
       </StatusBarItem>
