@@ -41,8 +41,6 @@ namespace YTY.amt
       }
     }
 
-    public static ShowResourceListViewCommand ShowResourceListViewCommand => App.FindResource(nameof(ShowResourceListViewCommand)) as ShowResourceListViewCommand;
-
     public static MainWindowViewModel MainWindowViewModel
     {
       get
@@ -54,5 +52,7 @@ namespace YTY.amt
     public static CreateProcessCommand CreateProcessCommand => App.FindResource(nameof(CreateProcessCommand)) as CreateProcessCommand;
 
     public static ByteCountToTextConverter ByteCountToTextConverter => App.FindResource(nameof(ByteCountToTextConverter)) as ByteCountToTextConverter;
+
+    public static ScenarioTranslatorViewModel ScenarioTranslatorViewModel => App.FindResource(nameof(ScenarioTranslatorViewModel)) as ScenarioTranslatorViewModel;
   }
 }

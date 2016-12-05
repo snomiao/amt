@@ -70,23 +70,28 @@
     <Compile Include="DAL.cs" />
     <Compile Include="Drs\DrsFile.cs" />
     <Compile Include="Drs\DrsTable.cs" />
-    <Compile Include="FileChunkModel.cs" />
-    <Compile Include="GameLanguageModel.cs" />
-    <Compile Include="GameVersionModel.cs" />
-    <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="ResolutionModel.cs" />
-    <Compile Include="ResourceFileModel.cs" />
-    <Compile Include="ScenarioTranslator.xaml.cs">
+    <Compile Include="MainWindow\Commands.cs" />
+    <Compile Include="ScenarioTranslator\Commands.cs" />
+    <Compile Include="ScenarioTranslator\NodeViewModel.cs" />
+    <Compile Include="ScenarioTranslator\WindowViewModel.cs" />
+    <Compile Include="Workshop\Commands.cs" />
+    <Compile Include="Workshop\FileChunkModel.cs" />
+    <Compile Include="MainWindow\GameLanguageModel.cs" />
+    <Compile Include="MainWindow\GameVersionModel.cs" />
+    <Compile Include="MainWindow\MainWindowViewModel.cs" />
+    <Compile Include="MainWindow\ResolutionModel.cs" />
+    <Compile Include="Workshop\ResourceFileModel.cs" />
+    <Compile Include="ScenarioTranslator\ScenarioTranslator.xaml.cs">
       <DependentUpon>ScenarioTranslator.xaml</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
-    <Compile Include="WorkshopWindowViewModel.cs" />
-    <Compile Include="Workshop.xaml.cs">
+    <Compile Include="Workshop\WorkshopWindowViewModel.cs" />
+    <Compile Include="Workshop\Workshop.xaml.cs">
       <DependentUpon>Workshop.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WorkshopResourceModel.cs" />
-    <Compile Include="WorkshopResourceViewModel.cs" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="Workshop\WorkshopResourceModel.cs" />
+    <Compile Include="Workshop\WorkshopResourceViewModel.cs" />
+    <Page Include="MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -95,15 +100,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Commands.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="MainWindow\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ScenarioTranslator.xaml">
+    <Page Include="ScenarioTranslator\ScenarioTranslator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Workshop.xaml">
+    <Page Include="Workshop\Workshop.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

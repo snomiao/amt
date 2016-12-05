@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.IO.Compression;
+using System.Diagnostics;
 
 namespace YTY
 {
@@ -29,7 +30,7 @@ namespace YTY
     public long Relics { get; set; }
     public long Explored { get; set; }
     public int AllMustMeet { get; set; }
-    public int Mode { get; set; }
+    public VictoryMode VictoryMode { get; set; }
     public int Score { get; set; }
     public int Time { get; set; }
     public byte LockTeams { get; set; }
@@ -60,11 +61,11 @@ namespace YTY
       Players = new List<Player>(16);
       StringTableInfos = new List<int>(6);
       Resources = new List<Resource>(8);
-      Units = Enumerable.Range(0, 8).Select(i => new List<Unit>()).ToList();
+      Units = new List<List<Unit>>(9);
       PlayerMiscs = new List<PlayerMisc>(8);
     }
 
-    public ScxFile(string fileName) : this()
+    public ScxFile(string fileName) : this(new FileStream(fileName, FileMode.Open))
     {
       FileName = fileName;
     }
@@ -78,7 +79,7 @@ namespace YTY
         FormatVersion = br.ReadInt32();
         LastSave = br.ReadInt32();
         Instruction = br.ReadBytes(br.ReadInt32());
-        br.ReadBytes(4);
+        br.ReadInt32();
         PlayerCount = br.ReadInt32();
         if (FormatVersion == 3)
         {
@@ -110,7 +111,7 @@ namespace YTY
               Players[i].IsActive = dr.ReadInt32();
               Players[i].IsHuman = dr.ReadInt32();
               Players[i].Civilization = dr.ReadInt32();
-              dr.ReadInt32();
+              Debug.Assert(dr.ReadInt32() == 4);
             }
             dr.ReadBytes(9);
             OriginalFileName = dr.ReadBytes(dr.ReadInt16());
@@ -130,7 +131,7 @@ namespace YTY
             HasBitmap = dr.ReadInt32();
             BitmapX = dr.ReadInt32();
             BitmapY = dr.ReadInt32();
-            dr.ReadBytes(2);
+            dr.ReadInt16();
             if (BitmapX > 0 && BitmapY > 0)
             {
               Bitmap = new BITMAPDIB()
@@ -170,13 +171,14 @@ namespace YTY
             }
             for (var i = 0; i < 16; i++)
             {
-              dr.ReadBytes(8);
+              Debug.Assert(dr.ReadDouble() == 0.0);
               Players[i].AiFile = dr.ReadBytes(dr.ReadInt32());
             }
             for (var i = 0; i < 16; i++)
             {
-              Players[i].Personality = dr.ReadByte();
+              Players[i].Personality = (Personality)dr.ReadByte();
             }
+            Debug.Assert(dr.ReadInt32() == -99);
             for (var i = 0; i < 16; i++)
             {
               Players[i].Gold = dr.ReadInt32();
@@ -184,22 +186,23 @@ namespace YTY
               Players[i].Food = dr.ReadInt32();
               Players[i].Stone = dr.ReadInt32();
               Players[i].Ore = dr.ReadInt32();
-              dr.ReadInt32();
+              Debug.Assert(dr.ReadInt32() == 0);
               if (GetVersion() >= ScxVersion.Version124)
                 Players[i].PlayerNumber = dr.ReadInt32();
             }
-            dr.ReadInt32();
+            Debug.Assert(dr.ReadInt32() == -99);
             Conquest = dr.ReadInt64();
             Relics = dr.ReadInt64();
             Explored = dr.ReadInt64();
             AllMustMeet = dr.ReadInt32();
-            Mode = dr.ReadInt32();
+            VictoryMode = (VictoryMode)dr.ReadInt32();
             Score = dr.ReadInt32();
             Time = dr.ReadInt32();
             for (var i = 0; i < 16; i++)
-              for (var j = 0; j < 16; i++)
+              for (var j = 0; j < 16; j++)
                 Players[i].Diplomacies.Add((DiplomacyInt)dr.ReadInt32());
-            dr.ReadBytes(11524);
+            dr.ReadBytes(11520);
+            Debug.Assert(dr.ReadInt32() == -99);
             for (var i = 0; i < 16; i++)
               Players[i].AlliedVictory = dr.ReadInt32();
             if (GetVersion() >= ScxVersion.Version123)
@@ -210,24 +213,24 @@ namespace YTY
               MaxTeams = dr.ReadByte();
             }
             for (var i = 0; i < 16; i++)
-              dr.ReadInt32();
+              Players[i].NumDisabledTechs = dr.ReadInt32();
             for (var i = 0; i < 16; i++)
               for (var j = 0; j < 30; j++)
                 Players[i].DisabledTechs.Add(dr.ReadInt32());
             for (var i = 0; i < 16; i++)
-              dr.ReadInt32();
+              Players[i].NumDisabledUnits = dr.ReadInt32();
             for (var i = 0; i < 16; i++)
               for (var j = 0; j < 30; j++)
                 Players[i].DisabledUnits.Add(dr.ReadInt32());
             for (var i = 0; i < 16; i++)
-              dr.ReadInt32();
+              Players[i].NumDisabledBuildings = dr.ReadInt32();
             for (var i = 0; i < 16; i++)
             {
               var countJ = GetVersion() >= ScxVersion.Version126 ? 30 : 20;
               for (var j = 0; j < countJ; j++)
                 Players[i].DisabledBuildings.Add(dr.ReadInt32());
             }
-            dr.ReadBytes(8);
+            Debug.Assert(dr.ReadInt64() == 0L);
             AllTechs = dr.ReadInt32();
             for (var i = 0; i < 16; i++)
             {
@@ -235,7 +238,7 @@ namespace YTY
               if (GetVersion() >= ScxVersion.Version126)
                 Players[i].StartAge -= 2;
             }
-            dr.ReadInt32();
+            Debug.Assert(dr.ReadInt32() == -99);
             CameraX = dr.ReadInt32();
             CameraY = dr.ReadInt32();
             if (GetVersion() >= ScxVersion.Version122)
@@ -249,11 +252,12 @@ namespace YTY
             {
               for (var j = 0; j < MapY; j++)
               {
+                Map[i, j] = new Terrain();
                 Map[i, j].Id = dr.ReadByte();
                 Map[i, j].Elevation = dr.ReadInt16();
               }
             }
-            dr.ReadBytes(4);
+            Debug.Assert(dr.ReadInt32() == 9);
             for (var i = 0; i < 8; i++)
             {
               Resources.Add(new Resource()
@@ -262,13 +266,16 @@ namespace YTY
                 Wood = dr.ReadSingle(),
                 Gold = dr.ReadSingle(),
                 Stone = dr.ReadSingle(),
-                Ore = dr.ReadSingle(),
-                PopulationLimit = dr.ReadSingle()
+                Ore = dr.ReadSingle()
               });
+              Debug.Assert(dr.ReadInt32() == 0);
+              if (GetVersion() >= ScxVersion.Version122)
+                Resources[i].PopulationLimit = dr.ReadSingle();
             }
-            for (var i = 0; i < 8; i++)
+            for (var i = 0; i < 9; i++)
             {
               var unitsCount = dr.ReadInt32();
+              Units.Add(new List<Unit>(unitsCount));
               for (var j = 0; j < unitsCount; j++)
               {
                 Units[i].Add(new Unit()
@@ -285,15 +292,16 @@ namespace YTY
                 });
               }
             }
-            dr.ReadInt32();
+            Debug.Assert(dr.ReadInt32() == 9);
             for (var i = 0; i < 8; i++)
             {
+              PlayerMiscs.Add(new PlayerMisc());
               PlayerMiscs[i].Name = dr.ReadBytes(dr.ReadInt16());
               PlayerMiscs[i].CameraX = dr.ReadSingle();
               PlayerMiscs[i].CameraY = dr.ReadSingle();
               dr.ReadInt32();
               PlayerMiscs[i].AlliedVictory = dr.ReadByte();
-              dr.ReadBytes(2);
+              dr.ReadInt16();
               for (var j = 0; j < 9; j++)
                 PlayerMiscs[i].Diplomacies.Add((DiplomacyByte)dr.ReadByte());
               for (var j = 0; j < 9; j++)
@@ -332,7 +340,8 @@ namespace YTY
                 }
                 Triggers[i].Effects[j].Text = dr.ReadBytes(dr.ReadInt32());
                 Triggers[i].Effects[j].SoundFile = dr.ReadBytes(dr.ReadInt32());
-                Triggers[i].Effects[j].UnitIDs = new List<int>(Triggers[i].Effects[j].GetField(EffectField.NumSelected));
+                if (Triggers[i].Effects[j].GetField(EffectField.NumSelected) > -1)
+                  Triggers[i].Effects[j].UnitIDs = new List<int>(Triggers[i].Effects[j].GetField(EffectField.NumSelected));
                 for (var k = 0; k < Triggers[i].Effects[j].GetField(EffectField.NumSelected); k++)
                 {
                   Triggers[i].Effects[j].UnitIDs.Add(dr.ReadInt32());
@@ -471,13 +480,13 @@ namespace YTY
             bw.Write(p.AiFile);
           }
           foreach (var p in Players)
-            bw.Write(p.Personality);
+            bw.Write((byte)p.Personality);
           bw.Write(-99);
           bw.Write(Conquest);
           bw.Write(Relics);
           bw.Write(Explored);
           bw.Write(AllMustMeet);
-          bw.Write(Mode);
+          bw.Write((int)VictoryMode);
           bw.Write(Score);
           bw.Write(Time);
           foreach (var p in Players)
@@ -495,17 +504,17 @@ namespace YTY
             bw.Write(MaxTeams);
           }
           foreach (var p in Players)
-            bw.Write(p.DisabledTechs.Count(d => d >= 0));
+            bw.Write(p.NumDisabledTechs);
           foreach (var p in Players)
             foreach (var d in p.DisabledTechs)
               bw.Write(d);
           foreach (var p in Players)
-            bw.Write(p.DisabledUnits.Count(d => d >= 0));
+            bw.Write(p.NumDisabledUnits);
           foreach (var p in Players)
             foreach (var d in p.DisabledUnits)
               bw.Write(d);
           foreach (var p in Players)
-            bw.Write(p.DisabledBuildings.Count(d => d >= 0));
+            bw.Write(p.NumDisabledBuildings);
           foreach (var p in Players)
             foreach (var d in p.DisabledBuildings)
               bw.Write(d);
@@ -668,7 +677,7 @@ namespace YTY
     public int Civilization { get; set; }
     public byte[] Ai { get; set; }
     public byte[] AiFile { get; set; }
-    public byte Personality { get; set; }
+    public Personality Personality { get; set; }
     public int Gold { get; set; }
     public int Wood { get; set; }
     public int Food { get; set; }
@@ -677,8 +686,11 @@ namespace YTY
     public int PlayerNumber { get; set; }
     public List<DiplomacyInt> Diplomacies { get; }
     public int AlliedVictory { get; set; }
+    public int NumDisabledTechs { get; set; }
     public List<int> DisabledTechs { get; }
+    public int NumDisabledUnits { get; set; }
     public List<int> DisabledUnits { get; }
+    public int NumDisabledBuildings { get; set; }
     public List<int> DisabledBuildings { get; }
     public StartAge StartAge { get; set; }
 
@@ -823,6 +835,22 @@ namespace YTY
     {
       Fields[(int)field] = value;
     }
+  }
+
+  public enum Personality : byte
+  {
+    Custom,
+    Standard,
+    None
+  }
+
+  public enum VictoryMode
+  {
+    Standard,
+    Conquest,
+    Score,
+    Time,
+    Custom
   }
 
   public enum DiplomacyInt : int
