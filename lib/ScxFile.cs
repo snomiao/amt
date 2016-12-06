@@ -340,8 +340,8 @@ namespace YTY
                 }
                 Triggers[i].Effects[j].Text = dr.ReadBytes(dr.ReadInt32());
                 Triggers[i].Effects[j].SoundFile = dr.ReadBytes(dr.ReadInt32());
-                if (Triggers[i].Effects[j].GetField(EffectField.NumSelected) > -1)
-                  Triggers[i].Effects[j].UnitIDs = new List<int>(Triggers[i].Effects[j].GetField(EffectField.NumSelected));
+                //if (Triggers[i].Effects[j].GetField(EffectField.NumSelected) > -1)
+                //  Triggers[i].Effects[j].UnitIDs = new List<int>(Triggers[i].Effects[j].GetField(EffectField.NumSelected));
                 for (var k = 0; k < Triggers[i].Effects[j].GetField(EffectField.NumSelected); k++)
                 {
                   Triggers[i].Effects[j].UnitIDs.Add(dr.ReadInt32());
@@ -819,6 +819,7 @@ namespace YTY
     public Effect()
     {
       Fields = new List<int>(23);
+      UnitIDs = new List<int>();
     }
 
     public int GetField(EffectField field)

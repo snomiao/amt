@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Text.RegularExpressions;
 
 namespace YTY.amt
 {
@@ -16,7 +19,9 @@ namespace YTY.amt
     private List<Encoding> toEncodings;
     private ScxFile scx;
     private bool hide;
-    private bool forgot;
+    private bool notTranslatedHint;
+    private bool sourceErrorHint;
+    private bool destErrorHint;
 
     public bool FileOpened { get; set; }
     public string Prefix { get; set; }
@@ -35,36 +40,36 @@ namespace YTY.amt
         else
         {
           var nodes = new List<NodeViewModel>();
-          nodes.Add(new NodeViewModel() { Header = "剧情任务指示", SourceBytes = scx.Instruction });
-          nodes.Add(new NodeViewModel() { Header = "任务", SourceBytes = scx.StringInfos[0] });
-          nodes.Add(new NodeViewModel() { Header = "提示", SourceBytes = scx.StringInfos[1] });
-          nodes.Add(new NodeViewModel() { Header = "胜利", SourceBytes = scx.StringInfos[2] });
-          nodes.Add(new NodeViewModel() { Header = "失败", SourceBytes = scx.StringInfos[3] });
-          nodes.Add(new NodeViewModel() { Header = "历史", SourceBytes = scx.StringInfos[4] });
-          nodes.Add(new NodeViewModel() { Header = "侦察", SourceBytes = scx.StringInfos[5] });
+          nodes.Add(new NodeViewModel() { Header = "剧情任务指示", SourceBytes = scx.Instruction, Type = NodeType.StringInfo, Index = 0 });
+          nodes.Add(new NodeViewModel() { Header = "任务", SourceBytes = scx.StringInfos[0], Type = NodeType.StringInfo, Index = 1 });
+          nodes.Add(new NodeViewModel() { Header = "提示", SourceBytes = scx.StringInfos[1], Type = NodeType.StringInfo, Index = 2 });
+          nodes.Add(new NodeViewModel() { Header = "胜利", SourceBytes = scx.StringInfos[2], Type = NodeType.StringInfo, Index = 3 });
+          nodes.Add(new NodeViewModel() { Header = "失败", SourceBytes = scx.StringInfos[3], Type = NodeType.StringInfo, Index = 4 });
+          nodes.Add(new NodeViewModel() { Header = "历史", SourceBytes = scx.StringInfos[4], Type = NodeType.StringInfo, Index = 5 });
+          nodes.Add(new NodeViewModel() { Header = "侦察", SourceBytes = scx.StringInfos[5], Type = NodeType.StringInfo, Index = 6 });
           for (var i = 0; i < scx.PlayerCount; i++)
           {
-            nodes.Add(new NodeViewModel() { Header = $"玩家 {i + 1} 名称", SourceBytes = scx.Players[i].Name });
+            nodes.Add(new NodeViewModel() { Header = $"玩家 {i + 1} 名称", SourceBytes = scx.Players[i].Name, Type = NodeType.PlayerName, Index = i });
           }
           for (var i = 0; i < scx.Triggers.Count; i++)
           {
-            var node = new NodeViewModel(false) { Header = $"触发 {i + 1}", Flags = NodeType.Trigger };
+            var node = new NodeViewModel(false) { Header = $"触发 {i + 1}", Type = NodeType.Trigger, Index = i };
             if (Convert.ToBoolean(scx.Triggers[i].IsObjective))
-              node.Flags |= NodeType.IsObjective;
-            node.Children.Add(new NodeViewModel() { Header = "名称", SourceBytes = scx.Triggers[i].Name, Flags = NodeType.TriggerName });
-            node.Children.Add(new NodeViewModel() { Header = "描述", SourceBytes = scx.Triggers[i].Discription,Flags= NodeType.TriggerDesc });
+              node.IsObjective = true;
+            node.Children.Add(new NodeViewModel() { Header = "名称", SourceBytes = scx.Triggers[i].Name, Type = NodeType.TriggerName, Index = i });
+            node.Children.Add(new NodeViewModel() { Header = "描述", SourceBytes = scx.Triggers[i].Discription, Type = NodeType.TriggerDesc, Index = i });
             for (var j = 0; j < scx.Triggers[i].Effects.Count; j++)
             {
               switch (scx.Triggers[i].Effects[j].Type)
               {
                 case EffectType.SendChat:
-                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：送出聊天", SourceBytes = scx.Triggers[i].Effects[j].Text, Flags= NodeType.TriggerContent });
+                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：送出聊天", SourceBytes = scx.Triggers[i].Effects[j].Text, Type = NodeType.TriggerContent, Index = i, SubIndex = j });
                   break;
                 case EffectType.DisplayInstructions:
-                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：显示指示", SourceBytes = scx.Triggers[i].Effects[j].Text, Flags = NodeType.TriggerContent });
+                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：显示指示", SourceBytes = scx.Triggers[i].Effects[j].Text, Type = NodeType.TriggerContent, Index = i, SubIndex = j });
                   break;
                 case EffectType.ChangeObjectName:
-                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：改变物件名称", SourceBytes = scx.Triggers[i].Effects[j].Text, Flags = NodeType.TriggerContent });
+                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：改变物件名称", SourceBytes = scx.Triggers[i].Effects[j].Text, Type = NodeType.TriggerContent, Index = i, SubIndex = j });
                   break;
               }
             }
@@ -81,6 +86,176 @@ namespace YTY.amt
     public List<NodeViewModel> GetAllNodes()
     {
       return nodes.Concat(nodes.SelectMany(n => n.Children)).ToList();
+    }
+
+    public void Export(string fileName)
+    {
+      using (var sw = new StreamWriter(fileName))
+      {
+        sw.WriteLine("//场景指示");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 0).To);
+        sw.WriteLine("//场景指南");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 1).To);
+        sw.WriteLine("//提示");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 2).To);
+        sw.WriteLine("//胜利");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 3).To);
+        sw.WriteLine("//失败");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 4).To);
+        sw.WriteLine("//历史");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 5).To);
+        sw.WriteLine("//侦察");
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 6).To);
+        foreach (var p in Nodes.Where(n => n.Type == NodeType.PlayerName))
+        {
+          sw.WriteLine($"//玩家{p.Index + 1}名称");
+          sw.WriteLine(p.To);
+        }
+        foreach (var t in Nodes.Where(n => n.Type == NodeType.Trigger && n.Visibility == Visibility.Visible))
+        {
+          foreach (var s in t.Children.Where(s => s.Visibility == Visibility.Visible))
+          {
+            sw.Write($"//触发{t.Index}");
+            switch (s.Type)
+            {
+              case NodeType.TriggerName:
+                sw.WriteLine("名称");
+                break;
+              case NodeType.TriggerDesc:
+                sw.WriteLine("描述");
+                break;
+              case NodeType.TriggerContent:
+                sw.WriteLine($"效果{s.SubIndex}");
+                break;
+            }
+            sw.WriteLine(s.To);
+          }
+        }
+        sw.Write("//结束");
+      }
+    }
+
+    public void Import(string fileName)
+    {
+      using (var sr = new StreamReader(fileName, Encoding.GetEncoding(65001, EncoderFallback.ReplacementFallback, DecoderFallback.ExceptionFallback)))
+      {
+        var playerNameRegex = new Regex(@"玩家([1-8])名称");
+        var triggerNameRegex = new Regex(@"触发(\d+)名称");
+        var triggerDescRegex = new Regex(@"触发(\d+)描述");
+        var triggerEffectRegex = new Regex(@"触发(\d+)效果(\d+)");
+        var type = NodeType.None;
+        var index = 0;
+        var subIndex = 0;
+        var buffer = string.Empty;
+        try
+        {
+          while (!sr.EndOfStream)
+          {
+            var line = sr.ReadLine();
+            if (line.TrimStart().StartsWith("//"))
+            {
+              switch (type)
+              {
+                case NodeType.StringInfo:
+                case NodeType.PlayerName:
+                  Nodes.FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer;
+                  buffer = string.Empty;
+                  break;
+                case NodeType.TriggerName:
+                case NodeType.TriggerDesc:
+                  GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer;
+                  buffer = string.Empty;
+                  break;
+                case NodeType.TriggerContent:
+                  GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index && n.SubIndex == subIndex).To = buffer;
+                  buffer = string.Empty;
+                  break;
+              }
+              if (line.Contains("场景指示"))
+              {
+                type = NodeType.StringInfo;
+                index = 0;
+                continue;
+              }
+              if (line.Contains("场景指南"))
+              {
+                type = NodeType.StringInfo;
+                index = 1;
+                continue;
+              }
+              if (line.Contains("提示"))
+              {
+                type = NodeType.StringInfo;
+                index = 2;
+                continue;
+              }
+              if (line.Contains("胜利"))
+              {
+                type = NodeType.StringInfo;
+                index = 3;
+                continue;
+              }
+              if (line.Contains("失败"))
+              {
+                type = NodeType.StringInfo;
+                index = 4;
+                continue;
+              }
+              if (line.Contains("历史"))
+              {
+                type = NodeType.StringInfo;
+                index = 5;
+                continue;
+              }
+              if (line.Contains("侦察"))
+              {
+                type = NodeType.StringInfo;
+                index = 6;
+                continue;
+              }
+              if (line.Contains("结束"))
+                break;
+              var match = playerNameRegex.Match(line);
+              if (match.Success)
+              {
+                type = NodeType.PlayerName;
+                index = int.Parse(match.Groups[1].Value) - 1;
+                continue;
+              }
+              match = triggerNameRegex.Match(line);
+              if (match.Success)
+              {
+                type = NodeType.TriggerName;
+                index = int.Parse(match.Groups[1].Value);
+                continue;
+              }
+              match = triggerDescRegex.Match(line);
+              if (match.Success)
+              {
+                type = NodeType.TriggerDesc;
+                index = int.Parse(match.Groups[1].Value);
+                continue;
+              }
+              match = triggerEffectRegex.Match(line);
+              if (match.Success)
+              {
+                type = NodeType.TriggerContent;
+                index = int.Parse(match.Groups[1].Value);
+                subIndex = int.Parse(match.Groups[2].Value);
+                continue;
+              }
+            }
+            else
+            {
+              buffer += line;
+            }
+          }
+        }
+        catch(DecoderFallbackException ex)
+        {
+          MessageBox.Show($"该文件不是合法的 UTF-8 格式，无法载入。\n\n【错误详情】\n{ex.Message}");
+        }
+      }
     }
 
     public List<Encoding> FromEncodings
@@ -147,13 +322,33 @@ namespace YTY.amt
       }
     }
 
-    public bool Forgot
+    public bool NotTranslatedHint
     {
-      get { return forgot; }
+      get { return notTranslatedHint; }
       set
       {
-        forgot = value;
-        OnPropertyChanged(nameof(Forgot));
+        notTranslatedHint = value;
+        OnPropertyChanged(nameof(NotTranslatedHint));
+      }
+    }
+
+    public bool SourceErrorHint
+    {
+      get { return sourceErrorHint; }
+      set
+      {
+        sourceErrorHint = value;
+        OnPropertyChanged(nameof(SourceErrorHint));
+      }
+    }
+
+    public bool DestErrorHint
+    {
+      get { return destErrorHint; }
+      set
+      {
+        destErrorHint = value;
+        OnPropertyChanged(nameof(DestErrorHint));
       }
     }
 

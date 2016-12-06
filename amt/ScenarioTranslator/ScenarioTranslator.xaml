@@ -11,6 +11,8 @@
     <local:SaveScenarioCommand x:Key="SaveScenarioCommand"></local:SaveScenarioCommand>
     <local:SaveScenarioAsCommand x:Key="SaveScenarioAsCommand"></local:SaveScenarioAsCommand>
     <local:CloseScenarioCommand x:Key="CloseScenarioCommand"></local:CloseScenarioCommand>
+    <local:ExportScenarioCommand x:Key="ExportScenarioCommand"></local:ExportScenarioCommand>
+    <local:ImportScenarioCommand x:Key="ImportScenarioCommand"></local:ImportScenarioCommand>
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -40,18 +42,21 @@
         <MenuItem Header="关闭文件"
                   Command="{StaticResource CloseScenarioCommand}"></MenuItem>
         <Separator></Separator>
-        <MenuItem>
+        <MenuItem Command="{StaticResource ExportScenarioCommand}"
+                  IsEnabled="{Binding FileOpened}">
           <MenuItem.Header>
-            <TextBlock>译文<Bold>导出</Bold>到文本文档</TextBlock>
+            <TextBlock>译文<Bold>导出</Bold>到文本文档 (UTF-8)</TextBlock>
           </MenuItem.Header>
         </MenuItem>
-        <MenuItem>
+        <MenuItem Command="{StaticResource ImportScenarioCommand}"
+                  IsEnabled="{Binding FileOpened}">
           <MenuItem.Header>
-            <TextBlock>从文本文档<Bold>导入</Bold>译文</TextBlock>
+            <TextBlock>从文本文档 (UTF-8) <Bold>导入</Bold>译文</TextBlock>
           </MenuItem.Header>
         </MenuItem>
         <Separator></Separator>
-        <MenuItem Header="退出"></MenuItem>
+        <MenuItem Header="退出"
+                  Command="{StaticResource CloseWindowCommand}"></MenuItem>
       </MenuItem>
       <MenuItem Header="常用功能"
                 IsEnabled="{Binding FileOpened}">
@@ -97,15 +102,21 @@
       </MenuItem>
       <MenuItem Header="翻译辅助">
         <MenuItem IsCheckable="True"
-                  IsChecked="{Binding Forgot,Mode=TwoWay}">
+                  IsChecked="{Binding SourceErrorHint,Mode=TwoWay}">
           <MenuItem.Header>
-            <TextBlock>开启<Bold>编码错误</Bold>提示标记</TextBlock>
+            <TextBlock>开启<Bold>原文</Bold>编码错误提示标记</TextBlock>
           </MenuItem.Header>
         </MenuItem>
         <MenuItem IsCheckable="True"
-                  IsChecked="{Binding Forgot,Mode=TwoWay}">
+                  IsChecked="{Binding DestErrorHint,Mode=TwoWay}">
           <MenuItem.Header>
-            <TextBlock>开启<Bold>漏译</Bold>提示标记</TextBlock>
+            <TextBlock>开启<Bold>译文</Bold>编码错误提示标记</TextBlock>
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem IsCheckable="True"
+                  IsChecked="{Binding NotTranslatedHint,Mode=TwoWay}">
+          <MenuItem.Header>
+            <TextBlock>开启<Bold>未译</Bold>提示标记</TextBlock>
           </MenuItem.Header>
         </MenuItem>
       </MenuItem>
@@ -147,36 +158,19 @@
                   </Style>
                 </Grid.Resources>
                 <TextBlock Grid.Column="0"
-                           Text="{Binding Path=Header}">
-                  <!--<TextBlock.Style>
-                    <Style TargetType="{x:Type TextBlock}">
-                      <Style.Triggers>
-                        <DataTrigger Binding="{Binding SourceError}"
-                                     Value="True">
-                          <Setter Property="Background"
-                                  Value="Orange"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding DestError}"
-                                     Value="True">
-                          <Setter Property="Background"
-                                  Value="Red"></Setter>
-                        </DataTrigger>
-                      </Style.Triggers>
-                    </Style>
-                  </TextBlock.Style>-->
-                </TextBlock>
+                           Text="{Binding Path=Header}"></TextBlock>
                 <TextBlock Grid.Column="1"
                            Background="Red"
-                           Foreground="Green"
+                           Foreground="White"
                            Visibility="{Binding SourceError,Converter={StaticResource BoolToVisibilityConverter}}">原</TextBlock>
                 <TextBlock Grid.Column="2"
                            Background="Green"
-                           Foreground="Red"
+                           Foreground="White"
                            Visibility="{Binding DestError,Converter={StaticResource BoolToVisibilityConverter}}">译</TextBlock>
                 <TextBlock Grid.Column="3"
                            Background="Blue"
-                           Foreground="Yellow"
-                           Visibility="{Binding Forgot,Converter={StaticResource BoolToVisibilityConverter}}">漏</TextBlock>
+                           Foreground="White"
+                           Visibility="{Binding NotTranslatedHint,Converter={StaticResource BoolToVisibilityConverter}}">未</TextBlock>
               </Grid>
             </HierarchicalDataTemplate>
           </TreeView.ItemTemplate>

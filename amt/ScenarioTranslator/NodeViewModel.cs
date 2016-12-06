@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows;
+using System.Text.RegularExpressions;
 
 namespace YTY.amt
 {
@@ -13,6 +14,7 @@ namespace YTY.amt
   {
     private bool sourceError;
     private bool destError;
+    private bool notTranslatedHint;
     private string header;
     private byte[] sourceBytes;
     private string source;
@@ -126,7 +128,23 @@ namespace YTY.amt
       }
     }
 
-    public NodeType Flags { get; set; }
+    public NodeType Type { get; set; }
+
+    public int Index { get; set; }
+
+    public int SubIndex { get; set; }
+
+    public bool IsObjective { get; set; }
+
+    public bool NotTranslatedHint
+    {
+      get { return notTranslatedHint; }
+      set
+      {
+        notTranslatedHint = value;
+        OnPropertyChanged(nameof(NotTranslatedHint));
+      }
+    }
 
     public NodeViewModel(bool hasContent = true)
     {
@@ -138,30 +156,55 @@ namespace YTY.amt
     private void SetSource()
     {
       if (!HasContent) return;
-      try
+      if (My.ScenarioTranslatorViewModel.SourceErrorHint)
+      {
+        try
+        {
+          SourceError = false;
+          Source = My.ScenarioTranslatorViewModel.FromEncoding.GetString(sourceBytes).TrimEnd('\0');
+        }
+        catch (DecoderFallbackException ex)
+        {
+          SourceError = true;
+          SourceErrorText = $"【警告】位于字节流位置 {ex.Index} 处的字节 {BitConverter.ToString(ex.BytesUnknown)} 无法使用 {My.ScenarioTranslatorViewModel.FromEncoding.EncodingName} 解码。\n请检查原文编码是否合适。";
+          Source = Encoding.GetEncoding(My.ScenarioTranslatorViewModel.FromEncoding.CodePage).GetString(sourceBytes).TrimEnd('\0');
+        }
+      }
+      else
       {
         SourceError = false;
-        Source = My.ScenarioTranslatorViewModel.FromEncoding.GetString(sourceBytes).TrimEnd('\0');
-      }
-      catch (DecoderFallbackException ex)
-      {
-        SourceError = true;
-        SourceErrorText = $"【警告】位于字节流位置 {ex.Index} 处的字节 {BitConverter.ToString(ex.BytesUnknown)} 无法使用 {My.ScenarioTranslatorViewModel.FromEncoding.EncodingName} 解码。\n请检查原文编码是否合适。";
         Source = Encoding.GetEncoding(My.ScenarioTranslatorViewModel.FromEncoding.CodePage).GetString(sourceBytes).TrimEnd('\0');
       }
     }
 
     private void OnSetDest()
     {
-      try
+      if (My.ScenarioTranslatorViewModel.NotTranslatedHint)
+      {
+        NotTranslatedHint = !CalcIfTranslated();
+      }
+      else
+      {
+        NotTranslatedHint = false;
+      }
+
+      if (My.ScenarioTranslatorViewModel.DestErrorHint)
+      {
+        try
+        {
+          DestError = false;
+          toBytes = My.ScenarioTranslatorViewModel.ToEncoding.GetBytes(To + '\0');
+        }
+        catch (EncoderFallbackException ex)
+        {
+          DestError = true;
+          DestErrorText = $"【警告】位于字符串位置 {ex.Index} 处的字符 {ex.CharUnknown} 无法使用 {My.ScenarioTranslatorViewModel.ToEncoding.EncodingName} 编码。\n请检查译文字符串是否错误，译文编码是否合适。";
+          toBytes = Encoding.GetEncoding(My.ScenarioTranslatorViewModel.ToEncoding.CodePage).GetBytes(To + '\0');
+        }
+      }
+      else
       {
         DestError = false;
-        toBytes = My.ScenarioTranslatorViewModel.ToEncoding.GetBytes(To + '\0');
-      }
-      catch (EncoderFallbackException ex)
-      {
-        DestError = true;
-        DestErrorText = $"【警告】位于字符串位置 {ex.Index} 处的字符 {ex.CharUnknown} 无法使用 {My.ScenarioTranslatorViewModel.ToEncoding.EncodingName} 编码。\n请检查译文字符串是否错误，译文编码是否合适。";
         toBytes = Encoding.GetEncoding(My.ScenarioTranslatorViewModel.ToEncoding.CodePage).GetBytes(To + '\0');
       }
     }
@@ -171,12 +214,13 @@ namespace YTY.amt
       switch (e.PropertyName)
       {
         case nameof(ScenarioTranslatorViewModel.FromEncoding):
+        case nameof(ScenarioTranslatorViewModel.SourceErrorHint):
           SetSource();
-          OnPropertyChanged(nameof(SourceError));
           break;
         case nameof(ScenarioTranslatorViewModel.ToEncoding):
+        case nameof(ScenarioTranslatorViewModel.DestErrorHint):
+        case nameof(ScenarioTranslatorViewModel.NotTranslatedHint):
           OnSetDest();
-          OnPropertyChanged(nameof(DestError));
           break;
         case nameof(ScenarioTranslatorViewModel.Hide):
           Visibility = CalcVisibility();
@@ -188,17 +232,28 @@ namespace YTY.amt
     {
       if (!My.ScenarioTranslatorViewModel.Hide)
         return Visibility.Visible;
-      if (Flags.HasFlag(NodeType.TriggerName))
+      if (Type == NodeType.TriggerName)
         return Visibility.Collapsed;
-      if (Flags.HasFlag(NodeType.TriggerDesc) || Flags.HasFlag(NodeType.TriggerContent))
+      if (Type == NodeType.TriggerDesc || Type == NodeType.TriggerContent)
         return string.IsNullOrWhiteSpace(Source) ? Visibility.Collapsed : Visibility.Visible;
-      if (!Flags.HasFlag(NodeType.Trigger))
+      if (Type != NodeType.Trigger)
         return Visibility.Visible;
-      if (Flags.HasFlag(NodeType.IsObjective))
+      if (IsObjective)
         return Visibility.Visible;
-      if (Children.Where(n => n.Flags.HasFlag(NodeType.TriggerContent) || n.Flags.HasFlag(NodeType.TriggerDesc)).Any(n => !string.IsNullOrWhiteSpace(n.Source)))
+      if (Children.Where(n => n.Type == NodeType.TriggerContent || n.Type == NodeType.TriggerDesc).Any(n => !string.IsNullOrWhiteSpace(n.Source)))
         return Visibility.Visible;
       return Visibility.Collapsed;
+    }
+
+    private bool CalcIfTranslated()
+    {
+      if (Type == NodeType.Trigger)
+        return true;
+      if (string.IsNullOrWhiteSpace(To))
+        return false;
+      if (Source.Equals(To))
+        return false;
+      return true;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -209,14 +264,14 @@ namespace YTY.amt
     }
   }
 
-  [Flags]
   public enum NodeType
   {
-    None = 0,
-    Trigger = 1,
-    TriggerName = 2,
-    TriggerContent = 4,
-    IsObjective = 8,
-    TriggerDesc = 0x10
+    None,
+    StringInfo,
+    PlayerName,
+    Trigger,
+    TriggerName,
+    TriggerContent,
+    TriggerDesc
   }
 }
