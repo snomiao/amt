@@ -151,6 +151,7 @@ namespace YTY.amt
       children = new List<NodeViewModel>();
       HasContent = hasContent;
       My.ScenarioTranslatorViewModel.PropertyChanged += ScenarioTranslatorViewModel_PropertyChanged;
+      To = string.Empty;
     }
 
     private void SetSource()

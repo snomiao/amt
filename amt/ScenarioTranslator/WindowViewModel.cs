@@ -40,36 +40,36 @@ namespace YTY.amt
         else
         {
           var nodes = new List<NodeViewModel>();
-          nodes.Add(new NodeViewModel() { Header = "剧情任务指示", SourceBytes = scx.Instruction, Type = NodeType.StringInfo, Index = 0 });
-          nodes.Add(new NodeViewModel() { Header = "任务", SourceBytes = scx.StringInfos[0], Type = NodeType.StringInfo, Index = 1 });
-          nodes.Add(new NodeViewModel() { Header = "提示", SourceBytes = scx.StringInfos[1], Type = NodeType.StringInfo, Index = 2 });
-          nodes.Add(new NodeViewModel() { Header = "胜利", SourceBytes = scx.StringInfos[2], Type = NodeType.StringInfo, Index = 3 });
-          nodes.Add(new NodeViewModel() { Header = "失败", SourceBytes = scx.StringInfos[3], Type = NodeType.StringInfo, Index = 4 });
-          nodes.Add(new NodeViewModel() { Header = "历史", SourceBytes = scx.StringInfos[4], Type = NodeType.StringInfo, Index = 5 });
-          nodes.Add(new NodeViewModel() { Header = "侦察", SourceBytes = scx.StringInfos[5], Type = NodeType.StringInfo, Index = 6 });
+          nodes.Add(new NodeViewModel() { Header = "剧情任务指示", Type = NodeType.StringInfo, Index = 0, SourceBytes = scx.Instruction });
+          nodes.Add(new NodeViewModel() { Header = "任务", Type = NodeType.StringInfo, Index = 1, SourceBytes = scx.StringInfos[0] });
+          nodes.Add(new NodeViewModel() { Header = "提示", Type = NodeType.StringInfo, Index = 2, SourceBytes = scx.StringInfos[1] });
+          nodes.Add(new NodeViewModel() { Header = "胜利", Type = NodeType.StringInfo, Index = 3, SourceBytes = scx.StringInfos[2] });
+          nodes.Add(new NodeViewModel() { Header = "失败", Type = NodeType.StringInfo, Index = 4, SourceBytes = scx.StringInfos[3] });
+          nodes.Add(new NodeViewModel() { Header = "历史", Type = NodeType.StringInfo, Index = 5, SourceBytes = scx.StringInfos[4] });
+          nodes.Add(new NodeViewModel() { Header = "侦察", Type = NodeType.StringInfo, Index = 6, SourceBytes = scx.StringInfos[5] });
           for (var i = 0; i < scx.PlayerCount; i++)
           {
-            nodes.Add(new NodeViewModel() { Header = $"玩家 {i + 1} 名称", SourceBytes = scx.Players[i].Name, Type = NodeType.PlayerName, Index = i });
+            nodes.Add(new NodeViewModel() { Header = $"玩家 {i + 1} 名称", Type = NodeType.PlayerName, Index = i, SourceBytes = scx.Players[i].Name });
           }
           for (var i = 0; i < scx.Triggers.Count; i++)
           {
             var node = new NodeViewModel(false) { Header = $"触发 {i + 1}", Type = NodeType.Trigger, Index = i };
             if (Convert.ToBoolean(scx.Triggers[i].IsObjective))
               node.IsObjective = true;
-            node.Children.Add(new NodeViewModel() { Header = "名称", SourceBytes = scx.Triggers[i].Name, Type = NodeType.TriggerName, Index = i });
-            node.Children.Add(new NodeViewModel() { Header = "描述", SourceBytes = scx.Triggers[i].Discription, Type = NodeType.TriggerDesc, Index = i });
+            node.Children.Add(new NodeViewModel() { Header = "名称", Type = NodeType.TriggerName, Index = i, SourceBytes = scx.Triggers[i].Name });
+            node.Children.Add(new NodeViewModel() { Header = "描述", Type = NodeType.TriggerDesc, Index = i, SourceBytes = scx.Triggers[i].Discription });
             for (var j = 0; j < scx.Triggers[i].Effects.Count; j++)
             {
               switch (scx.Triggers[i].Effects[j].Type)
               {
                 case EffectType.SendChat:
-                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：送出聊天", SourceBytes = scx.Triggers[i].Effects[j].Text, Type = NodeType.TriggerContent, Index = i, SubIndex = j });
+                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：送出聊天", Type = NodeType.TriggerContent, Index = i, SubIndex = j, SourceBytes = scx.Triggers[i].Effects[j].Text });
                   break;
                 case EffectType.DisplayInstructions:
-                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：显示指示", SourceBytes = scx.Triggers[i].Effects[j].Text, Type = NodeType.TriggerContent, Index = i, SubIndex = j });
+                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：显示指示", Type = NodeType.TriggerContent, Index = i, SubIndex = j, SourceBytes = scx.Triggers[i].Effects[j].Text });
                   break;
                 case EffectType.ChangeObjectName:
-                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：改变物件名称", SourceBytes = scx.Triggers[i].Effects[j].Text, Type = NodeType.TriggerContent, Index = i, SubIndex = j });
+                  node.Children.Add(new NodeViewModel() { Header = $"效果 {j}：改变物件名称", Type = NodeType.TriggerContent, Index = i, SubIndex = j, SourceBytes = scx.Triggers[i].Effects[j].Text });
                   break;
               }
             }
@@ -77,6 +77,7 @@ namespace YTY.amt
           }
           Nodes = nodes;
           FileOpened = true;
+          Hide = Hide;
         }
         OnPropertyChanged(nameof(Scx));
         OnPropertyChanged(nameof(FileOpened));
@@ -355,6 +356,9 @@ namespace YTY.amt
     public ScenarioTranslatorViewModel()
     {
       Prefix = "触发事件 ";
+      Hide = true;
+      SourceErrorHint = true;
+      DestErrorHint = true;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

@@ -13,6 +13,16 @@
     <local:CloseScenarioCommand x:Key="CloseScenarioCommand"></local:CloseScenarioCommand>
     <local:ExportScenarioCommand x:Key="ExportScenarioCommand"></local:ExportScenarioCommand>
     <local:ImportScenarioCommand x:Key="ImportScenarioCommand"></local:ImportScenarioCommand>
+    <ToolTip x:Key="SourceErrorToolTip"
+             ToolTipService.InitialShowDelay="0"
+             ToolTipService.BetweenShowDelay="0">
+      <TextBlock Text="{Binding SourceErrorText}"></TextBlock>
+    </ToolTip>
+    <ToolTip x:Key="DestErrorToolTip"
+             ToolTipService.InitialShowDelay="0"
+             ToolTipService.BetweenShowDelay="0">
+      <TextBlock Text="{Binding DestErrorText}"></TextBlock>
+    </ToolTip>
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -162,15 +172,18 @@
                 <TextBlock Grid.Column="1"
                            Background="Red"
                            Foreground="White"
-                           Visibility="{Binding SourceError,Converter={StaticResource BoolToVisibilityConverter}}">原</TextBlock>
+                           Visibility="{Binding SourceError,Converter={StaticResource BoolToVisibilityConverter}}"
+                           ToolTip="{StaticResource SourceErrorToolTip}">原</TextBlock>
                 <TextBlock Grid.Column="2"
                            Background="Green"
                            Foreground="White"
-                           Visibility="{Binding DestError,Converter={StaticResource BoolToVisibilityConverter}}">译</TextBlock>
+                           Visibility="{Binding DestError,Converter={StaticResource BoolToVisibilityConverter}}"
+                           ToolTip="{StaticResource DestErrorToolTip}">译</TextBlock>
                 <TextBlock Grid.Column="3"
                            Background="Blue"
                            Foreground="White"
-                           Visibility="{Binding NotTranslatedHint,Converter={StaticResource BoolToVisibilityConverter}}">未</TextBlock>
+                           Visibility="{Binding NotTranslatedHint,Converter={StaticResource BoolToVisibilityConverter}}"
+                           ToolTip="译文为空白或与原文相同，是否忘记翻译？">未</TextBlock>
               </Grid>
             </HierarchicalDataTemplate>
           </TreeView.ItemTemplate>
@@ -200,7 +213,7 @@
                     DisplayMemberPath="EncodingName"
                     SelectedItem="{Binding FromEncoding,Mode=TwoWay}"
                     SelectedValuePath="CodePage"
-                    SelectedValue="1251"
+                    SelectedValue="1252"
                     IsEnabled="{Binding FileOpened}"></ComboBox>
           <TextBlock Grid.Row="1"
                      Grid.Column="0">译文编码：</TextBlock>
@@ -240,14 +253,8 @@
                              Value="True">
                   <Setter Property="BorderBrush"
                           Value="Red"></Setter>
-                  <Setter Property="ToolTip">
-                    <Setter.Value>
-                      <ToolTip ToolTipService.InitialShowDelay="0"
-                               ToolTipService.BetweenShowDelay="0">
-                        <TextBlock Text="{Binding SourceErrorText}"></TextBlock>
-                      </ToolTip>
-                    </Setter.Value>
-                  </Setter>
+                  <Setter Property="ToolTip"
+                          Value="{StaticResource SourceErrorToolTip}"></Setter>
                 </DataTrigger>
               </Style.Triggers>
             </Style>
@@ -268,14 +275,8 @@
                              Value="True">
                   <Setter Property="BorderBrush"
                           Value="Red"></Setter>
-                  <Setter Property="ToolTip">
-                    <Setter.Value>
-                      <ToolTip ToolTipService.InitialShowDelay="0"
-                               ToolTipService.BetweenShowDelay="0">
-                        <TextBlock Text="{Binding DestErrorText}"></TextBlock>
-                      </ToolTip>
-                    </Setter.Value>
-                  </Setter>
+                  <Setter Property="ToolTip"
+                          Value="{StaticResource DestErrorToolTip}"></Setter>
                 </DataTrigger>
               </Style.Triggers>
             </Style>
