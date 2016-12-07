@@ -23,7 +23,7 @@ namespace YTY.amt
     {
       var ofd = new OpenFileDialog();
       ofd.Filter = "帝国时代Ⅱ场景文件|*.scx";
-      if(!ofd.ShowDialog().Value) return;
+      if (!ofd.ShowDialog().Value) return;
       My.ScenarioTranslatorViewModel.Scx = new ScxFile(ofd.FileName);
     }
   }
@@ -43,6 +43,7 @@ namespace YTY.amt
 
     public void Execute(object parameter)
     {
+      My.ScenarioTranslatorViewModel.ApplyChanges();
       My.ScenarioTranslatorViewModel.Scx.Save();
     }
   }
@@ -63,8 +64,10 @@ namespace YTY.amt
     public void Execute(object parameter)
     {
       var sfd = new SaveFileDialog();
+      sfd.Filter = "帝国时代Ⅱ场景文件|*.scx";
       sfd.FileName = My.ScenarioTranslatorViewModel.Scx.FileName;
       if (!sfd.ShowDialog().Value) return;
+      My.ScenarioTranslatorViewModel.ApplyChanges();
       My.ScenarioTranslatorViewModel.Scx.SaveAs(sfd.FileName);
     }
   }
@@ -161,6 +164,7 @@ namespace YTY.amt
     public void Execute(object parameter)
     {
       var sfd = new SaveFileDialog();
+      sfd.Filter = "文本文件|*.txt";
       sfd.FileName = Path.ChangeExtension(My.ScenarioTranslatorViewModel.Scx.FileName, "txt");
       if (!sfd.ShowDialog().Value) return;
       My.ScenarioTranslatorViewModel.Export(sfd.FileName);
@@ -185,7 +189,7 @@ namespace YTY.amt
     {
       var ofd = new OpenFileDialog();
       ofd.Filter = "文本文件 (UTF-8)|*.txt";
-      ofd.ShowDialog();
+      if (!ofd.ShowDialog().Value) return;
       My.ScenarioTranslatorViewModel.Import(ofd.FileName);
     }
   }

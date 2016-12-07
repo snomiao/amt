@@ -40,13 +40,13 @@ namespace YTY.amt
         else
         {
           var nodes = new List<NodeViewModel>();
-          nodes.Add(new NodeViewModel() { Header = "剧情任务指示", Type = NodeType.StringInfo, Index = 0, SourceBytes = scx.Instruction });
-          nodes.Add(new NodeViewModel() { Header = "任务", Type = NodeType.StringInfo, Index = 1, SourceBytes = scx.StringInfos[0] });
-          nodes.Add(new NodeViewModel() { Header = "提示", Type = NodeType.StringInfo, Index = 2, SourceBytes = scx.StringInfos[1] });
-          nodes.Add(new NodeViewModel() { Header = "胜利", Type = NodeType.StringInfo, Index = 3, SourceBytes = scx.StringInfos[2] });
-          nodes.Add(new NodeViewModel() { Header = "失败", Type = NodeType.StringInfo, Index = 4, SourceBytes = scx.StringInfos[3] });
-          nodes.Add(new NodeViewModel() { Header = "历史", Type = NodeType.StringInfo, Index = 5, SourceBytes = scx.StringInfos[4] });
-          nodes.Add(new NodeViewModel() { Header = "侦察", Type = NodeType.StringInfo, Index = 6, SourceBytes = scx.StringInfos[5] });
+          nodes.Add(new NodeViewModel() { Header = "剧情任务指示", Type = NodeType.StringInfo, Index = -1, SourceBytes = scx.Instruction });
+          nodes.Add(new NodeViewModel() { Header = "任务", Type = NodeType.StringInfo, Index = 0, SourceBytes = scx.StringInfos[0] });
+          nodes.Add(new NodeViewModel() { Header = "提示", Type = NodeType.StringInfo, Index = 1, SourceBytes = scx.StringInfos[1] });
+          nodes.Add(new NodeViewModel() { Header = "胜利", Type = NodeType.StringInfo, Index = 2, SourceBytes = scx.StringInfos[2] });
+          nodes.Add(new NodeViewModel() { Header = "失败", Type = NodeType.StringInfo, Index = 3, SourceBytes = scx.StringInfos[3] });
+          nodes.Add(new NodeViewModel() { Header = "历史", Type = NodeType.StringInfo, Index = 4, SourceBytes = scx.StringInfos[4] });
+          nodes.Add(new NodeViewModel() { Header = "侦察", Type = NodeType.StringInfo, Index = 5, SourceBytes = scx.StringInfos[5] });
           for (var i = 0; i < scx.PlayerCount; i++)
           {
             nodes.Add(new NodeViewModel() { Header = $"玩家 {i + 1} 名称", Type = NodeType.PlayerName, Index = i, SourceBytes = scx.Players[i].Name });
@@ -94,19 +94,19 @@ namespace YTY.amt
       using (var sw = new StreamWriter(fileName))
       {
         sw.WriteLine("//场景指示");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 0).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == -1).To);
         sw.WriteLine("//场景指南");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 1).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 0).To);
         sw.WriteLine("//提示");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 2).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 1).To);
         sw.WriteLine("//胜利");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 3).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 2).To);
         sw.WriteLine("//失败");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 4).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 3).To);
         sw.WriteLine("//历史");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 5).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 4).To);
         sw.WriteLine("//侦察");
-        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 6).To);
+        sw.WriteLine(Nodes.FirstOrDefault(n => n.Type == NodeType.StringInfo && n.Index == 5).To);
         foreach (var p in Nodes.Where(n => n.Type == NodeType.PlayerName))
         {
           sw.WriteLine($"//玩家{p.Index + 1}名称");
@@ -159,59 +159,59 @@ namespace YTY.amt
               {
                 case NodeType.StringInfo:
                 case NodeType.PlayerName:
-                  Nodes.FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer;
+                  Nodes.FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer.TrimEnd('\n');
                   buffer = string.Empty;
                   break;
                 case NodeType.TriggerName:
                 case NodeType.TriggerDesc:
-                  GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer;
+                  GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer.TrimEnd('\n');
                   buffer = string.Empty;
                   break;
                 case NodeType.TriggerContent:
-                  GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index && n.SubIndex == subIndex).To = buffer;
+                  GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index && n.SubIndex == subIndex).To = buffer.TrimEnd('\n');
                   buffer = string.Empty;
                   break;
               }
               if (line.Contains("场景指示"))
               {
                 type = NodeType.StringInfo;
-                index = 0;
+                index = -1;
                 continue;
               }
               if (line.Contains("场景指南"))
               {
                 type = NodeType.StringInfo;
-                index = 1;
+                index = 0;
                 continue;
               }
               if (line.Contains("提示"))
               {
                 type = NodeType.StringInfo;
-                index = 2;
+                index = 1;
                 continue;
               }
               if (line.Contains("胜利"))
               {
                 type = NodeType.StringInfo;
-                index = 3;
+                index = 2;
                 continue;
               }
               if (line.Contains("失败"))
               {
                 type = NodeType.StringInfo;
-                index = 4;
+                index = 3;
                 continue;
               }
               if (line.Contains("历史"))
               {
                 type = NodeType.StringInfo;
-                index = 5;
+                index = 4;
                 continue;
               }
               if (line.Contains("侦察"))
               {
                 type = NodeType.StringInfo;
-                index = 6;
+                index = 5;
                 continue;
               }
               if (line.Contains("结束"))
@@ -248,13 +248,42 @@ namespace YTY.amt
             }
             else
             {
-              buffer += line;
+              buffer += line + "\n";
             }
           }
         }
-        catch(DecoderFallbackException ex)
+        catch (DecoderFallbackException ex)
         {
           MessageBox.Show($"该文件不是合法的 UTF-8 格式，无法载入。\n\n【错误详情】\n{ex.Message}");
+        }
+      }
+    }
+
+    public void ApplyChanges()
+    {
+      foreach(var n in GetAllNodes())
+      {
+        var bytes = n.ToBytes ?? new byte[] { 0 };
+        switch(n.Type)
+        {
+          case NodeType.StringInfo:
+            if (n.Index == -1)
+              scx.Instruction = bytes;
+            else
+              Scx.StringInfos[n.Index] = bytes;
+            break;
+          case NodeType.PlayerName:
+            Scx.Players[n.Index].Name = bytes;
+            break;
+          case NodeType.TriggerName:
+            Scx.Triggers[n.Index].Name = bytes;
+            break;
+          case NodeType.TriggerDesc:
+            Scx.Triggers[n.Index].Discription = bytes;
+            break;
+          case NodeType.TriggerContent:
+            Scx.Triggers[n.Index].Effects[n.SubIndex].Text = bytes;
+            break;
         }
       }
     }

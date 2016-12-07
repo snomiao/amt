@@ -88,6 +88,8 @@ namespace YTY.amt
       }
     }
 
+    public byte[] ToBytes { get { return toBytes; } }
+
     public List<NodeViewModel> Children
     {
       get { return children; }
