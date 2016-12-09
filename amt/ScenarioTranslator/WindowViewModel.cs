@@ -249,7 +249,7 @@ namespace YTY.amt
             }
             else
             {
-              buffer += line + "\n";
+              buffer += line + "\r\n";
             }
           }
         }

@@ -213,7 +213,7 @@
                     DisplayMemberPath="EncodingName"
                     SelectedItem="{Binding FromEncoding,Mode=TwoWay}"
                     SelectedValuePath="CodePage"
-                    SelectedValue="1252"
+                    SelectedValue="936"
                     IsEnabled="{Binding FileOpened}"></ComboBox>
           <TextBlock Grid.Row="1"
                      Grid.Column="0">译文编码：</TextBlock>

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:YTY.amt"
              xmlns:lib="clr-namespace:YTY;assembly=lib"
-             StartupUri="MainWindow/MainWindow.xaml">
+             StartupUri="ScenarioTranslator/ScenarioTranslator.xaml">
   <Application.Resources>
 
     <local:CloseWindowCommand x:Key="CloseWindowCommand"></local:CloseWindowCommand>
