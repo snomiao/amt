@@ -267,7 +267,8 @@
                  VerticalScrollBarVisibility="Auto"
                  BorderThickness="2"
                  Text="{Binding To,Mode=TwoWay}"
-                 IsEnabled="{Binding HasContent}">
+                 IsEnabled="{Binding HasContent}"
+                 PreviewKeyDown="TextBox_PreviewKeyDown">
           <TextBox.Style>
             <Style TargetType="{x:Type TextBox}">
               <Style.Triggers>

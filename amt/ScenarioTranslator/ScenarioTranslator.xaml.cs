@@ -23,5 +23,10 @@ namespace YTY.amt
     {
       InitializeComponent();
     }
+
+    private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+      
+    }
   }
 }

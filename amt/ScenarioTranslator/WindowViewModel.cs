@@ -245,6 +245,7 @@ namespace YTY.amt
                 subIndex = int.Parse(match.Groups[2].Value);
                 continue;
               }
+              type = NodeType.None;
             }
             else
             {
@@ -261,10 +262,10 @@ namespace YTY.amt
 
     public void ApplyChanges()
     {
-      foreach(var n in GetAllNodes())
+      foreach (var n in GetAllNodes())
       {
         var bytes = n.ToBytes ?? new byte[] { 0 };
-        switch(n.Type)
+        switch (n.Type)
         {
           case NodeType.StringInfo:
             if (n.Index == -1)
@@ -294,7 +295,8 @@ namespace YTY.amt
       {
         if (fromEncodings == null)
         {
-          fromEncodings = Encoding.GetEncodings().Select(e => Encoding.GetEncoding(e.CodePage, EncoderFallback.ReplacementFallback, DecoderFallback.ExceptionFallback)).ToList();
+          var codepages = Encoding.GetEncodings().Select(e => Encoding.GetEncoding(e.CodePage).WindowsCodePage).Distinct().Concat(new[] { 65001 });
+          fromEncodings = codepages.Select(cp => Encoding.GetEncoding(cp, EncoderFallback.ReplacementFallback, DecoderFallback.ExceptionFallback)).ToList();
         }
         return fromEncodings;
       }
@@ -306,7 +308,8 @@ namespace YTY.amt
       {
         if (toEncodings == null)
         {
-          toEncodings = Encoding.GetEncodings().Select(e => Encoding.GetEncoding(e.CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ReplacementFallback)).ToList();
+          var codepages = Encoding.GetEncodings().Select(e => Encoding.GetEncoding(e.CodePage).WindowsCodePage).Distinct().Concat(new[] { 65001 });
+          toEncodings = codepages.Select(cp => Encoding.GetEncoding(cp, EncoderFallback.ExceptionFallback, DecoderFallback.ReplacementFallback)).ToList();
         }
         return toEncodings;
       }
