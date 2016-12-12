@@ -35,10 +35,24 @@
                 Value="{Binding ButtonText}"></Setter>
         <Setter Property="Background"
                 Value="{Binding Path=ButtonBackground}"></Setter>
-        <Setter Property="Command"
-                Value="{StaticResource InstallResourceCommand}"></Setter>
         <Setter Property="CommandParameter"
                 Value="{Binding Model}"></Setter>
+        <Style.Triggers>
+          <DataTrigger Binding="{Binding Model.Status}" Value="NotInstalled">
+            <Setter Property="Command"
+                    Value="{StaticResource InstallResourceCommand}"></Setter>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding Model.Status}"
+                       Value="Paused">
+            <Setter Property="Command"
+                    Value="{StaticResource InstallResourceCommand}"></Setter>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding Model.Status}"
+                       Value="Installing">
+            <Setter Property="Command"
+                    Value="{StaticResource PauseResourceCommand}"></Setter>
+          </DataTrigger>
+        </Style.Triggers>
       </Style>
       <Style x:Key="ButtonResourceMoreStyle"
              TargetType="{x:Type Button}"
@@ -430,10 +444,14 @@
                                     <Rectangle Width="6"
                                                Height="6"
                                                Margin="0.4"
-                                               Opacity="0.8"
-                                               Fill="Yellow">
+                                               Opacity="0.8">
                                       <Rectangle.Style>
                                         <Style TargetType="{x:Type Rectangle}">
+                                          <Setter Property="Fill">
+                                            <Setter.Value>
+                                              <SolidColorBrush Color="Yellow"></SolidColorBrush>
+                                            </Setter.Value>
+                                          </Setter>
                                           <Style.Triggers>
                                             <DataTrigger Binding="{Binding Finished}"
                                                          Value="True">
@@ -441,7 +459,7 @@
                                                 <BeginStoryboard>
                                                   <Storyboard>
                                                     <ColorAnimation To="Green"
-                                                                    Storyboard.TargetProperty="Fill.Color"
+                                                                    Storyboard.TargetProperty="(Rectangle.Fill).(SolidColorBrush.Color)"
                                                                     Duration="0:0:0.5"></ColorAnimation>
                                                   </Storyboard>
                                                 </BeginStoryboard>

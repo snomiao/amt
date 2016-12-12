@@ -160,18 +160,18 @@ namespace YTY.amt
                 case NodeType.StringInfo:
                 case NodeType.PlayerName:
                   Nodes.FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer.TrimEnd('\n');
-                  buffer = string.Empty;
                   break;
                 case NodeType.TriggerName:
                 case NodeType.TriggerDesc:
                   GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index).To = buffer.TrimEnd('\n');
-                  buffer = string.Empty;
                   break;
                 case NodeType.TriggerContent:
                   GetAllNodes().FirstOrDefault(n => n.Type == type && n.Index == index && n.SubIndex == subIndex).To = buffer.TrimEnd('\n');
-                  buffer = string.Empty;
+                  break;
+                default:
                   break;
               }
+              buffer = string.Empty;
               if (line.Contains("场景指示"))
               {
                 type = NodeType.StringInfo;

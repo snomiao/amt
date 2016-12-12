@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -11,6 +12,7 @@ namespace YTY.amt
 {
   public class WorkshopResourceModel : INotifyPropertyChanged
   {
+    private CancellationTokenSource cts;
     private int authorId;
     private string authorName;
     private WorkshopResourceType type;
@@ -81,7 +83,7 @@ namespace YTY.amt
 
     public long FinishedSize
     {
-      get { return files.Where(f => f.Status == ResourceFileStatus.Finished).Sum(f => f.Size) + files.Where(f => f.Status == ResourceFileStatus.Downloading).Sum(f => f.FinishedSize); }
+      get { return Files.Where(f => f.Status == ResourceFileStatus.Finished).Sum(f => f.Size) + Files.Where(f => f.Status == ResourceFileStatus.Downloading || f.Status == ResourceFileStatus.Paused).Sum(f => f.FinishedSize); }
     }
 
 
@@ -218,6 +220,8 @@ namespace YTY.amt
     {
       foreach (var f in DAL.GetLocalResourceFiles(Id))
       {
+        if (f.Status == ResourceFileStatus.Downloading)
+          f.UpdateStatus(ResourceFileStatus.Paused);
         Files.Add(f);
       }
       foreach (var f in Files)
@@ -236,6 +240,18 @@ namespace YTY.amt
 
     public async Task InstallAsync()
     {
+      cts = new CancellationTokenSource();
+      await InstallAsync(cts.Token);
+    }
+
+    public void Pause()
+    {
+      if (cts != null)
+        cts.Cancel();
+    }
+
+    private async Task InstallAsync(CancellationToken cancellationToken)
+    {
       List<ResourceFileModel> updatedFiles = null;
       Tuple<int, List<ResourceFileModel>> serviceResult = null;
       switch (Status)
@@ -246,8 +262,9 @@ namespace YTY.amt
             .Where(f => f.Status == ResourceFileStatus.NotDownloaded).ToList();
           updatedFiles.ForEach(f => Files.Add(f));
           UpdateStatus(WorkshopResourceStatus.Installing);
+          DAL.SaveResourceFileModels(updatedFiles);
           break;
-        case WorkshopResourceStatus.Installing:
+        case WorkshopResourceStatus.Paused:
 
           break;
         case WorkshopResourceStatus.NeedUpdate:
@@ -275,13 +292,24 @@ namespace YTY.amt
             }
           }
           DAL.UpdateResourceLastFileChange(Id, serviceResult.Item1);
+          DAL.SaveResourceFileModels(updatedFiles);
           break;
       }
-      DAL.SaveResourceFileModels(updatedFiles);
-
-      foreach (var f in Files)
+      try
       {
-        await f.DownloadAsync();
+        foreach (var f in Files.Where(f=>f.Status== ResourceFileStatus.NotDownloaded || f.Status== ResourceFileStatus.Paused))
+        {
+          await f.DownloadAsync(cancellationToken);
+        }
+        UpdateStatus(WorkshopResourceStatus.Installed);
+      }
+      catch (OperationCanceledException)
+      {
+        UpdateStatus(WorkshopResourceStatus.Paused);
+      }
+      finally
+      {
+        cts = null;
       }
     }
 
@@ -324,6 +352,7 @@ namespace YTY.amt
     Deleted,
     NotInstalled = 101,
     Installing,
+    Paused,
     Installed,
     NeedUpdate,
     Activated

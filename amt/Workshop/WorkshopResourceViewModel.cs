@@ -23,6 +23,16 @@ namespace YTY.amt
         {
           case WorkshopResourceStatus.NotInstalled:
             return "安装资源";
+          case WorkshopResourceStatus.Installing:
+            return "暂停安装";
+          case WorkshopResourceStatus.Paused:
+            return "继续安装";
+          case WorkshopResourceStatus.Installed:
+            return "删除资源";
+          case WorkshopResourceStatus.NeedUpdate:
+            return "更新资源";
+          case WorkshopResourceStatus.Activated:
+            return "停用该模组";
         }
         return string.Empty;
       }
@@ -36,6 +46,16 @@ namespace YTY.amt
         {
           case WorkshopResourceStatus.NotInstalled:
             return Brushes.Green;
+          case WorkshopResourceStatus.Installing:
+            return Brushes.Yellow;
+          case WorkshopResourceStatus.Paused:
+            return Brushes.Green;
+          case WorkshopResourceStatus.Installed:
+            return Brushes.Gray;
+          case WorkshopResourceStatus.NeedUpdate:
+            return Brushes.HotPink;
+          case WorkshopResourceStatus.Activated:
+            return Brushes.Gray;
         }
         return Brushes.Transparent;
       }

@@ -18,17 +18,11 @@ namespace YTY.amt
     public bool Finished
     {
       get { return finished; }
-      private set
+      set
       {
         finished = value;
         OnPropertyChanged(nameof(Finished));
       }
-    }
-
-    public void UpdateFinished(bool finished)
-    {
-      Finished = finished;
-      DAL.UpdateFileChunkFinished(FileId, Id, finished);
     }
 
     public byte[] Data { get; private set; }

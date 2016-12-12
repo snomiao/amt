@@ -77,4 +77,20 @@ namespace YTY.amt
       await task;
     }
   }
+
+  public class PauseResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      var model = parameter as WorkshopResourceModel;
+      model.Pause();
+    }
+  }
 }

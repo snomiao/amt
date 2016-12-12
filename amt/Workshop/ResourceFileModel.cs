@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Threading;
 
 namespace YTY.amt
 {
@@ -66,7 +67,7 @@ namespace YTY.amt
       Chunks = DAL.LoadChunks(Id);
     }
 
-    public async Task DownloadAsync()
+    public async Task DownloadAsync(CancellationToken cancellationToken)
     {
       switch (status)
       {
@@ -75,7 +76,7 @@ namespace YTY.amt
           this.SaveChunks();
           UpdateStatus(ResourceFileStatus.Downloading);
           break;
-        case ResourceFileStatus.Downloading:
+        case ResourceFileStatus.Paused:
           break;
         default:
           throw new InvalidOperationException("file already finished");
@@ -85,8 +86,14 @@ namespace YTY.amt
       for (var i = 0; i < numTasks; i++)
       {
         var finished = await Task.WhenAny(tasks);
+        if(cancellationToken.IsCancellationRequested)
+        {
+          UpdateStatus(ResourceFileStatus.Paused);
+        }
+        cancellationToken.ThrowIfCancellationRequested();
         tasks.Remove(finished);
         var finishedChunk = await finished;
+        DAL.UpdateFileChunkFinished(Id, finishedChunk.Id, true);
         OnPropertyChanged(nameof(FinishedSize));
       }
       UpdateStatus(ResourceFileStatus.Finished);
@@ -107,6 +114,7 @@ namespace YTY.amt
     NotDownloaded,
     Deleted,
     Downloading = 101,
+    Paused,
     Finished
   }
 }

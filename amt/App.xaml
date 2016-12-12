@@ -16,6 +16,7 @@
     <local:WorkshopWindowViewModel x:Key="WorkshopWindowViewModel"></local:WorkshopWindowViewModel>
     <local:ShowSelectedResourceViewCommand x:Key="ShowSelectedResourceViewCommand"></local:ShowSelectedResourceViewCommand>
     <local:InstallResourceCommand x:Key="InstallResourceCommand"></local:InstallResourceCommand>
+    <local:PauseResourceCommand x:Key="PauseResourceCommand"></local:PauseResourceCommand>
     <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:FilterResourceCommand x:Key="FilterResourceCommand"></local:FilterResourceCommand>
     <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>

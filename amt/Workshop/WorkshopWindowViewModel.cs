@@ -47,7 +47,11 @@ namespace YTY.amt
           r.Model.PropertyChanged += WorkshopResource_PropertyChanged;
         WorkshopResourcesView = CollectionViewSource.GetDefaultView(workshopResources);
         DownloadingResourcesView = new CollectionViewSource() { Source = workshopResources }.View;
-        DownloadingResourcesView.Filter = o => (o as WorkshopResourceViewModel).Model.Status == WorkshopResourceStatus.Installing;
+        DownloadingResourcesView.Filter = o =>
+        {
+          var status = (o as WorkshopResourceViewModel).Model.Status;
+          return status == WorkshopResourceStatus.Installing || status == WorkshopResourceStatus.Paused;
+        };
       }
     }
 
@@ -84,6 +88,11 @@ namespace YTY.amt
     public async Task Init()
     {
       var localResources = DAL.GetLocalResources();
+      foreach (var localResource in localResources)
+      {
+        if (localResource.Status == WorkshopResourceStatus.Installing)
+          localResource.UpdateStatus(WorkshopResourceStatus.Paused);
+      }
       WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>(localResources.Select(r => new WorkshopResourceViewModel(r)));
       try
       {

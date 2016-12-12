@@ -68,12 +68,16 @@ namespace YTY.amt
             Status = (WorkshopResourceStatus)reader.GetInt32(14)
           };
           if (resource.Status == WorkshopResourceStatus.Installing)
+            resource.UpdateStatus(WorkshopResourceStatus.Paused);
+          if (resource.Status == WorkshopResourceStatus.Paused)
           {
             resource.LocalLoadFiles();
             foreach (var file in resource.Files)
             {
               if (file.Status == ResourceFileStatus.Downloading)
-                file.LocalLoadChunks();
+                file.UpdateStatus(ResourceFileStatus.Paused);
+              if (file.Status == ResourceFileStatus.Paused)
+                file.Chunks = LoadChunks(file.Id);
             }
           }
           ret.Add(resource);
@@ -242,11 +246,11 @@ VALUES({model.ResId},
     public static List<FileChunkModel> LoadChunks(int fileId)
     {
       var ret = new List<FileChunkModel>();
-      using (var reader = ConfigOp.ExecuteReader($"SELECT Id FROM Chunks WHERE FileId={fileId}"))
+      using (var reader = ConfigOp.ExecuteReader($"SELECT Id,Finished FROM Chunks WHERE FileId={fileId}"))
       {
         while (reader.Read())
         {
-          ret.Add(new FileChunkModel() { FileId = fileId, Id = reader.GetInt32(0) });
+          ret.Add(new FileChunkModel() { FileId = fileId, Id = reader.GetInt32(0), Finished = reader.GetBoolean(1) });
         }
       }
       return ret;
