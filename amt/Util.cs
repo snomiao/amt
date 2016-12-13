@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Windows;
+using System.Security.Cryptography;
+using System.IO;
 
 namespace YTY.amt
 {
@@ -15,6 +17,8 @@ namespace YTY.amt
     private static int NUMCSIDDIGITS;
     private static DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
     private static List<ResolutionModel> screenResolutions;
+    private static MD5 MD5 = MD5.Create();
+    private static SHA1 SHA1 = SHA1.Create();
 
     static Util()
     {
@@ -69,6 +73,15 @@ namespace YTY.amt
       return toEscape.Replace("'", "''");
     }
 
+    public static string GetFileMD5(string fileName)
+    {
+      return BitConverter.ToString(MD5.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
+    }
+
+    public static string GetFileSha1(string fileName)
+    {
+      return BitConverter.ToString(SHA1.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct DEVMODE

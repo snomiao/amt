@@ -173,7 +173,7 @@ namespace YTY.amt
             ResId = workshopResourceid,
             Id = (int)dic["id"],
             Size = (int)dic["s"],
-            Path = dic["p"] as string,
+            Path = (dic["p"] as string).TrimStart('/'),
             Sha1 = dic["h"] as string,
             UpdateDate = (int)dic["t"],
             Status = (ResourceFileStatus)dic["d"]

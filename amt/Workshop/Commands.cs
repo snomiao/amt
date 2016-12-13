@@ -93,4 +93,21 @@ namespace YTY.amt
       model.Pause();
     }
   }
+
+  public class ResumeResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public async void Execute(object parameter)
+    {
+      var model = parameter as WorkshopResourceModel;
+      await model.ResumeAsync();
+    }
+  }
+
 }

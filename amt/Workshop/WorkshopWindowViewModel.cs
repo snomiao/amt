@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows.Data;
+using HttpRequestException = System.Net.Http.HttpRequestException;
 
 namespace YTY.amt
 {
@@ -87,6 +88,19 @@ namespace YTY.amt
 
     public async Task Init()
     {
+      LoadLocal();
+      try
+      {
+        await Refresh();
+      }
+      catch (HttpRequestException)
+      {
+
+      }
+    }
+
+    private void LoadLocal()
+    {
       var localResources = DAL.GetLocalResources();
       foreach (var localResource in localResources)
       {
@@ -94,13 +108,17 @@ namespace YTY.amt
           localResource.UpdateStatus(WorkshopResourceStatus.Paused);
       }
       WorkshopResources = new ObservableCollection<WorkshopResourceViewModel>(localResources.Select(r => new WorkshopResourceViewModel(r)));
+    }
+
+    private async Task Refresh()
+    {
       try
       {
         var serviceResult = await DAL.GetUpdatedServerResourcesAsync();
         var updatedResources = serviceResult.Item2;
         foreach (var updatedResource in updatedResources)
         {
-          var localResource = localResources.FirstOrDefault(l => l.Id == updatedResource.Id);
+          var localResource = workshopResources.Select(r => r.Model).FirstOrDefault(l => l.Id == updatedResource.Id);
           if (localResource == null)
           // resource does not exist locally
           {

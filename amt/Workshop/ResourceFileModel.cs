@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Threading;
+using System.IO;
 
 namespace YTY.amt
 {
@@ -12,6 +13,7 @@ namespace YTY.amt
   {
     private ResourceFileStatus status;
     private List<FileChunkModel> chunks;
+    private int finishedSize;
 
     public int ResId { get; set; }
 
@@ -21,16 +23,23 @@ namespace YTY.amt
 
     public int FinishedSize
     {
-      get
+      get { return finishedSize; }
+      set
       {
-        if (status == ResourceFileStatus.Finished)
-          return Size;
-        else
-          return chunks.Count(c => c.Finished) * DAL.CHUNKSIZE;
+        finishedSize = value;
+        OnPropertyChanged(nameof(FinishedSize));
       }
     }
 
     public string Path { get; set; }
+
+    public string FullPathName
+    {
+      get
+      {
+        return My.MakeHawkempirePath(Path);
+      }
+    }
 
     public int UpdateDate { get; set; }
 
@@ -67,37 +76,61 @@ namespace YTY.amt
       Chunks = DAL.LoadChunks(Id);
     }
 
-    public async Task DownloadAsync(CancellationToken cancellationToken)
+    private void EnsureDirectoryExists()
     {
-      switch (status)
+      var dir = System.IO.Path.GetDirectoryName(FullPathName);
+      if (!Directory.Exists(dir))
+        Directory.CreateDirectory(dir);
+    }
+
+    public async Task DownloadAsync(CancellationToken cancellationToken,IProgress <int> progress)
+    {
+      EnsureDirectoryExists();
+      using (var fs = new FileStream(FullPathName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, true))
       {
-        case ResourceFileStatus.NotDownloaded:
-          Chunks = Enumerable.Range(0, (Size + DAL.CHUNKSIZE - 1) / DAL.CHUNKSIZE).Select(i => new FileChunkModel() { FileId = Id, Id = i }).ToList();
-          this.SaveChunks();
-          UpdateStatus(ResourceFileStatus.Downloading);
-          break;
-        case ResourceFileStatus.Paused:
-          break;
-        default:
-          throw new InvalidOperationException("file already finished");
-      }
-      var tasks = chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync()).ToList();
-      var numTasks = tasks.Count();
-      for (var i = 0; i < numTasks; i++)
-      {
-        var finished = await Task.WhenAny(tasks);
-        if(cancellationToken.IsCancellationRequested)
+        switch (status)
         {
-          UpdateStatus(ResourceFileStatus.Paused);
+          case ResourceFileStatus.NotDownloaded:
+            FinishedSize = 0;
+            Chunks = Enumerable.Range(0, (Size + DAL.CHUNKSIZE - 1) / DAL.CHUNKSIZE).Select(i => new FileChunkModel() { FileId = Id, Id = i }).ToList();
+            this.SaveChunks();
+            UpdateStatus(ResourceFileStatus.Downloading);
+            break;
+          case ResourceFileStatus.Paused:
+            FinishedSize = Chunks.Count(c => c.Finished) * DAL.CHUNKSIZE;
+            break;
+          default:
+            throw new InvalidOperationException("file already finished");
         }
-        cancellationToken.ThrowIfCancellationRequested();
-        tasks.Remove(finished);
-        var finishedChunk = await finished;
-        DAL.UpdateFileChunkFinished(Id, finishedChunk.Id, true);
-        OnPropertyChanged(nameof(FinishedSize));
+        var tasks = chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync()).ToList();
+        var numTasks = tasks.Count();
+        for (var i = 0; i < numTasks; i++)
+        {
+          var finished = await Task.WhenAny(tasks);
+          if (cancellationToken.IsCancellationRequested)
+          {
+            UpdateStatus(ResourceFileStatus.Paused);
+          }
+          cancellationToken.ThrowIfCancellationRequested();
+          tasks.Remove(finished);
+          var finishedChunk = await finished;
+          fs.Seek(finishedChunk.Id * DAL.CHUNKSIZE, SeekOrigin.Begin);
+          await fs.WriteAsync(finishedChunk.Data, 0, finishedChunk.Data.Length);
+          FinishedSize += finishedChunk.Data.Length;
+          progress.Report(FinishedSize);
+          DAL.UpdateFileChunkFinished(Id, finishedChunk.Id, true);
+          OnPropertyChanged(nameof(FinishedSize));
+        }
       }
-      UpdateStatus(ResourceFileStatus.Finished);
-      DAL.DeleteFileChunks(Id);
+      if (Util.GetFileSha1(FullPathName) == Sha1)
+      {
+        UpdateStatus(ResourceFileStatus.Finished);
+        DAL.DeleteFileChunks(Id);
+      }
+      else
+      {
+        UpdateStatus(ResourceFileStatus.ChecksumFailed);
+      }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -115,6 +148,7 @@ namespace YTY.amt
     Deleted,
     Downloading = 101,
     Paused,
-    Finished
+    Finished,
+    ChecksumFailed
   }
 }

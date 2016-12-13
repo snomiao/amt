@@ -54,5 +54,10 @@ namespace YTY.amt
     public static ByteCountToTextConverter ByteCountToTextConverter => App.FindResource(nameof(ByteCountToTextConverter)) as ByteCountToTextConverter;
 
     public static ScenarioTranslatorViewModel ScenarioTranslatorViewModel => App.FindResource(nameof(ScenarioTranslatorViewModel)) as ScenarioTranslatorViewModel;
+
+    public static string MakeHawkempirePath(string relativePath)
+    {
+      return System.IO.Path.Combine(ConfigModel.CurrentConfig.HawkempirePath, relativePath);
+    }
   }
 }

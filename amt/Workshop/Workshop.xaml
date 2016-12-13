@@ -38,14 +38,15 @@
         <Setter Property="CommandParameter"
                 Value="{Binding Model}"></Setter>
         <Style.Triggers>
-          <DataTrigger Binding="{Binding Model.Status}" Value="NotInstalled">
+          <DataTrigger Binding="{Binding Model.Status}"
+                       Value="NotInstalled">
             <Setter Property="Command"
                     Value="{StaticResource InstallResourceCommand}"></Setter>
           </DataTrigger>
           <DataTrigger Binding="{Binding Model.Status}"
                        Value="Paused">
             <Setter Property="Command"
-                    Value="{StaticResource InstallResourceCommand}"></Setter>
+                    Value="{StaticResource ResumeResourceCommand}"></Setter>
           </DataTrigger>
           <DataTrigger Binding="{Binding Model.Status}"
                        Value="Installing">

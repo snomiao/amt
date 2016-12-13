@@ -28,6 +28,7 @@ namespace YTY.amt
     private string sourceUrl;
     private WorkshopResourceStatus status;
     private ObservableCollection<ResourceFileModel> files;
+    private long finishedSize;
 
     public int Id { get; }
 
@@ -83,7 +84,12 @@ namespace YTY.amt
 
     public long FinishedSize
     {
-      get { return Files.Where(f => f.Status == ResourceFileStatus.Finished).Sum(f => f.Size) + Files.Where(f => f.Status == ResourceFileStatus.Downloading || f.Status == ResourceFileStatus.Paused).Sum(f => f.FinishedSize); }
+      get { return finishedSize; }
+      set
+      {
+        finishedSize = value;
+        OnPropertyChanged(nameof(FinishedSize));
+      }
     }
 
 
@@ -214,6 +220,7 @@ namespace YTY.amt
     public WorkshopResourceModel(int id)
     {
       Id = id;
+      status = WorkshopResourceStatus.NotInstalled;
     }
 
     public void LocalLoadFiles()
@@ -223,10 +230,6 @@ namespace YTY.amt
         if (f.Status == ResourceFileStatus.Downloading)
           f.UpdateStatus(ResourceFileStatus.Paused);
         Files.Add(f);
-      }
-      foreach (var f in Files)
-      {
-        f.PropertyChanged += File_PropertyChanged;
       }
     }
 
@@ -240,66 +243,78 @@ namespace YTY.amt
 
     public async Task InstallAsync()
     {
+      ThrowIfInvalidStatus(WorkshopResourceStatus.NotInstalled);
+      Tuple<int, List<ResourceFileModel>> serviceResult = null;
+      serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id);
+      List<ResourceFileModel> updatedFiles = null;
+      updatedFiles = serviceResult.Item2
+        .Where(f => f.Status == ResourceFileStatus.NotDownloaded).ToList();
+      updatedFiles.ForEach(f => Files.Add(f));
+      DAL.SaveResourceFileModels(updatedFiles);
+      UpdateStatus(WorkshopResourceStatus.Installing);
       cts = new CancellationTokenSource();
-      await InstallAsync(cts.Token);
+      await DownloadAsync(cts.Token);
     }
 
     public void Pause()
     {
+      ThrowIfInvalidStatus(WorkshopResourceStatus.Installing);
       if (cts != null)
         cts.Cancel();
     }
 
-    private async Task InstallAsync(CancellationToken cancellationToken)
+    public async Task ResumeAsync()
     {
-      List<ResourceFileModel> updatedFiles = null;
-      Tuple<int, List<ResourceFileModel>> serviceResult = null;
-      switch (Status)
+      ThrowIfInvalidStatus(WorkshopResourceStatus.Paused);
+      cts = new CancellationTokenSource();
+      await DownloadAsync(cts.Token);
+    }
+
+    public async Task UpdateAsync()
+    {
+      ThrowIfInvalidStatus(WorkshopResourceStatus.NeedUpdate);
+      var serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id, LastFileChangeDate);
+      var updatedFiles = serviceResult.Item2;
+      foreach (var updatedFile in updatedFiles)
       {
-        case WorkshopResourceStatus.NotInstalled:
-          serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id);
-          updatedFiles = serviceResult.Item2
-            .Where(f => f.Status == ResourceFileStatus.NotDownloaded).ToList();
-          updatedFiles.ForEach(f => Files.Add(f));
-          UpdateStatus(WorkshopResourceStatus.Installing);
-          DAL.SaveResourceFileModels(updatedFiles);
-          break;
-        case WorkshopResourceStatus.Paused:
-
-          break;
-        case WorkshopResourceStatus.NeedUpdate:
-          serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id, LastFileChangeDate);
-          updatedFiles = serviceResult.Item2;
-          foreach (var updatedFile in updatedFiles)
+        var localFile = Files.FirstOrDefault(l => l.Id == updatedFile.Id);
+        if (localFile == null)
+        // new resource file
+        {
+          Files.Add(updatedFile);
+        }
+        else
+        // resource file exists locally
+        {
+          localFile.Sha1 = updatedFile.Sha1;
+          localFile.Size = updatedFile.Size;
+          localFile.UpdateDate = updatedFile.UpdateDate;
+          localFile.Status = updatedFile.Status;
+          if (updatedFile.Status == ResourceFileStatus.Deleted)
           {
-            var localFile = Files.FirstOrDefault(l => l.Id == updatedFile.Id);
-            if (localFile == null)
-            // new resource file
-            {
-              Files.Add(updatedFile);
-            }
-            else
-            // resource file exists locally
-            {
-              localFile.Sha1 = updatedFile.Sha1;
-              localFile.Size = updatedFile.Size;
-              localFile.UpdateDate = updatedFile.UpdateDate;
-              localFile.Status = updatedFile.Status;
-              if (updatedFile.Status == ResourceFileStatus.Deleted)
-              {
 
-              }
-            }
           }
-          DAL.UpdateResourceLastFileChange(Id, serviceResult.Item1);
-          DAL.SaveResourceFileModels(updatedFiles);
-          break;
+        }
       }
+      DAL.UpdateResourceLastFileChange(Id, serviceResult.Item1);
+      DAL.SaveResourceFileModels(updatedFiles);
+      cts = new CancellationTokenSource();
+      await DownloadAsync(cts.Token);
+    }
+
+    private void ThrowIfInvalidStatus(WorkshopResourceStatus expectedStatuses)
+    {
+      if (!expectedStatuses.HasFlag(Status))
+        throw new InvalidOperationException($"Invalid status '{Status}', expected '{expectedStatuses}'");
+    }
+
+    private async Task DownloadAsync(CancellationToken cancellationToken)
+    {
       try
       {
-        foreach (var f in Files.Where(f=>f.Status== ResourceFileStatus.NotDownloaded || f.Status== ResourceFileStatus.Paused))
+        foreach (var f in Files.Where(f => f.Status == ResourceFileStatus.NotDownloaded || f.Status == ResourceFileStatus.Paused))
         {
-          await f.DownloadAsync(cancellationToken);
+          await f.DownloadAsync(cancellationToken,new Progress<int>();
         }
         UpdateStatus(WorkshopResourceStatus.Installed);
       }
