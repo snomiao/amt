@@ -13,23 +13,12 @@ namespace YTY.amt
   {
     private ResourceFileStatus status;
     private List<FileChunkModel> chunks;
-    private int finishedSize;
 
     public int ResId { get; set; }
 
     public int Id { get; set; }
 
     public int Size { get; set; }
-
-    public int FinishedSize
-    {
-      get { return finishedSize; }
-      set
-      {
-        finishedSize = value;
-        OnPropertyChanged(nameof(FinishedSize));
-      }
-    }
 
     public string Path { get; set; }
 
@@ -71,6 +60,14 @@ namespace YTY.amt
       }
     }
 
+    public int FinishedSize
+    {
+      get
+      {
+        return Chunks?.Count(c => c.Finished) * DAL.CHUNKSIZE ?? 0;
+      }
+    }
+
     public void LocalLoadChunks()
     {
       Chunks = DAL.LoadChunks(Id);
@@ -91,13 +88,11 @@ namespace YTY.amt
         switch (status)
         {
           case ResourceFileStatus.NotDownloaded:
-            FinishedSize = 0;
             Chunks = Enumerable.Range(0, (Size + DAL.CHUNKSIZE - 1) / DAL.CHUNKSIZE).Select(i => new FileChunkModel() { FileId = Id, Id = i }).ToList();
             this.SaveChunks();
             UpdateStatus(ResourceFileStatus.Downloading);
             break;
           case ResourceFileStatus.Paused:
-            FinishedSize = Chunks.Count(c => c.Finished) * DAL.CHUNKSIZE;
             break;
           default:
             throw new InvalidOperationException("file already finished");
@@ -116,10 +111,8 @@ namespace YTY.amt
           var finishedChunk = await finished;
           fs.Seek(finishedChunk.Id * DAL.CHUNKSIZE, SeekOrigin.Begin);
           await fs.WriteAsync(finishedChunk.Data, 0, finishedChunk.Data.Length);
-          FinishedSize += finishedChunk.Data.Length;
-          progress.Report(FinishedSize);
+          progress.Report(finishedChunk.Data.Length);
           DAL.UpdateFileChunkFinished(Id, finishedChunk.Id, true);
-          OnPropertyChanged(nameof(FinishedSize));
         }
       }
       if (Util.GetFileSha1(FullPathName) == Sha1)

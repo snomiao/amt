@@ -46,27 +46,35 @@ namespace YTY.amt
     public static List<WorkshopResourceModel> GetLocalResources()
     {
       var ret = new List<WorkshopResourceModel>();
-      using (var reader = ConfigOp.ExecuteReader("SELECT Id,CreateDate,LastChangeDate,LastFileChangeDate,Size,Rating,NumDownloads,AuthorId,AuthorName,Name,Discription,GameVersion,Url,Type,Status FROM Resources"))
+      using (var reader = ConfigOp.ExecuteReader("SELECT Id,CreateDate,LastChangeDate,LastFileChangeDate,Size,Rating,NumDownloads,AuthorId,AuthorName,Name,Discription,GameVersion,Url,Type,Status,Flags FROM Resources"))
       {
         while (reader.Read())
         {
-          var resource = new WorkshopResourceModel(reader.GetInt32(0))
+          var type = (WorkshopResourceType)reader.GetInt32(13);
+          WorkshopResourceModel resource = null;
+          switch (type)
           {
-            CreateDate = reader.GetInt32(1),
-            LastChangeDate = reader.GetInt32(2),
-            LastFileChangeDate = reader.GetInt32(3),
-            TotalSize = reader.GetInt64(4),
-            Rating = reader.GetInt32(5),
-            DownloadCount = reader.GetInt32(6),
-            AuthorId = reader.GetInt32(7),
-            AuthorName = reader.GetString(8),
-            Name = reader.GetString(9),
-            Discription = reader.GetString(10),
-            GameVersion = (GameVersion)reader.GetInt32(11),
-            SourceUrl = reader.GetString(12),
-            Type = (WorkshopResourceType)reader.GetInt32(13),
-            Status = (WorkshopResourceStatus)reader.GetInt32(14)
-          };
+            case WorkshopResourceType.Drs:
+              resource = new DrsResourceModel(reader.GetInt32(0));
+              resource.Flags = (WorkshopResourceFlag)reader.GetInt32(15);
+              break;
+            default:
+              resource = new WorkshopResourceModel(reader.GetInt32(0), type);
+              break;
+          }
+          resource.CreateDate = reader.GetInt32(1);
+          resource.LastChangeDate = reader.GetInt32(2);
+          resource.LastFileChangeDate = reader.GetInt32(3);
+          resource.TotalSize = reader.GetInt64(4);
+          resource.Rating = reader.GetInt32(5);
+          resource.DownloadCount = reader.GetInt32(6);
+          resource.AuthorId = reader.GetInt32(7);
+          resource.AuthorName = reader.GetString(8);
+          resource.Name = reader.GetString(9);
+          resource.Discription = reader.GetString(10);
+          resource.GameVersion = (GameVersion)reader.GetInt32(11);
+          resource.SourceUrl = reader.GetString(12);
+          resource.Status = (WorkshopResourceStatus)reader.GetInt32(14);
           if (resource.Status == WorkshopResourceStatus.Installing)
             resource.UpdateStatus(WorkshopResourceStatus.Paused);
           if (resource.Status == WorkshopResourceStatus.Paused)
@@ -122,23 +130,32 @@ namespace YTY.amt
         resources.Select(resource =>
           {
             var dic = resource as IDictionary<string, object>;
-            return new WorkshopResourceModel((int)dic["id"])
+            var type = dic_String_Type[dic["ty"] as string];
+            WorkshopResourceModel ret = null;
+            switch (type)
             {
-              LastFileChangeDate = (int)dic["tf"],
-              LastChangeDate = (int)dic["tu"],
-              Rating = (int)dic["vr"],
-              TotalSize = (int)dic["ts"],
-              DownloadCount = (int)dic["cd"],
-              CreateDate = (int)dic["tc"],
-              AuthorId = (int)dic["ai"],
-              AuthorName = dic["an"] as string,
-              Name = dic["n"] as string,
-              Discription = dic["co"] as string,
-              GameVersion = (GameVersion)dic["gb"],
-              SourceUrl = dic["ur"] as string,
-              Type = dic_String_Type[dic["ty"] as string],
-              Status = (WorkshopResourceStatus)dic["st"]
-            };
+              case WorkshopResourceType.Drs:
+                ret = new DrsResourceModel((int)dic["id"]);
+                ret.Flags = WorkshopResourceFlag.Deactivated;
+                break;
+              default:
+                ret = new WorkshopResourceModel((int)dic["id"], type);
+                break;
+            }
+            ret.LastFileChangeDate = (int)dic["tf"];
+            ret.LastChangeDate = (int)dic["tu"];
+            ret.Rating = (int)dic["vr"];
+            ret.TotalSize = (int)dic["ts"];
+            ret.DownloadCount = (int)dic["cd"];
+            ret.CreateDate = (int)dic["tc"];
+            ret.AuthorId = (int)dic["ai"];
+            ret.AuthorName = dic["an"] as string;
+            ret.Name = dic["n"] as string;
+            ret.Discription = dic["co"] as string;
+            ret.GameVersion = (GameVersion)dic["gb"];
+            ret.SourceUrl = dic["ur"] as string;
+            ret.Status = (WorkshopResourceStatus)dic["st"];
+            return ret;
           }).ToList()
         );
     }
@@ -233,6 +250,11 @@ VALUES({model.ResId},
       ConfigOp.ExecuteNonQuery($"UPDATE Files SET Status={(int)status} WHERE Id={id}");
     }
 
+    public static void UpdateResourceFlags(int id, WorkshopResourceFlag flags)
+    {
+      ConfigOp.ExecuteNonQuery($"UPDATE Resources SET Flags={(int)flags} WHERE Id={id}");
+    }
+
     public static void UpdateFileChunkFinished(int fileId, int id, bool finished)
     {
       ConfigOp.ExecuteNonQuery($"UPDATE Chunks SET Finished={Convert.ToInt32(finished)} WHERE FileId={fileId}");
@@ -266,6 +288,11 @@ VALUES({model.ResId},
       var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.Int2CSID(fileId)}");
       request.Headers.Range = new RangeHeaderValue(chunkId * CHUNKSIZE, (chunkId + 1) * CHUNKSIZE - 1);
       return await (await client.SendAsync(request)).Content.ReadAsByteArrayAsync();
+    }
+
+    public static void DeleteResourceFiles(int resourceId)
+    {
+      ConfigOp.ExecuteNonQuery($"DELETE FROM Files WHERE ResId={resourceId}");
     }
 
     public static List<GameVersionModel> GetGameVersions()
@@ -327,7 +354,7 @@ VALUES({model.ResId},
     public static void CreateTablesIfNotExist()
     {
       ConfigOp.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Config(key text,value text);
-        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate int,LastChangeDate int,LastFileChangeDate int,Size int,Rating int,NumDownloads int,AuthorId int,AuthorName text,Name text,Discription text,GameVersion int,Url text,Type int,Status int);
+        CREATE TABLE IF NOT EXISTS Resources(Id int PRIMARY KEY,CreateDate int,LastChangeDate int,LastFileChangeDate int,Size int,Rating int,NumDownloads int,AuthorId int,AuthorName text,Name text,Discription text,GameVersion int,Url text,Type int,Status int,Flags int DEFAULT 0);
         CREATE TABLE IF NOT EXISTS Files(ResId int,Id int PRIMARY KEY,Size int,Path text,UpdateDate int,Sha1 text,Status int);
         CREATE TABLE IF NOT EXISTS Chunks(FileId int,Id int,Finished int,PRIMARY KEY(FileId,Id));    
         CREATE TABLE IF NOT EXISTS GameVersions(id int PRIMARY KEY, name text, exePath text)");

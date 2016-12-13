@@ -53,6 +53,11 @@
             <Setter Property="Command"
                     Value="{StaticResource PauseResourceCommand}"></Setter>
           </DataTrigger>
+          <DataTrigger Binding="{Binding Model.Status}"
+                       Value="Installed">
+            <Setter Property="Command"
+                    Value="{StaticResource DeleteResourceCommand}"></Setter>
+          </DataTrigger>
         </Style.Triggers>
       </Style>
       <Style x:Key="ButtonResourceMoreStyle"

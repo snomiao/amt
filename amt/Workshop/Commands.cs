@@ -8,6 +8,11 @@ using System.Windows;
 
 namespace YTY.amt
 {
+  public static class WorkshopCommands
+  {
+    public static ICommand InstallResourceCommand = new InstallResourceCommand();
+  }
+
   public class ShowSelectedResourceViewCommand : ICommand
   {
     public event EventHandler CanExecuteChanged;
@@ -110,4 +115,21 @@ namespace YTY.amt
     }
   }
 
+  public class DeleteResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      var model = parameter as WorkshopResourceModel;
+      if (MessageBox.Show($"确定要删除资源 {model.Name} 吗？", string.Empty, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
+        return;
+      model.Delete();
+    }
+  }
 }

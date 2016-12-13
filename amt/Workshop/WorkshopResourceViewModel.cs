@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace YTY.amt
 {
@@ -19,20 +20,28 @@ namespace YTY.amt
     {
       get
       {
-        switch (Model.Status)
+        switch (Model.Type)
         {
-          case WorkshopResourceStatus.NotInstalled:
-            return "安装资源";
-          case WorkshopResourceStatus.Installing:
-            return "暂停安装";
-          case WorkshopResourceStatus.Paused:
-            return "继续安装";
-          case WorkshopResourceStatus.Installed:
-            return "删除资源";
-          case WorkshopResourceStatus.NeedUpdate:
-            return "更新资源";
-          case WorkshopResourceStatus.Activated:
-            return "停用该模组";
+          case WorkshopResourceType.Drs:
+            if ((Model as DrsResourceModel).IsActivated)
+              return "停用该模组";
+            else
+              return "启用该模组";
+          default:
+            switch (Model.Status)
+            {
+              case WorkshopResourceStatus.NotInstalled:
+                return "安装资源";
+              case WorkshopResourceStatus.Installing:
+                return "暂停安装";
+              case WorkshopResourceStatus.Paused:
+                return "继续安装";
+              case WorkshopResourceStatus.Installed:
+                return "删除资源";
+              case WorkshopResourceStatus.NeedUpdate:
+                return "更新资源";
+            }
+            break;
         }
         return string.Empty;
       }
@@ -42,22 +51,38 @@ namespace YTY.amt
     {
       get
       {
-        switch (Model.Status)
+        switch (Model.Type)
         {
-          case WorkshopResourceStatus.NotInstalled:
-            return Brushes.Green;
-          case WorkshopResourceStatus.Installing:
-            return Brushes.Yellow;
-          case WorkshopResourceStatus.Paused:
-            return Brushes.Green;
-          case WorkshopResourceStatus.Installed:
-            return Brushes.Gray;
-          case WorkshopResourceStatus.NeedUpdate:
-            return Brushes.HotPink;
-          case WorkshopResourceStatus.Activated:
-            return Brushes.Gray;
+          case WorkshopResourceType.Drs:
+            if ((Model as DrsResourceModel).IsActivated)
+              return Brushes.Gray;
+            else
+              return Brushes.Blue;
+          default:
+            switch (Model.Status)
+            {
+              case WorkshopResourceStatus.NotInstalled:
+                return Brushes.Green;
+              case WorkshopResourceStatus.Installing:
+                return Brushes.Yellow;
+              case WorkshopResourceStatus.Paused:
+                return Brushes.Green;
+              case WorkshopResourceStatus.Installed:
+                return Brushes.Gray;
+              case WorkshopResourceStatus.NeedUpdate:
+                return Brushes.HotPink;
+            }
+            break;
         }
         return Brushes.Transparent;
+      }
+    }
+
+    public ICommand Command
+    {
+      get
+      {
+
       }
     }
 

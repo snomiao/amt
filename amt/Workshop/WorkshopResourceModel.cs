@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
 
 namespace YTY.amt
 {
@@ -35,12 +36,9 @@ namespace YTY.amt
     public WorkshopResourceType Type
     {
       get { return type; }
-      set
-      {
-        type = value;
-        OnPropertyChanged(nameof(Type));
-      }
     }
+
+    public virtual WorkshopResourceFlag Flags    { get; set; }
 
     public int CreateDate
     {
@@ -217,18 +215,25 @@ namespace YTY.amt
       DAL.UpdateResourceStatus(Id, value);
     }
 
-    public WorkshopResourceModel(int id)
+    public WorkshopResourceModel(int id, WorkshopResourceType type)
     {
       Id = id;
+      this.type = type;
       status = WorkshopResourceStatus.NotInstalled;
     }
 
     public void LocalLoadFiles()
     {
+      FinishedSize = 0;
       foreach (var f in DAL.GetLocalResourceFiles(Id))
       {
+        if (f.Status == ResourceFileStatus.NotDownloaded)
+          FinishedSize += f.Size;
         if (f.Status == ResourceFileStatus.Downloading)
+        {
+          FinishedSize += f.FinishedSize;
           f.UpdateStatus(ResourceFileStatus.Paused);
+        }
         Files.Add(f);
       }
     }
@@ -302,6 +307,18 @@ namespace YTY.amt
       await DownloadAsync(cts.Token);
     }
 
+    public void Delete()
+    {
+      foreach (var file in Files)
+      {
+        File.Delete(file.FullPathName);
+        if (!Directory.EnumerateFiles(Path.GetDirectoryName(file.FullPathName)).Any())
+          Directory.Delete(Path.GetDirectoryName(file.FullPathName));
+      }
+      DAL.DeleteResourceFiles(Id);
+      UpdateStatus(WorkshopResourceStatus.NotInstalled);
+    }
+
     private void ThrowIfInvalidStatus(WorkshopResourceStatus expectedStatuses)
     {
       if (!expectedStatuses.HasFlag(Status))
@@ -314,7 +331,7 @@ namespace YTY.amt
       {
         foreach (var f in Files.Where(f => f.Status == ResourceFileStatus.NotDownloaded || f.Status == ResourceFileStatus.Paused))
         {
-          await f.DownloadAsync(cancellationToken,new Progress<int>();
+          await f.DownloadAsync(cancellationToken, new Progress<int>(e => FinishedSize += e));
         }
         UpdateStatus(WorkshopResourceStatus.Installed);
       }
@@ -370,6 +387,12 @@ namespace YTY.amt
     Paused,
     Installed,
     NeedUpdate,
-    Activated
+  }
+
+  [Flags]
+  public enum WorkshopResourceFlag
+  {
+    Deactivated = 0,
+    Activated = 1,
   }
 }

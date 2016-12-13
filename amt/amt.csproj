@@ -75,6 +75,7 @@
     <Compile Include="ScenarioTranslator\NodeViewModel.cs" />
     <Compile Include="ScenarioTranslator\WindowViewModel.cs" />
     <Compile Include="Workshop\Commands.cs" />
+    <Compile Include="Workshop\DrsResourceModel.cs" />
     <Compile Include="Workshop\FileChunkModel.cs" />
     <Compile Include="MainWindow\GameLanguageModel.cs" />
     <Compile Include="MainWindow\GameVersionModel.cs" />

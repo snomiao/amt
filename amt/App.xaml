@@ -18,6 +18,7 @@
     <local:InstallResourceCommand x:Key="InstallResourceCommand"></local:InstallResourceCommand>
     <local:PauseResourceCommand x:Key="PauseResourceCommand"></local:PauseResourceCommand>
     <local:ResumeResourceCommand x:Key="ResumeResourceCommand"></local:ResumeResourceCommand>
+    <local:DeleteResourceCommand x:Key="DeleteResourceCommand"></local:DeleteResourceCommand>
     <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:FilterResourceCommand x:Key="FilterResourceCommand"></local:FilterResourceCommand>
     <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>
