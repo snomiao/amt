@@ -38,8 +38,6 @@ namespace YTY.amt
       get { return type; }
     }
 
-    public virtual WorkshopResourceFlag Flags    { get; set; }
-
     public int CreateDate
     {
       get { return createDate; }
@@ -246,7 +244,7 @@ namespace YTY.amt
       }
     }
 
-    public async Task InstallAsync()
+    public virtual async Task InstallAsync()
     {
       ThrowIfInvalidStatus(WorkshopResourceStatus.NotInstalled);
       Tuple<int, List<ResourceFileModel>> serviceResult = null;
@@ -307,7 +305,7 @@ namespace YTY.amt
       await DownloadAsync(cts.Token);
     }
 
-    public void Delete()
+    public virtual void Delete()
     {
       foreach (var file in Files)
       {
@@ -325,7 +323,7 @@ namespace YTY.amt
         throw new InvalidOperationException($"Invalid status '{Status}', expected '{expectedStatuses}'");
     }
 
-    private async Task DownloadAsync(CancellationToken cancellationToken)
+    protected async Task DownloadAsync(CancellationToken cancellationToken)
     {
       try
       {
@@ -387,12 +385,5 @@ namespace YTY.amt
     Paused,
     Installed,
     NeedUpdate,
-  }
-
-  [Flags]
-  public enum WorkshopResourceFlag
-  {
-    Deactivated = 0,
-    Activated = 1,
   }
 }

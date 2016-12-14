@@ -2,19 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace YTY.amt
 {
   public class DrsResourceModel : WorkshopResourceModel
   {
+    private bool isActivated;
+    private int priority;
+
     public bool IsActivated
     {
-      get { return Flags.HasFlag(WorkshopResourceFlag.Activated); }
+      get { return isActivated; }
       set
       {
-        Flags = value ? WorkshopResourceFlag.Activated : WorkshopResourceFlag.Deactivated;
+        isActivated = value;
         OnPropertyChanged(nameof(IsActivated));
+      }
+    }
+
+    public int Priority
+    {
+      get { return priority; }
+      set
+      {
+        priority = value;
+        OnPropertyChanged(nameof(Priority));
       }
     }
 
@@ -23,16 +37,38 @@ namespace YTY.amt
 
     }
 
+    public async override Task InstallAsync()
+    {
+      DAL.SaveDrsResource(Id);
+      await base.InstallAsync();
+    }
+
     public void Activate()
     {
+      if (isActivated) return;
       IsActivated = true;
-      DAL.UpdateResourceFlags(Id, Flags);
+      Priority = My.Drses.Count(d => d.IsActivated);
+      DAL.UpdateDrsResource(this);
     }
 
     public void Deactivate()
     {
+      if (!isActivated) return;
       IsActivated = false;
-      DAL.UpdateResourceFlags(Id, Flags);
+      foreach(var drs in My.Drses.Where(d=>d.Priority>Priority))
+      {
+        drs.Priority--;
+        DAL.UpdateDrsResource(drs);
+      }
+      Priority = -1;
+      DAL.UpdateDrsResource(this);
+    }
+
+    public override void Delete()
+    {
+      base.Delete();
+      Deactivate();
+      DAL.DeleteDrsResource(Id);
     }
   }
 }

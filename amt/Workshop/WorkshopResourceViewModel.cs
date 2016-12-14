@@ -20,28 +20,27 @@ namespace YTY.amt
     {
       get
       {
-        switch (Model.Type)
+        switch (Model.Status)
         {
-          case WorkshopResourceType.Drs:
-            if ((Model as DrsResourceModel).IsActivated)
-              return "停用该模组";
-            else
-              return "启用该模组";
-          default:
-            switch (Model.Status)
+          case WorkshopResourceStatus.NotInstalled:
+            return "安装资源";
+          case WorkshopResourceStatus.Installing:
+            return "暂停安装";
+          case WorkshopResourceStatus.Paused:
+            return "继续安装";
+          case WorkshopResourceStatus.Installed:
+            switch (Model.Type)
             {
-              case WorkshopResourceStatus.NotInstalled:
-                return "安装资源";
-              case WorkshopResourceStatus.Installing:
-                return "暂停安装";
-              case WorkshopResourceStatus.Paused:
-                return "继续安装";
-              case WorkshopResourceStatus.Installed:
+              case WorkshopResourceType.Drs:
+                if ((Model as DrsResourceModel).IsActivated)
+                  return "停用该模组";
+                else
+                  return "启用该模组";
+              default:
                 return "删除资源";
-              case WorkshopResourceStatus.NeedUpdate:
-                return "更新资源";
             }
-            break;
+          case WorkshopResourceStatus.NeedUpdate:
+            return "更新资源";
         }
         return string.Empty;
       }
@@ -51,40 +50,39 @@ namespace YTY.amt
     {
       get
       {
-        switch (Model.Type)
+        switch (Model.Status)
         {
-          case WorkshopResourceType.Drs:
-            if ((Model as DrsResourceModel).IsActivated)
-              return Brushes.Gray;
-            else
-              return Brushes.Blue;
-          default:
-            switch (Model.Status)
+          case WorkshopResourceStatus.NotInstalled:
+            return Brushes.Green;
+          case WorkshopResourceStatus.Installing:
+            return Brushes.Yellow;
+          case WorkshopResourceStatus.Paused:
+            return Brushes.Green;
+          case WorkshopResourceStatus.Installed:
+            switch (Model.Type)
             {
-              case WorkshopResourceStatus.NotInstalled:
-                return Brushes.Green;
-              case WorkshopResourceStatus.Installing:
-                return Brushes.Yellow;
-              case WorkshopResourceStatus.Paused:
-                return Brushes.Green;
-              case WorkshopResourceStatus.Installed:
+              case WorkshopResourceType.Drs:
+                if ((Model as DrsResourceModel).IsActivated)
+                  return Brushes.Gray;
+                else
+                  return Brushes.Blue;
+              default:
                 return Brushes.Gray;
-              case WorkshopResourceStatus.NeedUpdate:
-                return Brushes.HotPink;
             }
-            break;
+          case WorkshopResourceStatus.NeedUpdate:
+            return Brushes.HotPink;
         }
         return Brushes.Transparent;
       }
     }
 
-    public ICommand Command
-    {
-      get
-      {
+    //public ICommand Command
+    //{
+    //  get
+    //  {
 
-      }
-    }
+    //  }
+    //}
 
     public string GameVersion
     {

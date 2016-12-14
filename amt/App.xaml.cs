@@ -59,5 +59,13 @@ namespace YTY.amt
     {
       return System.IO.Path.Combine(ConfigModel.CurrentConfig.HawkempirePath, relativePath);
     }
+
+    public static List<DrsResourceModel> Drses
+    {
+      get
+      {
+        return WorkshopWindowViewModel.WorkshopResources.Select(r => r.Model).OfType<DrsResourceModel>().ToList();
+      }
+    }
   }
 }
