@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Data;
 
 namespace YTY.amt
 {
@@ -18,7 +19,9 @@ namespace YTY.amt
     private List<GameLanguageModel> gameLanguages;
     private ResolutionModel fullScreen = new ResolutionModel { X = (int)SystemParameters.PrimaryScreenWidth, Y = (int)SystemParameters.PrimaryScreenHeight };
     private ResolutionModel workingArea = new ResolutionModel { X = (int)(SystemParameters.WorkArea.Width - 2 * SystemParameters.FixedFrameVerticalBorderWidth), Y = (int)(SystemParameters.WorkArea.Height - 2 * SystemParameters.FixedFrameHorizontalBorderHeight) };
-    
+    private ObservableCollection<DrsResourceModel> drsMods;
+    private ICollectionView activatedDrsModsView;
+
     public ConfigModel Config { get { return config; } }
 
     public bool WorkshopShown
@@ -115,6 +118,44 @@ namespace YTY.amt
       {
         config.ResolutionX = workingArea.X;
         config.ResolutionY = workingArea.Y;
+      }
+    }
+
+    public ObservableCollection<DrsResourceModel> DrsMods
+    {
+      get
+      {
+        if (drsMods == null)
+        {
+          drsMods = new ObservableCollection<DrsResourceModel>();
+          drsMods.CollectionChanged += (s, e) =>
+          {
+            ActivatedDrsModsView.Refresh();
+            if (e.NewItems != null)
+              foreach (var newItem in e.NewItems)
+                (newItem as DrsResourceModel).PropertyChanged += (s1, e1) => ActivatedDrsModsView.Refresh();
+            if (e.OldItems != null)
+              foreach (var oldItem in e.OldItems)
+                (oldItem as DrsResourceModel).PropertyChanged -= (s1, e1) => ActivatedDrsModsView.Refresh();
+          };
+          foreach (var drsMod in DAL.GetDrsMods())
+            drsMods.Add(drsMod);
+        }
+        return drsMods;
+      }
+    }
+
+    public ICollectionView ActivatedDrsModsView
+    {
+      get
+      {
+        if (activatedDrsModsView == null)
+        {
+          activatedDrsModsView = CollectionViewSource.GetDefaultView(DrsMods);
+          activatedDrsModsView.Filter += d => (d as DrsResourceModel).IsActivated;
+          activatedDrsModsView.SortDescriptions.Add(new SortDescription(nameof(DrsResourceModel.Priority), ListSortDirection.Ascending));
+        }
+        return activatedDrsModsView;
       }
     }
 

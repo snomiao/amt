@@ -296,6 +296,20 @@
           <TabItem Header="界面">
             <ScrollViewer>
               <StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">视觉MOD管理</TextBlock>
+                <TextBlock>若启用的多个视觉MOD影响到相同的游戏图像，可在此处设置视觉MOD的优先级，以决定游戏内最终使用的图像。</TextBlock>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                  </Grid.ColumnDefinitions>
+                  <ListBox Grid.Column="0"
+                           ItemsSource="{Binding ActivatedDrsModsView}" DisplayMemberPath="Name"></ListBox>
+                  <StackPanel Grid.Column="1">
+                    <Button>↑提高优先度</Button>
+                    <Button>↓降低优先度</Button>
+                  </StackPanel>
+                </Grid>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
                 <StackPanel Orientation="Horizontal">
                   <TextBlock>当前游戏界面语言：</TextBlock>

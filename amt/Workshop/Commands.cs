@@ -10,7 +10,22 @@ namespace YTY.amt
 {
   public static class WorkshopCommands
   {
-    public static ICommand InstallResourceCommand = new InstallResourceCommand();
+    public static ICommand InstallResource { get; }
+    public static ICommand PauseResource { get; }
+    public static ICommand ResumeResource { get; }
+    public static ICommand DeactivateResource { get; }
+    public static ICommand ActivateResource { get; }
+    public static ICommand DeleteResource { get; }
+
+    static WorkshopCommands()
+    {
+      InstallResource= new InstallResourceCommand();
+      PauseResource = new PauseResourceCommand();
+      ResumeResource = new ResumeResourceCommand();
+      DeactivateResource = new DeactivateResourceCommand();
+      ActivateResource = new ActivateResourceCommand();
+      DeleteResource = new DeleteResourceCommand();
+    }
   }
 
   public class ShowSelectedResourceViewCommand : ICommand
@@ -130,6 +145,38 @@ namespace YTY.amt
       if (MessageBox.Show($"确定要删除资源 {model.Name} 吗？", string.Empty, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
         return;
       model.Delete();
+    }
+  }
+
+  public class DeactivateResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      var model = parameter as DrsResourceModel;
+      model.Deactivate();
+    }
+  }
+
+  public class ActivateResourceCommand : ICommand
+  {
+    public event EventHandler CanExecuteChanged;
+
+    public bool CanExecute(object parameter)
+    {
+      return true;
+    }
+
+    public void Execute(object parameter)
+    {
+      var model = parameter as DrsResourceModel;
+      model.Activate();
     }
   }
 }

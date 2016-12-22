@@ -76,13 +76,33 @@ namespace YTY.amt
       }
     }
 
-    //public ICommand Command
-    //{
-    //  get
-    //  {
-
-    //  }
-    //}
+    public ICommand Command
+    {
+      get
+      {
+        switch (Model.Status)
+        {
+          case WorkshopResourceStatus.NotInstalled:
+            return WorkshopCommands.InstallResource;
+          case WorkshopResourceStatus.Installing:
+            return WorkshopCommands.PauseResource;
+          case WorkshopResourceStatus.Paused:
+            return WorkshopCommands.ResumeResource;
+          case WorkshopResourceStatus.Installed:
+            switch (Model.Type)
+            {
+              case WorkshopResourceType.Drs:
+                if ((Model as DrsResourceModel).IsActivated)
+                  return WorkshopCommands.DeactivateResource;
+                else
+                  return WorkshopCommands.ActivateResource;
+              default:
+                return WorkshopCommands.DeleteResource;
+            }
+        }
+        return null;
+      }
+    }
 
     public string GameVersion
     {
@@ -168,17 +188,19 @@ namespace YTY.amt
     {
       switch (e.PropertyName)
       {
-        case "Status":
+        case nameof(WorkshopResourceModel.Status):
+        case nameof(DrsResourceModel.IsActivated):
           OnPropertyChanged(nameof(ButtonText));
           OnPropertyChanged(nameof(ButtonBackground));
+          OnPropertyChanged(nameof(Command));
           break;
         case nameof(GameVersion):
           OnPropertyChanged(nameof(GameVersion));
           break;
-        case "Type":
+        case nameof(WorkshopResourceModel.Type):
           OnPropertyChanged(nameof(Image));
           break;
-        case "FinishedSize":
+        case nameof(WorkshopResourceModel.FinishedSize):
           OnPropertyChanged(nameof(ProgressText));
           break;
       }

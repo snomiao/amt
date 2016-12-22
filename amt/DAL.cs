@@ -171,6 +171,24 @@ namespace YTY.amt
       // await client.GetStringAsync("res.php?action=ls&res=6");
     }
 
+    public static List<DrsResourceModel> GetDrsMods()
+    {
+      var ret = new List<DrsResourceModel>();
+      using (var reader = ConfigOp.ExecuteReader("SELECT Id,IsActivated,Priority FROM Drs"))
+      {
+        while (reader.Read())
+        {
+          var drs = new DrsResourceModel(reader.GetInt32(0))
+          {
+            IsActivated = reader.GetBoolean(1),
+            Priority = reader.GetInt32(2)
+          };
+          ret.Add(drs);
+        }
+      }
+      return ret;
+    }
+
     public static async Task<Tuple<int, List<ResourceFileModel>>> GetResourceUpdatedFilesAsync(int workshopResourceid, int timestamp = 0)
     {
       var json = await client.GetStringAsync($"api/?q=lsfile&resid={Util.Int2CSID(workshopResourceid)}&t={timestamp}");

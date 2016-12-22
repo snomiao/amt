@@ -47,7 +47,7 @@ namespace YTY.amt
     {
       if (isActivated) return;
       IsActivated = true;
-      Priority = My.Drses.Count(d => d.IsActivated);
+      Priority =  My.Drses.Count(d => d.IsActivated);
       DAL.UpdateDrsResource(this);
     }
 

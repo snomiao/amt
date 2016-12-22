@@ -34,31 +34,11 @@
         <Setter Property="Content"
                 Value="{Binding ButtonText}"></Setter>
         <Setter Property="Background"
-                Value="{Binding Path=ButtonBackground}"></Setter>
+                Value="{Binding ButtonBackground}"></Setter>
         <Setter Property="CommandParameter"
                 Value="{Binding Model}"></Setter>
-        <Style.Triggers>
-          <DataTrigger Binding="{Binding Model.Status}"
-                       Value="NotInstalled">
-            <Setter Property="Command"
-                    Value="{StaticResource InstallResourceCommand}"></Setter>
-          </DataTrigger>
-          <DataTrigger Binding="{Binding Model.Status}"
-                       Value="Paused">
-            <Setter Property="Command"
-                    Value="{StaticResource ResumeResourceCommand}"></Setter>
-          </DataTrigger>
-          <DataTrigger Binding="{Binding Model.Status}"
-                       Value="Installing">
-            <Setter Property="Command"
-                    Value="{StaticResource PauseResourceCommand}"></Setter>
-          </DataTrigger>
-          <DataTrigger Binding="{Binding Model.Status}"
-                       Value="Installed">
-            <Setter Property="Command"
-                    Value="{StaticResource DeleteResourceCommand}"></Setter>
-          </DataTrigger>
-        </Style.Triggers>
+        <Setter Property="Command"
+                Value="{Binding Command}"></Setter>
       </Style>
       <Style x:Key="ButtonResourceMoreStyle"
              TargetType="{x:Type Button}"
