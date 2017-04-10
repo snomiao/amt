@@ -10,13 +10,15 @@ namespace YTY.amt.Model
 {
   public static class DatabaseClient
   {
-    private static SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder();
+    private static readonly SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder
+    {
+      Pooling = true,
+      DataSource = CONFIGFILE,
+    };
     private const string CONFIGFILE = "config.db";
 
     static DatabaseClient()
     {
-      connectionStringBuilder.Pooling = true;
-      connectionStringBuilder.DataSource = CONFIGFILE;
       InitializeDatabase();
     }
 
@@ -68,30 +70,39 @@ namespace YTY.amt.Model
     {
       using (var connection = GetConnection())
       {
-        Mapper.Initialize(cfg => cfg.CreateMap<WorkshopResourceDto, WorkshopResourceModel>().ConstructUsing(src =>
-        {
-          switch (src.Type)
+        Mapper.Initialize(cfg =>
           {
-            case WorkshopResourceType.Drs:
-              return new DrsResourceModel();
-            case WorkshopResourceType.Mod:
-              return new ModResourceModel();
-            case WorkshopResourceType.Language:
-              return new LanguageResourceModel();
-            default:
-              return new WorkshopResourceModel();
-          }
-        }));
+            cfg.CreateMap<WorkshopResourceDto, WorkshopResourceModel>();
+            cfg.CreateMap<WorkshopResourceDto, DrsResourceModel>();
+            cfg.CreateMap<WorkshopResourceDto, ModResourceModel>();
+          });
 
         var dtos = connection.Query<WorkshopResourceDto>(@"
 SELECT r.Id,r.CreateDate,r.LastChangeDate,r.LastFileChangeDate,r.TotalSize,r.Rating,r.DownloadCount,r.AuthorId,r.AuthorName,r.Name,r.Description,r.GameVersion,r.Url,r.Type,r.Status,
-d.IsActivated,d.Priority,m.ExePath
+d.IsActivated,m.ExePath
 FROM Resource r
 LEFT JOIN Drs d ON r.Id=d.Id
-LEFT JOIN Mod m ON r.Id=m.Id");
+LEFT JOIN Mod m ON r.Id=m.Id
+ORDER BY d.Priority");
 
-        foreach (var workshopResourceModel in Mapper.Map<IEnumerable<WorkshopResourceDto>, IEnumerable<WorkshopResourceModel>>(dtos))
-          yield return workshopResourceModel;
+        foreach (var dto in dtos)
+        {
+          switch (dto.Type)
+          {
+            case WorkshopResourceType.Drs:
+              yield return Mapper.Map<WorkshopResourceDto, DrsResourceModel>(dto);
+              break;
+            case WorkshopResourceType.Mod:
+              yield return Mapper.Map<WorkshopResourceDto, ModResourceModel>(dto);
+              break;
+            case WorkshopResourceType.Language:
+              yield return new LanguageResourceModel();
+              break;
+            default:
+              yield return Mapper.Map<WorkshopResourceDto, WorkshopResourceModel>(dto);
+              break;
+          }
+        }
       }
     }
 
@@ -106,7 +117,7 @@ LEFT JOIN Mod m ON r.Id=m.Id");
 INSERT OR REPLACE INTO Resource(Id,CreateDate,LastChangeDate,LastFileChangeDate,TotalSize,Rating,DownloadCount,AuthorId,AuthorName,Name,Description,GameVersion,Url,Type,Status)
 VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status)",
             resources, transaction);
-          connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)",
+          connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
             resources.OfType<DrsResourceModel>(), transaction);
           transaction.Commit();
         }
@@ -243,10 +254,17 @@ Priority INTEGER NOT NULL DEFAULT -1);");
       }
     }
 
-    public static void UpdateDrsResource(DrsResourceModel drs)
+    public static void SaveDrses(IEnumerable<DrsResourceModel> drses)
     {
       using (var connection = GetConnection())
-        connection.Execute("UPDATE Drs SET IsActivated=@IsActivated,Priority=@Priority WHERE Id=@Id", drs);
+      {
+        using (var transaction = connection.BeginTransaction())
+        {
+          connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)",
+            drses, transaction);
+          transaction.Commit();
+        }
+      }
     }
   }
 }

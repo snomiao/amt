@@ -345,13 +345,7 @@
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">分辨率</TextBlock>
                 <StackPanel Orientation="Horizontal">
                   <TextBlock>当前分辨率：</TextBlock>
-                  <TextBlock>
-                    <TextBlock.Text>
-                      <MultiBinding StringFormat="{}{0}×{1}">
-                        <Binding Path="Config.ResolutionX"></Binding>
-                        <Binding Path="Config.ResolutionY"></Binding>
-                      </MultiBinding>
-                    </TextBlock.Text>
+                  <TextBlock Text="{Binding Source={x:Static model:ProgramModel.Config},Path=Resolution}">
                   </TextBlock>
                   <TextBlock>。请选择或输入自定义数值。</TextBlock>
                 </StackPanel>

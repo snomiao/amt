@@ -49,7 +49,8 @@ namespace YTY.amt
     {
       ProgramModel.Resources.CollectionChanged += Resources_CollectionChanged;
       ByTypeResourcesView = new CollectionViewSource {Source = WorkshopResources}.View;
-      DownloadingResourcesView = new CollectionViewSource() { Source = WorkshopResources }.View;
+      DownloadingResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
+      //DownloadingResourcesView = CollectionViewSource.GetDefaultView(WorkshopResources);
       DownloadingResourcesView.Filter = o =>
       {
         var status = (o as WorkshopResourceViewModel).Model.Status;

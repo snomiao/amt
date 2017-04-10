@@ -10,7 +10,6 @@ namespace YTY.amt.Model
   public class DrsResourceModel : WorkshopResourceModel
   {
     private bool isActivated;
-    private int priority;
 
     public bool IsActivated
     {
@@ -22,15 +21,7 @@ namespace YTY.amt.Model
       }
     }
 
-    public int Priority
-    {
-      get { return priority; }
-      set
-      {
-        priority = value;
-        OnPropertyChanged(nameof(Priority));
-      }
-    }
+    public int Priority => ProgramModel.ActiveDrses.IndexOf(this);
 
     public bool CanIncrementPriority => Priority > 0;
 
@@ -40,31 +31,24 @@ namespace YTY.amt.Model
     {
       IsActivated = true;
       ProgramModel.ActiveDrses.Add(this);
-      Priority = ProgramModel.ActiveDrses.Count - 1;
-      DatabaseClient.UpdateDrsResource(this);
     }
 
     public void Deactivate()
     {
       IsActivated = false;
       ProgramModel.ActiveDrses.Remove(this);
-      //foreach (var drs in ProgramModel.Resources.OfType<DrsResourceModel>().Where(d => d.Priority > Priority))
-      //{
-      //  drs.Priority--;
-      //  DatabaseClient.UpdateDrsResource(drs);
-      //}
-      Priority = -1;
-      DatabaseClient.UpdateDrsResource(this);
     }
 
     public void IncrementPriority()
     {
-      
+      var index = Priority;
+      ProgramModel.ActiveDrses.Move(index, index - 1);
     }
 
     public void DecrementPriority()
     {
-      
+      var index = Priority;
+      ProgramModel.ActiveDrses.Move(index, index + 1);
     }
 
     public override void Delete()

@@ -64,8 +64,7 @@ namespace YTY.amt.Model
       new Lazy<ObservableCollection<DrsResourceModel>>(() =>
         new ObservableCollection<DrsResourceModel>(Resources
           .OfType<DrsResourceModel>()
-          .Where(d => d.Status == WorkshopResourceStatus.Installed && d.IsActivated)
-          .OrderBy(d => d.Priority)));
+          .Where(d => d.Status == WorkshopResourceStatus.Installed && d.IsActivated)));
 
     public static ConfigModel Config => config.Value;
 
@@ -77,6 +76,16 @@ namespace YTY.amt.Model
 
     public static ObservableCollection<DrsResourceModel> ActiveDrses => activeDrses.Value;
 
+    static ProgramModel()
+    {
+      ActiveDrses.CollectionChanged += ActiveDrses_CollectionChanged;
+    }
+
+    private static void ActiveDrses_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+      DatabaseClient.SaveDrses(ActiveDrses);
+    }
+
     public static string MakeHawkempirePath(string relativePath)
     {
       return System.IO.Path.Combine(Config.HawkempirePath, relativePath);
@@ -84,7 +93,12 @@ namespace YTY.amt.Model
 
     public static async Task UpdateResources()
     {
-      Mapper.Initialize(cfg => cfg.CreateMap<WorkshopResourceDto, WorkshopResourceModel>());
+      Mapper.Initialize(cfg =>
+      {
+        cfg.CreateMap<WorkshopResourceDto, WorkshopResourceModel>();
+        cfg.CreateMap<WorkshopResourceDto, DrsResourceModel>();
+        cfg.CreateMap<WorkshopResourceDto, ModResourceModel>();
+      });
       var (timestamp, dtos) = await WebServiceClient.GetUpdatedServerResourcesAsync();
       var toSave = new List<WorkshopResourceModel>();
       foreach (var dto in dtos)
@@ -93,7 +107,18 @@ namespace YTY.amt.Model
         if (resource == null)
         // resource does not exist locally
         {
-          resource = Mapper.Map<WorkshopResourceDto, WorkshopResourceModel>(dto);
+          switch (dto.Type)
+          {
+            case WorkshopResourceType.Drs:
+              resource = Mapper.Map<WorkshopResourceDto, DrsResourceModel>(dto);
+              break;
+            case WorkshopResourceType.Mod:
+              resource = Mapper.Map<WorkshopResourceDto, ModResourceModel>(dto);
+              break;
+            default:
+              resource = Mapper.Map<WorkshopResourceDto, WorkshopResourceModel>(dto);
+              break;
+          }
           resource.Status = WorkshopResourceStatus.NotInstalled;
           Resources.Add(resource);
         }
