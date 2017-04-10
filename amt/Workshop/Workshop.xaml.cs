@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using YTY.amt.Model;
 
 namespace YTY.amt
 {
@@ -27,9 +28,9 @@ namespace YTY.amt
     {
       try
       {
-        await My.WorkshopWindowViewModel.Init();
+        await ProgramModel.UpdateResources();
       }
-      catch (InvalidOperationException ex)
+      catch (Exception ex)
       {
         MessageBox.Show(ex.ToString());
       }

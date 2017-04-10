@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace YTY.amt
+namespace YTY.amt.Model
 {
   public class DrsResourceModel : WorkshopResourceModel
   {
@@ -32,43 +32,45 @@ namespace YTY.amt
       }
     }
 
-    public DrsResourceModel(int id) : base(id, WorkshopResourceType.Drs)
-    {
+    public bool CanIncrementPriority => Priority > 0;
 
-    }
-
-    public async override Task InstallAsync()
-    {
-      DAL.SaveDrsResource(Id);
-      await base.InstallAsync();
-    }
+    public bool CanDecrementPriority => -1 < Priority && Priority < ProgramModel.ActiveDrses.Count - 1;
 
     public void Activate()
     {
-      if (isActivated) return;
       IsActivated = true;
-      Priority =  My.Drses.Count(d => d.IsActivated);
-      DAL.UpdateDrsResource(this);
+      ProgramModel.ActiveDrses.Add(this);
+      Priority = ProgramModel.ActiveDrses.Count - 1;
+      DatabaseClient.UpdateDrsResource(this);
     }
 
     public void Deactivate()
     {
-      if (!isActivated) return;
       IsActivated = false;
-      foreach(var drs in My.Drses.Where(d=>d.Priority>Priority))
-      {
-        drs.Priority--;
-        DAL.UpdateDrsResource(drs);
-      }
+      ProgramModel.ActiveDrses.Remove(this);
+      //foreach (var drs in ProgramModel.Resources.OfType<DrsResourceModel>().Where(d => d.Priority > Priority))
+      //{
+      //  drs.Priority--;
+      //  DatabaseClient.UpdateDrsResource(drs);
+      //}
       Priority = -1;
-      DAL.UpdateDrsResource(this);
+      DatabaseClient.UpdateDrsResource(this);
+    }
+
+    public void IncrementPriority()
+    {
+      
+    }
+
+    public void DecrementPriority()
+    {
+      
     }
 
     public override void Delete()
     {
-      base.Delete();
       Deactivate();
-      DAL.DeleteDrsResource(Id);
+      base.Delete();
     }
   }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
+using YTY.amt.Model;
 
 namespace YTY.amt
 {
@@ -19,7 +20,7 @@ namespace YTY.amt
 
     static WorkshopCommands()
     {
-      InstallResource= new InstallResourceCommand();
+      InstallResource = new InstallResourceCommand();
       PauseResource = new PauseResourceCommand();
       ResumeResource = new ResumeResourceCommand();
       DeactivateResource = new DeactivateResourceCommand();
@@ -40,8 +41,8 @@ namespace YTY.amt
     public async void Execute(object parameter)
     {
       var viewModel = parameter as WorkshopResourceViewModel;
-      My.WorkshopWindowViewModel.SelectedItem = viewModel;
-      My.WorkshopWindowViewModel.CurrentTab = 1;
+      ProgramViewModel.WorkshopWindow.SelectedItem = viewModel;
+      ProgramViewModel.WorkshopWindow.CurrentTab = 1;
       try
       {
         await viewModel.Model.GetResourceImagesAsync();
@@ -67,15 +68,15 @@ namespace YTY.amt
       var param = parameter as string;
       if (param == "All")
       {
-        My.WorkshopWindowViewModel.WorkshopResourcesView.Filter = null;
+        ProgramViewModel.WorkshopWindow.ByTypeResourcesView.Filter = null;
       }
       else
       {
         WorkshopResourceType filter;
         Enum.TryParse(param, out filter);
-        My.WorkshopWindowViewModel.WorkshopResourcesView.Filter = item => (item as WorkshopResourceViewModel).Model.Type == filter;
+        ProgramViewModel.WorkshopWindow.ByTypeResourcesView.Filter = item => (item as WorkshopResourceViewModel).Model.Type == filter;
       }
-      My.WorkshopWindowViewModel.CurrentTab = 0;
+      ProgramViewModel.WorkshopWindow.CurrentTab = 0;
     }
   }
 
@@ -92,8 +93,8 @@ namespace YTY.amt
     {
       var model = parameter as WorkshopResourceModel;
       var task = model.InstallAsync();
-      My.WorkshopWindowViewModel.DownloadingResourcesView.Refresh();
-      My.WorkshopWindowViewModel.CurrentTab = 2;
+      ProgramViewModel.WorkshopWindow.DownloadingResourcesView.Refresh();
+      ProgramViewModel.WorkshopWindow.CurrentTab = 2;
       await task;
     }
   }

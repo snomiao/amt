@@ -126,8 +126,6 @@
                     Value="Center"></Setter>
             <Setter Property="Margin"
                     Value="3,15,3,0"></Setter>
-            <Setter Property="BorderThickness"
-                    Value="0"></Setter>
             <Setter Property="Command"
                     Value="{StaticResource FilterResourceCommand}"></Setter>
             <Style.Triggers>
@@ -230,7 +228,7 @@
           </Grid>
           <ScrollViewer Grid.Row="1">
             <ItemsControl x:Name="itc"
-                          ItemsSource="{Binding WorkshopResourcesView}">
+                          ItemsSource="{Binding ByTypeResourcesView}">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                   <UniformGrid Columns="2"
@@ -249,8 +247,6 @@
                              BasedOn="{StaticResource ButtonNoneStyle}">
                         <Setter Property="Background"
                                 Value="#3f3f3f3f"></Setter>
-                        <Setter Property="BorderThickness"
-                                Value="0"></Setter>
                         <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch"></Setter>
                       </Style>
@@ -370,7 +366,7 @@
                          FontSize="16"
                          TextWrapping="Wrap"
                          LineHeight="24"
-                         Text="{Binding Model.Discription}"></TextBlock>
+                         Text="{Binding Model.Description}"></TextBlock>
             </Grid>
           </ScrollViewer>
         </Grid>

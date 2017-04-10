@@ -52,7 +52,6 @@
     <Compile Include="Converters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScxFile.cs" />
-    <Compile Include="SqliteOp.cs" />
     <Compile Include="ValidationRules.cs" />
   </ItemGroup>
   <ItemGroup>

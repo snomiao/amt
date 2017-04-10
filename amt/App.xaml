@@ -25,6 +25,8 @@
     <lib:NegateBooleanConverter x:Key="NegateBooleanConverter"></lib:NegateBooleanConverter>
     <local:ScenarioTranslatorViewModel x:Key="ScenarioTranslatorViewModel"></local:ScenarioTranslatorViewModel>
     <lib:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></lib:BoolToVisibilityConverter>
+    <local:IncrementDrsPriorityCommand x:Key="IncrementDrsPriorityCommand"></local:IncrementDrsPriorityCommand>
+    <local:DecrementDrsPriorityCommand x:Key="DecrementDrsPriorityCommand"></local:DecrementDrsPriorityCommand>
 
     <ToolTip x:Key="ttpPortForwarding">
       <TextBlock TextWrapping="Wrap"
@@ -102,6 +104,11 @@
               <ContentPresenter></ContentPresenter>
             </Border>
             <ControlTemplate.Triggers>
+              <Trigger Property="IsEnabled"
+                       Value="False">
+                <Setter Property="Background"
+                        Value="Gray"></Setter>
+              </Trigger>
               <Trigger Property="IsMouseOver"
                        Value="True">
                 <Trigger.EnterActions>
@@ -394,7 +401,7 @@
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsChecked"
-                       Value="True">
+                       Value="False">
                 <Setter TargetName="txb"
                         Property="Text"
                         Value="关闭"></Setter>

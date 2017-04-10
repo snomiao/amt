@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YTY.amt
+namespace YTY.amt.Model
 {
-  public class GameLanguageModel
+  public class LanguageResourceModel:WorkshopResourceModel
   {
-    public int ResourceId { get; set; }
 
-    public string Name { get; set; }
   }
 }

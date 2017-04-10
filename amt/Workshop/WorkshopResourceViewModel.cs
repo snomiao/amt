@@ -7,16 +7,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Diagnostics;
+using YTY.amt.Model;
 
 namespace YTY.amt
 {
   public class WorkshopResourceViewModel : INotifyPropertyChanged
   {
-    private ICollectionView downloadingFilesView;
+    public WorkshopResourceModel Model { get; protected set; }
 
-    public WorkshopResourceModel Model { get; }
-
-    public string ButtonText
+    public virtual string ButtonText
     {
       get
       {
@@ -29,24 +29,15 @@ namespace YTY.amt
           case WorkshopResourceStatus.Paused:
             return "继续安装";
           case WorkshopResourceStatus.Installed:
-            switch (Model.Type)
-            {
-              case WorkshopResourceType.Drs:
-                if ((Model as DrsResourceModel).IsActivated)
-                  return "停用该模组";
-                else
-                  return "启用该模组";
-              default:
-                return "删除资源";
-            }
+            return "删除资源";
           case WorkshopResourceStatus.NeedUpdate:
             return "更新资源";
         }
-        return string.Empty;
+        return "未知状态";
       }
     }
 
-    public SolidColorBrush ButtonBackground
+    public virtual SolidColorBrush ButtonBackground
     {
       get
       {
@@ -59,16 +50,7 @@ namespace YTY.amt
           case WorkshopResourceStatus.Paused:
             return Brushes.Green;
           case WorkshopResourceStatus.Installed:
-            switch (Model.Type)
-            {
-              case WorkshopResourceType.Drs:
-                if ((Model as DrsResourceModel).IsActivated)
-                  return Brushes.Gray;
-                else
-                  return Brushes.Blue;
-              default:
-                return Brushes.Gray;
-            }
+            return Brushes.Gray;
           case WorkshopResourceStatus.NeedUpdate:
             return Brushes.HotPink;
         }
@@ -76,7 +58,7 @@ namespace YTY.amt
       }
     }
 
-    public ICommand Command
+    public virtual ICommand Command
     {
       get
       {
@@ -89,16 +71,7 @@ namespace YTY.amt
           case WorkshopResourceStatus.Paused:
             return WorkshopCommands.ResumeResource;
           case WorkshopResourceStatus.Installed:
-            switch (Model.Type)
-            {
-              case WorkshopResourceType.Drs:
-                if ((Model as DrsResourceModel).IsActivated)
-                  return WorkshopCommands.DeactivateResource;
-                else
-                  return WorkshopCommands.ActivateResource;
-              default:
-                return WorkshopCommands.DeleteResource;
-            }
+            return WorkshopCommands.DeleteResource;
         }
         return null;
       }
@@ -109,11 +82,11 @@ namespace YTY.amt
       get
       {
         var ret = new List<string>(5);
-        if (Model.GameVersion.HasFlag(amt.GameVersion.Aok)) ret.Add("AoK");
-        if (Model.GameVersion.HasFlag(amt.GameVersion.AocA)) ret.Add("1.0A");
-        if (Model.GameVersion.HasFlag(amt.GameVersion.AocC)) ret.Add("1.0C");
-        if (Model.GameVersion.HasFlag(amt.GameVersion.Aoc15)) ret.Add("1.5");
-        if (Model.GameVersion.HasFlag(amt.GameVersion.Aofe)) ret.Add("AoFE");
+        if (Model.GameVersion.HasFlag(amt.Model.GameVersion.Aok)) ret.Add("AoK");
+        if (Model.GameVersion.HasFlag(amt.Model.GameVersion.AocA)) ret.Add("1.0A");
+        if (Model.GameVersion.HasFlag(amt.Model.GameVersion.AocC)) ret.Add("1.0C");
+        if (Model.GameVersion.HasFlag(amt.Model.GameVersion.Aoc15)) ret.Add("1.5");
+        if (Model.GameVersion.HasFlag(amt.Model.GameVersion.Aofe)) ret.Add("AoFE");
         return string.Join("/", ret);
       }
     }
@@ -154,27 +127,31 @@ namespace YTY.amt
       }
     }
 
-    public ICollectionView DownloadingFilesView
-    {
-      get
-      {
-        if (downloadingFilesView == null)
-        {
-          downloadingFilesView = CollectionViewSource.GetDefaultView(Model.Files);
-          downloadingFilesView.Filter = o =>
-            {
-              var model = o as ResourceFileModel;
-              return model.Status == ResourceFileStatus.NotDownloaded || model.Status == ResourceFileStatus.Downloading;
-            };
-        }
-        return downloadingFilesView;
-      }
-    }
+    public ICollectionView DownloadingFilesView { get; }
 
-    public WorkshopResourceViewModel(WorkshopResourceModel model)
+    protected WorkshopResourceViewModel(WorkshopResourceModel model)
     {
       Model = model;
       model.PropertyChanged += Model_PropertyChanged;
+      DownloadingFilesView = CollectionViewSource.GetDefaultView(model.Files);
+      DownloadingFilesView.Filter = o =>
+        {
+          var m = o as ResourceFileModel;
+          return m.Status == ResourceFileStatus.BeforeDownload || m.Status == ResourceFileStatus.Downloading;
+        };
+    }
+
+    public static WorkshopResourceViewModel FromModel(WorkshopResourceModel model)
+    {
+      switch (model)
+      {
+        case ModResourceModel m:
+          return ModViewModel.FromModel(m);
+        case DrsResourceModel d:
+          return DrsViewModel.FromModel(d);
+        default:
+          return new WorkshopResourceViewModel(model);
+      }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -189,6 +166,11 @@ namespace YTY.amt
       switch (e.PropertyName)
       {
         case nameof(WorkshopResourceModel.Status):
+          OnPropertyChanged(nameof(ButtonText));
+          OnPropertyChanged(nameof(ButtonBackground));
+          OnPropertyChanged(nameof(Command));
+          //DownloadingFilesView.Refresh();
+          break;
         case nameof(DrsResourceModel.IsActivated):
           OnPropertyChanged(nameof(ButtonText));
           OnPropertyChanged(nameof(ButtonBackground));
@@ -196,9 +178,6 @@ namespace YTY.amt
           break;
         case nameof(GameVersion):
           OnPropertyChanged(nameof(GameVersion));
-          break;
-        case nameof(WorkshopResourceModel.Type):
-          OnPropertyChanged(nameof(Image));
           break;
         case nameof(WorkshopResourceModel.FinishedSize):
           OnPropertyChanged(nameof(ProgressText));

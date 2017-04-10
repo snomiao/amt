@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Windows;
-using System.Security.Cryptography;
-using System.IO;
 
 namespace YTY.amt
 {
   public static class Util
   {
     private const string CSIDDIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!-._~";
-    private static int NUMCSIDDIGITS;
-    private static DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
-    private static List<ResolutionModel> screenResolutions;
-    private static MD5 MD5 = MD5.Create();
-    private static SHA1 SHA1 = SHA1.Create();
+    private static readonly DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
+    private static readonly int NUMCSIDDIGITS;
+    private static readonly MD5 md5 = MD5.Create();
+    private static readonly SHA1 sha1 = SHA1.Create();
 
     static Util()
     {
@@ -30,25 +27,9 @@ namespace YTY.amt
       return UNIXTIMESTAMPBASE + TimeSpan.FromSeconds(unixTimestamp);
     }
 
-    public static List<ResolutionModel> GetScreenResolutions()
+    public static uint Csid2Int(string csid)
     {
-      if (screenResolutions == null)
-      {
-        var temp = new List<ResolutionModel>();
-        var dm = new DEVMODE();
-        var i = 0;
-        while (EnumDisplaySettings(null, i++, ref dm))
-        {
-          temp.Add(new ResolutionModel { X = dm.dmPelsWidth, Y = dm.dmPelsHeight });
-        }
-        screenResolutions = temp.Distinct().OrderBy(s => s.X).ThenBy(s => s.Y).ToList();
-      }
-      return screenResolutions;
-    }
-
-    public static uint CSID2Int(string csid)
-    {
-      int weight = 1;
+      var weight = 1;
       return (uint)csid.Aggregate(0, (sum, digit) =>
       {
         sum += CSIDDIGITS.IndexOf(digit) * weight;
@@ -57,7 +38,7 @@ namespace YTY.amt
       });
     }
 
-    public static string Int2CSID(int value)
+    public static string Int2Csid(int value)
     {
       var ret = string.Empty;
       do
@@ -68,19 +49,27 @@ namespace YTY.amt
       return ret;
     }
 
-    public static string EscapeSqliteString(string toEscape)
+    public static string GetFileMd5(string fileName)
     {
-      return toEscape.Replace("'", "''");
-    }
-
-    public static string GetFileMD5(string fileName)
-    {
-      return BitConverter.ToString(MD5.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
+      return BitConverter.ToString(md5.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
     }
 
     public static string GetFileSha1(string fileName)
     {
-      return BitConverter.ToString(SHA1.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
+      return BitConverter.ToString(sha1.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
+    }
+
+    public static IEnumerable<Size> GetScreenResolutions()
+    {
+      return Inner().Distinct().OrderByDescending(s => s.Width).ThenByDescending(s => s.Height);
+
+      IEnumerable<Size> Inner()
+      {
+        var dm = new DEVMODE();
+        var i = 0;
+        while (EnumDisplaySettings(null, i++, ref dm))
+          yield return new Size(dm.dmPelsWidth, dm.dmPelsHeight);
+      }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -124,6 +113,5 @@ namespace YTY.amt
 
     [DllImport("user32")]
     private static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
-
   }
 }

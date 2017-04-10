@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Threading;
 
-namespace YTY.amt
+namespace YTY.amt.Model
 {
   public class FileChunkModel : INotifyPropertyChanged
   {
@@ -25,13 +26,12 @@ namespace YTY.amt
       }
     }
 
-    public byte[] Data { get; private set; }
-
-    public async Task<FileChunkModel> DownloadAsync()
+    public async Task<(int Id,byte[] Data)> DownloadAsync(CancellationToken cancellationToken)
     {
-      Data = await DAL.GetChunk(FileId, Id);
+      var data = await WebServiceClient.GetChunk(FileId, Id);
+      cancellationToken.ThrowIfCancellationRequested();
       Finished = true;
-      return this;
+      return (Id,data);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

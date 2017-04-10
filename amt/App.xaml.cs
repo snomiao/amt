@@ -33,39 +33,11 @@ namespace YTY.amt
       }
     }
 
-    public static WorkshopWindowViewModel WorkshopWindowViewModel
-    {
-      get
-      {
-        return App.FindResource(nameof(WorkshopWindowViewModel)) as WorkshopWindowViewModel;
-      }
-    }
-
-    public static MainWindowViewModel MainWindowViewModel
-    {
-      get
-      {
-        return App.FindResource(nameof(MainWindowViewModel)) as MainWindowViewModel;
-      }
-    }
-
     public static CreateProcessCommand CreateProcessCommand => App.FindResource(nameof(CreateProcessCommand)) as CreateProcessCommand;
 
     public static ByteCountToTextConverter ByteCountToTextConverter => App.FindResource(nameof(ByteCountToTextConverter)) as ByteCountToTextConverter;
 
     public static ScenarioTranslatorViewModel ScenarioTranslatorViewModel => App.FindResource(nameof(ScenarioTranslatorViewModel)) as ScenarioTranslatorViewModel;
 
-    public static string MakeHawkempirePath(string relativePath)
-    {
-      return System.IO.Path.Combine(ConfigModel.CurrentConfig.HawkempirePath, relativePath);
-    }
-
-    public static List<DrsResourceModel> Drses
-    {
-      get
-      {
-        return WorkshopWindowViewModel.WorkshopResources.Select(r => r.Model).OfType<DrsResourceModel>().ToList();
-      }
-    }
   }
 }

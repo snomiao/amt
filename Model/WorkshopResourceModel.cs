@@ -9,10 +9,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 
-namespace YTY.amt
+namespace YTY.amt.Model
 {
   public class WorkshopResourceModel : INotifyPropertyChanged
   {
+    #region PRIVATE FIELDS
     private CancellationTokenSource cts;
     private int authorId;
     private string authorName;
@@ -23,19 +24,21 @@ namespace YTY.amt
     private int createDate;
     private int lastChangeDate;
     private int lastFileChangeDate;
-    private string discription;
+    private string _description;
     private GameVersion gameVersion;
     private int downloadCount;
     private string sourceUrl;
     private WorkshopResourceStatus status;
-    private ObservableCollection<ResourceFileModel> files;
     private long finishedSize;
+    #endregion
 
-    public int Id { get; }
+    #region PUBLIC PROPERTIES 
+    public int Id { get; internal set; }
 
     public WorkshopResourceType Type
     {
       get { return type; }
+      internal set { type = value; }
     }
 
     public int CreateDate
@@ -129,13 +132,13 @@ namespace YTY.amt
       }
     }
 
-    public string Discription
+    public string Description
     {
-      get { return discription; }
+      get { return _description; }
       set
       {
-        discription = value;
-        OnPropertyChanged(nameof(Discription));
+        _description = value;
+        OnPropertyChanged(nameof(Description));
       }
     }
 
@@ -169,33 +172,7 @@ namespace YTY.amt
       }
     }
 
-    public ObservableCollection<ResourceFileModel> Files
-    {
-      get
-      {
-        if (files == null)
-        {
-          files = new ObservableCollection<ResourceFileModel>();
-          files.CollectionChanged += Files_CollectionChanged;
-        }
-        return files;
-      }
-      set
-      {
-        files = value;
-        OnPropertyChanged(nameof(Files));
-      }
-    }
-
-    public void Files_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.NewItems != null)
-        foreach (ResourceFileModel f in e.NewItems)
-          f.PropertyChanged += File_PropertyChanged;
-      if (e.OldItems != null)
-        foreach (ResourceFileModel f in e.OldItems)
-          f.PropertyChanged -= File_PropertyChanged;
-    }
+    public ObservableCollection<ResourceFileModel> Files { get; } = new ObservableCollection<ResourceFileModel>();
 
     public WorkshopResourceStatus Status
     {
@@ -206,26 +183,27 @@ namespace YTY.amt
         OnPropertyChanged(nameof(Status));
       }
     }
+    #endregion
+
+    #region PUBLIC METHODS
+
+    public WorkshopResourceModel()
+    {
+      Files.CollectionChanged += Files_CollectionChanged;
+    }
 
     public void UpdateStatus(WorkshopResourceStatus value)
     {
       Status = value;
-      DAL.UpdateResourceStatus(Id, value);
-    }
-
-    public WorkshopResourceModel(int id, WorkshopResourceType type)
-    {
-      Id = id;
-      this.type = type;
-      status = WorkshopResourceStatus.NotInstalled;
+      DatabaseClient.UpdateResourceStatus(Id, value);
     }
 
     public void LocalLoadFiles()
     {
       FinishedSize = 0;
-      foreach (var f in DAL.GetLocalResourceFiles(Id))
+      foreach (var f in DatabaseClient.GetResourceFiles(Id))
       {
-        if (f.Status == ResourceFileStatus.NotDownloaded)
+        if (f.Status == ResourceFileStatus.Finished)
           FinishedSize += f.Size;
         if (f.Status == ResourceFileStatus.Downloading)
         {
@@ -236,25 +214,20 @@ namespace YTY.amt
       }
     }
 
-    public void File_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName == nameof(FinishedSize))
-      {
-        OnPropertyChanged(nameof(FinishedSize));
-      }
-    }
 
     public virtual async Task InstallAsync()
     {
       ThrowIfInvalidStatus(WorkshopResourceStatus.NotInstalled);
-      Tuple<int, List<ResourceFileModel>> serviceResult = null;
-      serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id);
-      List<ResourceFileModel> updatedFiles = null;
-      updatedFiles = serviceResult.Item2
-        .Where(f => f.Status == ResourceFileStatus.NotDownloaded).ToList();
-      updatedFiles.ForEach(f => Files.Add(f));
-      DAL.SaveResourceFileModels(updatedFiles);
       UpdateStatus(WorkshopResourceStatus.Installing);
+      var (_, dtos) = await WebServiceClient.GetResourceUpdatedFilesAsync(Id);
+      foreach (var dto in dtos)
+      {
+        var file = ResourceFileModel.FromDto(dto);
+        file.ResourceId = Id;
+        file.Status = ResourceFileStatus.BeforeDownload;
+        Files.Add(file);
+      }
+      DatabaseClient.SaveResourceFiles(Files);
       cts = new CancellationTokenSource();
       await DownloadAsync(cts.Token);
     }
@@ -262,13 +235,13 @@ namespace YTY.amt
     public void Pause()
     {
       ThrowIfInvalidStatus(WorkshopResourceStatus.Installing);
-      if (cts != null)
-        cts.Cancel();
+      cts?.Cancel();
     }
 
     public async Task ResumeAsync()
     {
       ThrowIfInvalidStatus(WorkshopResourceStatus.Paused);
+      UpdateStatus(WorkshopResourceStatus.Installing);
       cts = new CancellationTokenSource();
       await DownloadAsync(cts.Token);
     }
@@ -276,46 +249,79 @@ namespace YTY.amt
     public async Task UpdateAsync()
     {
       ThrowIfInvalidStatus(WorkshopResourceStatus.NeedUpdate);
-      var serviceResult = await DAL.GetResourceUpdatedFilesAsync(Id, LastFileChangeDate);
-      var updatedFiles = serviceResult.Item2;
-      foreach (var updatedFile in updatedFiles)
+      var (lastFileChange, dtos) = await WebServiceClient.GetResourceUpdatedFilesAsync(Id, LastFileChangeDate);
+      var toSave = new List<ResourceFileModel>(dtos.Count);
+      foreach (var dto in dtos)
       {
-        var localFile = Files.FirstOrDefault(l => l.Id == updatedFile.Id);
-        if (localFile == null)
+        var file = Files.FirstOrDefault(l => l.Id == dto.Id);
+        if (file == null)
         // new resource file
         {
-          Files.Add(updatedFile);
+          file = ResourceFileModel.FromDto(dto);
+          file.ResourceId = Id;
+          file.Status = ResourceFileStatus.BeforeDownload;
+          Files.Add(file);
         }
         else
         // resource file exists locally
         {
-          localFile.Sha1 = updatedFile.Sha1;
-          localFile.Size = updatedFile.Size;
-          localFile.UpdateDate = updatedFile.UpdateDate;
-          localFile.Status = updatedFile.Status;
-          if (updatedFile.Status == ResourceFileStatus.Deleted)
+          file.Sha1 = dto.Sha1;
+          file.Size = dto.Size;
+          file.UpdateDate = dto.UpdateDate;
+          if ((FileServerStatus)dto.Status == FileServerStatus.Alive)
           {
-
+            file.Status = ResourceFileStatus.NeedUpdate;
+          }
+          else // Deleted
+          {
+            file.Status = ResourceFileStatus.Deleted;
           }
         }
+        toSave.Add(file);
       }
-      DAL.UpdateResourceLastFileChange(Id, serviceResult.Item1);
-      DAL.SaveResourceFileModels(updatedFiles);
+      DatabaseClient.UpdateResourceLastFileChange(Id, lastFileChange);
+      DatabaseClient.SaveResourceFiles(toSave);
       cts = new CancellationTokenSource();
       await DownloadAsync(cts.Token);
     }
 
     public virtual void Delete()
     {
+      var directories = Files.Select(f => Path.GetDirectoryName(f.FullPathName)).Distinct().OrderBy(d => d.Count(s => s.Equals('\\')));
       foreach (var file in Files)
       {
         File.Delete(file.FullPathName);
-        if (!Directory.EnumerateFiles(Path.GetDirectoryName(file.FullPathName)).Any())
-          Directory.Delete(Path.GetDirectoryName(file.FullPathName));
       }
-      DAL.DeleteResourceFiles(Id);
+      foreach (var directory in directories)
+      {
+        if (!Directory.EnumerateFiles(directory).Any())
+          Directory.Delete(directory);
+      }
+      DatabaseClient.DeleteResourceFiles(Id);
       UpdateStatus(WorkshopResourceStatus.NotInstalled);
     }
+    #endregion
+
+    #region PRIVATE EVENT HANDLERS
+    private void Files_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.NewItems != null)
+        foreach (ResourceFileModel f in e.NewItems)
+          f.PropertyChanged += File_PropertyChanged;
+      if (e.OldItems != null)
+        foreach (ResourceFileModel f in e.OldItems)
+          f.PropertyChanged -= File_PropertyChanged;
+    }
+
+    private void File_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(FinishedSize))
+      {
+        OnPropertyChanged(nameof(FinishedSize));
+      }
+    }
+    #endregion
+
 
     private void ThrowIfInvalidStatus(WorkshopResourceStatus expectedStatuses)
     {
@@ -327,7 +333,7 @@ namespace YTY.amt
     {
       try
       {
-        foreach (var f in Files.Where(f => f.Status == ResourceFileStatus.NotDownloaded || f.Status == ResourceFileStatus.Paused))
+        foreach (var f in Files)
         {
           await f.DownloadAsync(cancellationToken, new Progress<int>(e => FinishedSize += e));
         }
@@ -336,6 +342,10 @@ namespace YTY.amt
       catch (OperationCanceledException)
       {
         UpdateStatus(WorkshopResourceStatus.Paused);
+      }
+      catch (InvalidOperationException)
+      {
+        UpdateStatus(WorkshopResourceStatus.Failed);
       }
       finally
       {
@@ -361,7 +371,8 @@ namespace YTY.amt
     Mod,
     Ai,
     Taunt,
-    Undefined
+    Undefined,
+    Language,
   }
 
   [Flags]
@@ -377,13 +388,20 @@ namespace YTY.amt
 
   public enum WorkshopResourceStatus
   {
-    Editing = 1,
-    Published,
-    Deleted,
-    NotInstalled = 101,
+    NotInstalled,
     Installing,
     Paused,
     Installed,
     NeedUpdate,
+    DeletePending,
+    Deleted,
+    Failed,
+  }
+
+  internal enum ResourceServerStatus
+  {
+    Editing = 1,
+    Published,
+    Deleted,
   }
 }
