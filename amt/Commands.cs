@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.ComponentModel;
+using YTY.amt.Model;
 
 namespace YTY.amt
 {
@@ -94,7 +95,8 @@ namespace YTY.amt
 
     public void Execute(object parameter)
     {
-      return;
+      Enum.TryParse<ModOpenFolder>((string)parameter, out var folder);
+      ProgramModel.Config.CurrentGame.OpenFolder(folder);
     }
   }
 }

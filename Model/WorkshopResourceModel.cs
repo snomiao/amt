@@ -349,6 +349,7 @@ namespace YTY.amt.Model
       catch (InvalidOperationException)
       {
         UpdateStatus(WorkshopResourceStatus.Failed);
+        throw;
       }
       finally
       {

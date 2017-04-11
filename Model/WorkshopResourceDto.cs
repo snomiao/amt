@@ -2,7 +2,7 @@
 {
   internal class WorkshopResourceDto
   {
-    public int Id { get;  set; }
+    public int Id { get; set; }
 
     public WorkshopResourceType Type { get; set; }
 
@@ -35,5 +35,9 @@
     public bool IsActivated { get; set; }
 
     public string ExePath { get; set; }
+
+    public string XmlPath { get; set; }
+
+    public string FolderPath { get; set; }
   }
 }

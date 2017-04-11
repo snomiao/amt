@@ -40,24 +40,28 @@ namespace YTY.amt.Model
         Id = -1,
         Name = "帝国时代Ⅱ 1.5",
         ExePath = @"exe\age2_x1.5.exe",
+        FolderPath=@"Games\The Conquerors 1.4",
       },
       new ModResourceModel
       {
-        Id = -2,
+        Id = ModResourceModel.AGE2_1C,
         Name = "帝国时代Ⅱ 1.0C",
         ExePath = @"exe\age2_x1.0c.exe",
+        FolderPath="",
       },
       new ModResourceModel
       {
         Id = -3,
         Name = "被遗忘的帝国",
         ExePath = @"exe\age2_x2.exe",
+        FolderPath=@"Games\Forgotten Empires",
       },
       new ModResourceModel
       {
         Id = -4,
         Name = "WAIFor 触发扩展版",
         ExePath = @"exe\age2_wtep.exe",
+        FolderPath=@"Games\The Conquerors 1.4",
       },
     };
 

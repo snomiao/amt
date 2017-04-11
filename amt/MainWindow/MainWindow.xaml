@@ -255,14 +255,14 @@
                               Value="{StaticResource OpenFolderCommand}"></Setter>
                     </Style>
                   </StackPanel.Resources>
-                  <Button>战役</Button>
-                  <Button>场景</Button>
-                  <Button>AI</Button>
-                  <Button>存档/录像</Button>
-                  <Button>场景音效</Button>
-                  <Button>数据</Button>
-                  <Button>随机地图</Button>
-                  <Button>截屏</Button>
+                  <Button CommandParameter="Campaign">战役</Button>
+                  <Button CommandParameter="Scenario">场景</Button>
+                  <Button CommandParameter="Ai">AI</Button>
+                  <Button CommandParameter="SaveGame">存档/录像</Button>
+                  <Button CommandParameter="ScenarioSound">场景音效</Button>
+                  <Button CommandParameter="Data">数据</Button>
+                  <Button CommandParameter="Rms">随机地图</Button>
+                  <Button CommandParameter="Screenshot">截屏</Button>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">1000人口上限功能</TextBlock>
                 <StackPanel Orientation="Horizontal">

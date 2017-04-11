@@ -92,10 +92,17 @@ namespace YTY.amt
     public async void Execute(object parameter)
     {
       var model = parameter as WorkshopResourceModel;
-      var task = model.InstallAsync();
-      ProgramViewModel.WorkshopWindow.DownloadingResourcesView.Refresh();
-      ProgramViewModel.WorkshopWindow.CurrentTab = 2;
-      await task;
+      try
+      {
+        var task = model.InstallAsync();
+        ProgramViewModel.WorkshopWindow.DownloadingResourcesView.Refresh();
+        ProgramViewModel.WorkshopWindow.CurrentTab = 2;
+        await task;
+      }
+      catch (InvalidOperationException ex)
+      {
+        MessageBox.Show(ex.Message);
+      }
     }
   }
 

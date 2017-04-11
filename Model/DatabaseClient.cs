@@ -80,7 +80,8 @@ namespace YTY.amt.Model
 
         var dtos = connection.Query<WorkshopResourceDto>(@"
 SELECT r.Id,r.CreateDate,r.LastChangeDate,r.LastFileChangeDate,r.TotalSize,r.Rating,r.DownloadCount,r.AuthorId,r.AuthorName,r.Name,r.Description,r.GameVersion,r.Url,r.Type,r.Status,
-d.IsActivated,m.ExePath
+d.IsActivated,
+m.ExePath,m.XmlPath,m.FolderPath
 FROM Resource r
 LEFT JOIN Drs d ON r.Id=d.Id
 LEFT JOIN Mod m ON r.Id=m.Id
@@ -256,7 +257,9 @@ PRIMARY KEY(FileId,Id));
 CREATE TABLE IF NOT EXISTS Mod(
 Id INTEGER PRIMARY KEY,
 `Index` INTEGER NOT NULL DEFAULT -1,
-ExePath TEXT NOT NULL DEFAULT '');
+ExePath TEXT NOT NULL DEFAULT '',
+XmlPath TEXT NOT NULL DEFAULT '',
+FolderPath TEXT NOT NULL DEFAULT '');
 CREATE TABLE IF NOT EXISTS Drs(
 Id INTEGER PRIMARY KEY,
 IsActivated INTEGER NOT NULL DEFAULT 0,
@@ -283,7 +286,7 @@ Priority INTEGER NOT NULL DEFAULT -1);");
       {
         using (var transaction = connection.BeginTransaction())
         {
-          connection.Execute("INSERT OR REPLACE INTO Mod(Id,`Index`,ExePath) VALUES(@Id,@Index,@ExePath)",
+          connection.Execute("INSERT OR REPLACE INTO Mod(Id,`Index`,ExePath,XmlPath,FolderPath) VALUES(@Id,@Index,@ExePath,@XmlPath,@FolderPath)",
             mods, transaction);
           transaction.Commit();
         }
