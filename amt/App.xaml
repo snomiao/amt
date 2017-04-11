@@ -27,6 +27,8 @@
     <lib:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></lib:BoolToVisibilityConverter>
     <local:IncrementDrsPriorityCommand x:Key="IncrementDrsPriorityCommand"></local:IncrementDrsPriorityCommand>
     <local:DecrementDrsPriorityCommand x:Key="DecrementDrsPriorityCommand"></local:DecrementDrsPriorityCommand>
+    <local:MoveUpModCommand x:Key="MoveUpModCommand"></local:MoveUpModCommand>
+    <local:MoveDownModCommand x:Key="MoveDownModCommand"></local:MoveDownModCommand>
 
     <ToolTip x:Key="ttpPortForwarding">
       <TextBlock TextWrapping="Wrap"

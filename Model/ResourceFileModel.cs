@@ -58,7 +58,7 @@ namespace YTY.amt.Model
       }
     }
 
-    public void LocalLoadChunks()
+    internal void LocalLoadChunks()
     {
       foreach (var chunk in DatabaseClient.GetChunks(Id))
         Chunks.Add(chunk);
@@ -117,7 +117,7 @@ namespace YTY.amt.Model
         {
           if (cancellationToken.IsCancellationRequested)
           {
-            Status = ResourceFileStatus.Paused;
+            UpdateStatus (ResourceFileStatus.Paused);
             cancellationToken.ThrowIfCancellationRequested();
           }
           var finishedChunk = await finished;

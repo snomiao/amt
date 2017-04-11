@@ -198,7 +198,7 @@ namespace YTY.amt.Model
       DatabaseClient.UpdateResourceStatus(Id, value);
     }
 
-    public void LocalLoadFiles()
+    internal void LocalLoadFiles()
     {
       FinishedSize = 0;
       foreach (var f in DatabaseClient.GetResourceFiles(Id))
@@ -206,9 +206,11 @@ namespace YTY.amt.Model
         if (f.Status == ResourceFileStatus.Finished)
           FinishedSize += f.Size;
         if (f.Status == ResourceFileStatus.Downloading)
-        {
-          FinishedSize += f.FinishedSize;
           f.UpdateStatus(ResourceFileStatus.Paused);
+        if (f.Status == ResourceFileStatus.Paused)
+        {
+          f.LocalLoadChunks();
+          FinishedSize += f.FinishedSize;
         }
         Files.Add(f);
       }
@@ -356,7 +358,7 @@ namespace YTY.amt.Model
 
     protected virtual void AfterDownload()
     {
-      
+
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

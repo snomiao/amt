@@ -63,4 +63,46 @@ namespace YTY.amt
     }
 
   }
+
+  public class MoveUpModCommand : ICommand
+  {
+    public bool CanExecute(object parameter)
+    {
+      var mod = parameter as ModResourceModel;
+      return mod?.CanMoveUp ?? false;
+    }
+
+    public void Execute(object parameter)
+    {
+      var mod = parameter as ModResourceModel;
+      mod.MoveUp();
+    }
+
+    public event EventHandler CanExecuteChanged
+    {
+      add { CommandManager.RequerySuggested += value; }
+      remove { CommandManager.RequerySuggested -= value; }
+    }
+  }
+
+  public class MoveDownModCommand : ICommand
+  {
+    public bool CanExecute(object parameter)
+    {
+      var mod = parameter as ModResourceModel;
+      return mod?.CanMoveDown ?? false;
+    }
+
+    public void Execute(object parameter)
+    {
+      var mod = parameter as ModResourceModel;
+      mod.MoveDown();
+    }
+
+    public event EventHandler CanExecuteChanged
+    {
+      add { CommandManager.RequerySuggested += value; }
+      remove { CommandManager.RequerySuggested -= value; }
+    }
+  }
 }

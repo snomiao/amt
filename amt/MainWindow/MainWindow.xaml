@@ -771,8 +771,10 @@
                              ItemsSource="{Binding Source={x:Static model:ProgramModel.Mods}}"
                              DisplayMemberPath="Name"></ListBox>
                     <StackPanel Grid.Column="1">
-                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}">↑上移</Button>
-                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}">↓下移</Button>
+                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}"
+                              Command="{StaticResource MoveUpModCommand}">↑上移</Button>
+                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}"
+                              Command="{StaticResource MoveDownModCommand}">↓下移</Button>
                     </StackPanel>
                   </Grid>
                 </StackPanel>

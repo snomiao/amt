@@ -14,6 +14,7 @@ namespace YTY.amt.Model
     {
       Pooling = true,
       DataSource = CONFIGFILE,
+      JournalMode= SQLiteJournalModeEnum.Persist,
     };
     private const string CONFIGFILE = "config.db";
 
@@ -174,7 +175,13 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     public static void UpdateFileChunkFinished(int fileId, int id, bool finished)
     {
       using (var connection = GetConnection())
-        connection.Execute("UPDATE Chunk SET Finished=@finished WHERE FileId=@fileId AND Id=@id", new { fileId, id, finished });
+      {
+        using (var transaction = connection.BeginTransaction())
+        {
+          connection.Execute("UPDATE Chunk SET Finished=@finished WHERE FileId=@fileId AND Id=@id",
+            new { fileId, id, finished }, transaction);
+        }
+      }
     }
 
     public static void DeleteFileChunks(int fileId)
