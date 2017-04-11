@@ -34,8 +34,6 @@
 
     public bool IsActivated { get; set; }
 
-    public int Priority { get; set; }
-
     public string ExePath { get; set; }
   }
 }

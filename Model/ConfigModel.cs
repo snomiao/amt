@@ -11,7 +11,7 @@ namespace YTY.amt.Model
 #endregion
 
     internal string hawkempirePath;
-    internal ModResourceModel currentMod;
+    internal ModResourceModel currentGame;
     internal bool populationLimit;
     internal bool multipleQueue;
     internal LanguageResourceModel currentLanguage;
@@ -36,15 +36,15 @@ namespace YTY.amt.Model
       }
     }
 
-    public ModResourceModel CurrentMod
+    public ModResourceModel CurrentGame
     {
-      get { return currentMod; }
+      get { return currentGame; }
       set
       {
-        currentMod = value;
+        currentGame = value;
         // TODO: copy game exe
-        DatabaseClient.SaveConfigEntry(nameof(CurrentMod), value.Id);
-        OnPropertyChanged(nameof(CurrentMod));
+        DatabaseClient.SaveConfigEntry(nameof(CurrentGame), value.Id);
+        OnPropertyChanged(nameof(CurrentGame));
       }
     }
 

@@ -17,7 +17,7 @@ namespace YTY.amt
     {
       var game = parameter as ModResourceModel;
       My.CreateProcessCommand.Execute(game.ExePath);
-      ProgramModel.Config.CurrentMod = game;
+      ProgramModel.Config.CurrentGame = game;
     }
   }
 

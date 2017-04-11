@@ -161,7 +161,7 @@
              Placement="Bottom"
              PlacementTarget="{Binding ElementName=btnStartGame}"
              Width="186">
-        <ItemsControl ItemsSource="{Binding Source={x:Static model:ProgramModel.Mods}}">
+        <ItemsControl ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Button BorderThickness="1"
@@ -212,7 +212,7 @@
                  FontSize="16"
                  Foreground="White"
                  Margin="0,0,0,10"
-                 Text="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentMod.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
+                 Text="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentGame.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
       <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="5"
@@ -235,8 +235,8 @@
                   <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
                 </StackPanel>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
-                         ItemsSource="{Binding Source={x:Static model:ProgramModel.Mods}}"
-                         SelectedItem="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentMod,Mode=TwoWay}">
+                         ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}"
+                         SelectedItem="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentGame,Mode=TwoWay}">
                   <ListBox.ItemTemplate>
                     <DataTemplate>
                       <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"
@@ -748,14 +748,36 @@
       <TabItem Header="控制面板">
         <TabControl Style="{StaticResource TabControlSubStyle}">
           <TabItem Header="设置">
-            <StackPanel>
-              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏路径</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <Button Click="btnSetHawkempirePath_Click">设置游戏路径</Button>
-                <TextBlock x:Name="txbHawkempirePath"
-                           Text="{Binding Source={x:Static model:ProgramModel.Config},Path=HawkempirePath,Mode=TwoWay}"></TextBlock>
+            <ScrollViewer>
+              <StackPanel>
+                <StackPanel>
+                  <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏路径</TextBlock>
+                  <StackPanel Orientation="Horizontal">
+                    <Button Click="btnSetHawkempirePath_Click">设置游戏路径</Button>
+                    <TextBlock x:Name="txbHawkempirePath"
+                               Text="{Binding Source={x:Static model:ProgramModel.Config},Path=HawkempirePath,Mode=TwoWay}"></TextBlock>
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel>
+                  <TextBlock Style="{StaticResource TextBlockHeaderStyle}">MOD 顺序设置</TextBlock>
+                  <TextBlock>在这里可以设置已经安装的 MOD 在“启动游戏”下拉菜单及“游戏设置-内容-版本切换”中的显示顺序。</TextBlock>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="auto"></ColumnDefinition>
+                      <ColumnDefinition Width="auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="lstMods"
+                             Grid.Column="0"
+                             ItemsSource="{Binding Source={x:Static model:ProgramModel.Mods}}"
+                             DisplayMemberPath="Name"></ListBox>
+                    <StackPanel Grid.Column="1">
+                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}">↑上移</Button>
+                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}">↓下移</Button>
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
               </StackPanel>
-            </StackPanel>
+            </ScrollViewer>
           </TabItem>
         </TabControl>
       </TabItem>

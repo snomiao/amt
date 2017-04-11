@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using AutoMapper;
 
 namespace YTY.amt.Model
@@ -30,24 +31,39 @@ namespace YTY.amt.Model
       new Lazy<ObservableCollection<ModResourceModel>>(
         () => new ObservableCollection<ModResourceModel>(Resources
           .OfType<ModResourceModel>()
-          .Where(m => m.Status == WorkshopResourceStatus.Installed)
-          .Concat(new[]{
-            new ModResourceModel{
-              Id = -1,
-          Name = "帝国时代Ⅱ 1.5",
-          ExePath = @"exe\age2_x1.5.exe",},
-         new ModResourceModel{
-          Id = -2,
-          Name = "帝国时代Ⅱ 1.0C",
-          ExePath = @"exe\age2_x1.0c.exe",},
-         new ModResourceModel{
-          Id = -3,
-          Name = "被遗忘的帝国",
-          ExePath = @"exe\age2_x2.exe",},
-         new ModResourceModel{
-          Id = -4,
-          Name = "WAIFor 触发扩展版",
-          ExePath = @"exe\age2_wtep.exe"},})));
+          .Where(m => m.Status == WorkshopResourceStatus.Installed)));
+
+    private static readonly ModResourceModel[] builtInGames =
+    {
+      new ModResourceModel
+      {
+        Id = -1,
+        Name = "帝国时代Ⅱ 1.5",
+        ExePath = @"exe\age2_x1.5.exe",
+      },
+      new ModResourceModel
+      {
+        Id = -2,
+        Name = "帝国时代Ⅱ 1.0C",
+        ExePath = @"exe\age2_x1.0c.exe",
+      },
+      new ModResourceModel
+      {
+        Id = -3,
+        Name = "被遗忘的帝国",
+        ExePath = @"exe\age2_x2.exe",
+      },
+      new ModResourceModel
+      {
+        Id = -4,
+        Name = "WAIFor 触发扩展版",
+        ExePath = @"exe\age2_wtep.exe",
+      },
+    };
+
+    private static readonly Lazy<ObservableCollection<ModResourceModel>> games =
+      new Lazy<ObservableCollection<ModResourceModel>>(() => new ObservableCollection<ModResourceModel>(
+        builtInGames.Concat(Mods)));
 
     private static readonly Lazy<ObservableCollection<LanguageResourceModel>> languages =
       new Lazy<ObservableCollection<LanguageResourceModel>>(
@@ -72,6 +88,8 @@ namespace YTY.amt.Model
 
     public static ObservableCollection<ModResourceModel> Mods => mods.Value;
 
+    public static ObservableCollection<ModResourceModel> Games => games.Value;
+
     public static ObservableCollection<LanguageResourceModel> Languages => languages.Value;
 
     public static ObservableCollection<DrsResourceModel> ActiveDrses => activeDrses.Value;
@@ -79,9 +97,27 @@ namespace YTY.amt.Model
     static ProgramModel()
     {
       ActiveDrses.CollectionChanged += ActiveDrses_CollectionChanged;
+      Mods.CollectionChanged += Mods_CollectionChanged;
     }
 
-    private static void ActiveDrses_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private static void Mods_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          Games.Insert(e.NewStartingIndex + builtInGames.Length, (ModResourceModel)e.NewItems[0]);
+          break;
+        case NotifyCollectionChangedAction.Move:
+          Games.Move(e.OldStartingIndex + builtInGames.Length, e.NewStartingIndex + builtInGames.Length);
+          break;
+        case NotifyCollectionChangedAction.Remove:
+          Games.RemoveAt(e.OldStartingIndex + builtInGames.Length);
+          break;
+      }
+      DatabaseClient.SaveMods(Mods);
+    }
+
+    private static void ActiveDrses_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       DatabaseClient.SaveDrses(ActiveDrses);
     }

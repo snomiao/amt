@@ -34,8 +34,8 @@ namespace YTY.amt.Model
       {
         var dic = connection.Query<KeyValuePair<string, string>>("SELECT Key,Value FROM Config").ToDictionary(q => q.Key, q => q.Value);
         ret.hawkempirePath = GetString(nameof(ConfigModel.HawkempirePath));
-        ret.currentMod =
-          ProgramModel.Mods.First(m => m.Id == GetInt(nameof(ConfigModel.CurrentMod), -1));
+        ret.currentGame =
+          ProgramModel.Games.First(m => m.Id == GetInt(nameof(ConfigModel.CurrentGame), -1));
         ret.allShown_Aoc15 = GetBool(nameof(ConfigModel.AllShown_Aoc15), false);
         ret.AllShown_AocA = GetBool(nameof(ConfigModel.AllShown_AocA), false);
         ret.allShown_AocC = GetBool(nameof(ConfigModel.AllShown_AocC), false);
@@ -83,7 +83,7 @@ d.IsActivated,m.ExePath
 FROM Resource r
 LEFT JOIN Drs d ON r.Id=d.Id
 LEFT JOIN Mod m ON r.Id=m.Id
-ORDER BY d.Priority");
+ORDER BY d.Priority,m.`Index`");
 
         foreach (var dto in dtos)
         {
@@ -119,6 +119,8 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
             resources, transaction);
           connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
             resources.OfType<DrsResourceModel>(), transaction);
+          connection.Execute("INSERT OR REPLACE INTO Mod(Id) VALUES(@Id)",
+            resources.OfType<ModResourceModel>(), transaction);
           transaction.Commit();
         }
       }
@@ -246,7 +248,8 @@ Finished INTEGER NOT NULL,
 PRIMARY KEY(FileId,Id));    
 CREATE TABLE IF NOT EXISTS Mod(
 Id INTEGER PRIMARY KEY,
-ExePath TEXT NOT NULL);
+`Index` INTEGER NOT NULL DEFAULT -1,
+ExePath TEXT NOT NULL DEFAULT '');
 CREATE TABLE IF NOT EXISTS Drs(
 Id INTEGER PRIMARY KEY,
 IsActivated INTEGER NOT NULL DEFAULT 0,
@@ -262,6 +265,19 @@ Priority INTEGER NOT NULL DEFAULT -1);");
         {
           connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)",
             drses, transaction);
+          transaction.Commit();
+        }
+      }
+    }
+
+    public static void SaveMods(IEnumerable<ModResourceModel> mods)
+    {
+      using (var connection = GetConnection())
+      {
+        using (var transaction = connection.BeginTransaction())
+        {
+          connection.Execute("INSERT OR REPLACE INTO Mod(Id,`Index`,ExePath) VALUES(@Id,@Index,@ExePath)",
+            mods, transaction);
           transaction.Commit();
         }
       }

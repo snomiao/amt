@@ -215,7 +215,7 @@ namespace YTY.amt.Model
     }
 
 
-    public virtual async Task InstallAsync()
+    public async Task InstallAsync()
     {
       ThrowIfInvalidStatus(WorkshopResourceStatus.NotInstalled);
       UpdateStatus(WorkshopResourceStatus.Installing);
@@ -338,6 +338,7 @@ namespace YTY.amt.Model
           await f.DownloadAsync(cancellationToken, new Progress<int>(e => FinishedSize += e));
         }
         UpdateStatus(WorkshopResourceStatus.Installed);
+        AfterDownload();
       }
       catch (OperationCanceledException)
       {
@@ -351,6 +352,11 @@ namespace YTY.amt.Model
       {
         cts = null;
       }
+    }
+
+    protected virtual void AfterDownload()
+    {
+      
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
