@@ -14,12 +14,20 @@ namespace YTY.amt.Model
     {
       Pooling = true,
       DataSource = CONFIGFILE,
-      JournalMode= SQLiteJournalModeEnum.Persist,
+      JournalMode = SQLiteJournalModeEnum.Persist,
     };
     private const string CONFIGFILE = "config.db";
 
     static DatabaseClient()
     {
+      Mapper.Initialize(cfg =>
+      {
+        cfg.CreateMap<WorkshopResourceDto, WorkshopResourceModel>();
+        cfg.CreateMap<WorkshopResourceDto, DrsResourceModel>();
+        cfg.CreateMap<WorkshopResourceDto, ModResourceModel>();
+        cfg.CreateMap<WorkshopResourceDto, TauntResourceModel>();
+        cfg.CreateMap<WorkshopResourceDto, LanguageResourceModel>();
+      });
       InitializeDatabase();
     }
 
@@ -49,6 +57,7 @@ namespace YTY.amt.Model
         ret.backgroundMusic = GetBool(nameof(ConfigModel.BackgroundMusic), true);
         ret.isEnglishCampaignNarration = GetBool(nameof(ConfigModel.IsEnglishCampaignNarration), false);
         ret.workshopTimestamp = GetInt(nameof(ConfigModel.WorkshopTimestamp), 0);
+        ret.currentTaunt = ProgramModel.Taunts.First(t => t.Id == GetInt(nameof(ConfigModel.CurrentTaunt), -2));
 
         string GetString(string key) => dic.TryGetValue(key, out var s) ? s : string.Empty;
         bool GetBool(string key, bool defaultValue) => dic.TryGetValue(key, out var s) && bool.TryParse(s, out var b) ? b : defaultValue;
@@ -71,15 +80,9 @@ namespace YTY.amt.Model
     {
       using (var connection = GetConnection())
       {
-        Mapper.Initialize(cfg =>
-          {
-            cfg.CreateMap<WorkshopResourceDto, WorkshopResourceModel>();
-            cfg.CreateMap<WorkshopResourceDto, DrsResourceModel>();
-            cfg.CreateMap<WorkshopResourceDto, ModResourceModel>();
-          });
 
         var dtos = connection.Query<WorkshopResourceDto>(@"
-SELECT r.Id,r.CreateDate,r.LastChangeDate,r.LastFileChangeDate,r.TotalSize,r.Rating,r.DownloadCount,r.AuthorId,r.AuthorName,r.Name,r.Description,r.GameVersion,r.Url,r.Type,r.Status,
+SELECT r.Id,r.CreateDate,r.LastChangeDate,r.LastFileChangeDate,r.TotalSize,r.Rating,r.DownloadCount,r.AuthorId,r.AuthorName,r.Name,r.Description,r.GameVersion,r.SourceUrl,r.Type,r.Status,
 d.IsActivated,
 m.ExePath,m.XmlPath,m.FolderPath
 FROM Resource r
@@ -98,7 +101,10 @@ ORDER BY d.Priority,m.`Index`");
               yield return Mapper.Map<WorkshopResourceDto, ModResourceModel>(dto);
               break;
             case WorkshopResourceType.Language:
-              yield return new LanguageResourceModel();
+              yield return Mapper.Map<WorkshopResourceDto, LanguageResourceModel>(dto);
+              break;
+            case WorkshopResourceType.Taunt:
+              yield return Mapper.Map<WorkshopResourceDto, TauntResourceModel>(dto);
               break;
             default:
               yield return Mapper.Map<WorkshopResourceDto, WorkshopResourceModel>(dto);
@@ -116,7 +122,7 @@ ORDER BY d.Priority,m.`Index`");
         using (var transaction = connection.BeginTransaction())
         {
           connection.Execute(@"
-INSERT OR REPLACE INTO Resource(Id,CreateDate,LastChangeDate,LastFileChangeDate,TotalSize,Rating,DownloadCount,AuthorId,AuthorName,Name,Description,GameVersion,Url,Type,Status)
+INSERT OR REPLACE INTO Resource(Id,CreateDate,LastChangeDate,LastFileChangeDate,TotalSize,Rating,DownloadCount,AuthorId,AuthorName,Name,Description,GameVersion,SourceUrl,Type,Status)
 VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status)",
             resources, transaction);
           connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
@@ -239,7 +245,7 @@ AuthorName TEXT NOT NULL,
 Name TEXT NOT NULL,
 Description TEXT NOT NULL,
 GameVersion INTEGER NOT NULL,
-Url TEXT,
+SourceUrl TEXT,
 Type INTEGER NOT NULL,
 Status INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS File(
@@ -273,7 +279,7 @@ Id INTEGER PRIMARY KEY,
 Name TEXT NOT NULL,
 Path TEXT NOT NULL,
 IconPath TEXT NOT NULL,
-ToolTip TEXT NOT NULL)");
+ToolTip TEXT NOT NULL);");
       }
     }
 

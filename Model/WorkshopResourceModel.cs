@@ -32,6 +32,10 @@ namespace YTY.amt.Model
     private long finishedSize;
     #endregion
 
+    #region PROTECTED PROPERTIES
+    protected bool IsBuiltIn => Id < 0;
+    #endregion
+
     #region PUBLIC PROPERTIES 
     public int Id { get; internal set; }
 

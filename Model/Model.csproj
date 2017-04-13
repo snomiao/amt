@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceFileDto.cs" />
     <Compile Include="ResourceFileModel.cs" />
+    <Compile Include="TauntResourceModel.cs" />
     <Compile Include="ToolGroupModel.cs" />
     <Compile Include="ToolModel.cs" />
     <Compile Include="WebServiceClient.cs" />

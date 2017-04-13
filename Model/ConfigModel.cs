@@ -24,6 +24,7 @@ namespace YTY.amt.Model
     internal bool allShown_Aoc15;
     internal bool allShown_AoFE;
     internal int workshopTimestamp;
+    internal TauntResourceModel currentTaunt;
 
     public string HawkempirePath
     {
@@ -180,6 +181,18 @@ namespace YTY.amt.Model
         workshopTimestamp = value;
         DatabaseClient.SaveConfigEntry(nameof(WorkshopTimestamp), value);
         OnPropertyChanged(nameof(WorkshopTimestamp));
+      }
+    }
+
+    public TauntResourceModel CurrentTaunt
+    {
+      get { return currentTaunt; }
+      set
+      {
+        currentTaunt = value;
+        currentTaunt.Activate();
+        DatabaseClient.SaveConfigEntry(nameof(CurrentTaunt), value.Id);
+        OnPropertyChanged(nameof(CurrentTaunt));
       }
     }
 

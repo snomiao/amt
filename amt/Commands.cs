@@ -380,11 +380,15 @@ namespace YTY.amt
 
     private class CreateProcessAbsolutePathCommand : ICommand
     {
-      public event EventHandler CanExecuteChanged;
+      public event EventHandler CanExecuteChanged
+      {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+      }
 
       public bool CanExecute(object parameter)
       {
-        return true;
+        return !string.IsNullOrEmpty((string)parameter);
       }
 
       public void Execute(object parameter)
