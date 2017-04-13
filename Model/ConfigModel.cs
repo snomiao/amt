@@ -42,7 +42,7 @@ namespace YTY.amt.Model
       set
       {
         currentGame = value;
-        // TODO: copy game exe
+        currentGame.CopyExe();
         DatabaseClient.SaveConfigEntry(nameof(CurrentGame), value.Id);
         OnPropertyChanged(nameof(CurrentGame));
       }

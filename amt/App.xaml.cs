@@ -24,17 +24,6 @@ namespace YTY.amt
   {
     public static App App => Application.Current as App;
 
-    public static Workshop WorkshopWindow
-    {
-      get
-      {
-        var workshop = App.FindResource(nameof(WorkshopWindow)) as Workshop;
-        return workshop;
-      }
-    }
-
-    public static CreateProcessCommand CreateProcessCommand => App.FindResource(nameof(CreateProcessCommand)) as CreateProcessCommand;
-
     public static ByteCountToTextConverter ByteCountToTextConverter => App.FindResource(nameof(ByteCountToTextConverter)) as ByteCountToTextConverter;
 
     public static ScenarioTranslatorViewModel ScenarioTranslatorViewModel => App.FindResource(nameof(ScenarioTranslatorViewModel)) as ScenarioTranslatorViewModel;

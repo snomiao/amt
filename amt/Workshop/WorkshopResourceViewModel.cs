@@ -65,13 +65,13 @@ namespace YTY.amt
         switch (Model.Status)
         {
           case WorkshopResourceStatus.NotInstalled:
-            return WorkshopCommands.InstallResource;
+            return Commands.InstallResource;
           case WorkshopResourceStatus.Installing:
-            return WorkshopCommands.PauseResource;
+            return Commands.PauseResource;
           case WorkshopResourceStatus.Paused:
-            return WorkshopCommands.ResumeResource;
+            return Commands.ResumeResource;
           case WorkshopResourceStatus.Installed:
-            return WorkshopCommands.DeleteResource;
+            return Commands.DeleteResource;
         }
         return null;
       }
@@ -137,7 +137,9 @@ namespace YTY.amt
       DownloadingFilesView.Filter = o =>
         {
           var m = o as ResourceFileModel;
-          return m.Status == ResourceFileStatus.BeforeDownload || m.Status == ResourceFileStatus.Downloading;
+          return m.Status == ResourceFileStatus.BeforeDownload ||
+          m.Status == ResourceFileStatus.Downloading ||
+          m.Status == ResourceFileStatus.Paused;
         };
     }
 

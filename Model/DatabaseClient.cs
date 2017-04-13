@@ -181,6 +181,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
         {
           connection.Execute("UPDATE Chunk SET Finished=@finished WHERE FileId=@fileId AND Id=@id",
             new { fileId, id, finished }, transaction);
+          transaction.Commit();
         }
       }
     }
@@ -195,7 +196,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var connection = GetConnection())
       {
-        return connection.Query<FileChunkModel>("SELECT Id,Finished FROM Chunks WHERE FileId=@fileId", new { fileId });
+        return connection.Query<FileChunkModel>("SELECT Id,Finished FROM Chunk WHERE FileId=@fileId", new { fileId });
       }
     }
 

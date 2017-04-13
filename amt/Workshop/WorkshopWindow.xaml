@@ -1,4 +1,4 @@
-﻿<Window x:Class="YTY.amt.Workshop"
+﻿<Window x:Class="YTY.amt.WorkshopWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -127,7 +127,7 @@
             <Setter Property="Margin"
                     Value="3,15,3,0"></Setter>
             <Setter Property="Command"
-                    Value="{StaticResource FilterResourceCommand}"></Setter>
+                    Value="local:Commands.FilterResource"></Setter>
             <Style.Triggers>
               <Trigger Property="IsMouseOver"
                        Value="True">
@@ -206,8 +206,7 @@
       <Button Grid.Column="3"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="4"
-              Style="{StaticResource ButtonCloseStyle}"
-              Command="{StaticResource HideWindowCommand}"></Button>
+              Style="{StaticResource ButtonCloseStyle}"></Button>
     </Grid>
     <Image Grid.Row="1"
            Source="/resources;component/Resources/aboutbg.png"></Image>
@@ -240,7 +239,7 @@
                 <DataTemplate>
                   <Button Margin="10"
                           Height="80"
-                          Command="{StaticResource ShowSelectedResourceViewCommand}"
+                          Command="local:Commands.ShowSelectedResourceView"
                           CommandParameter="{Binding}">
                     <Button.Style>
                       <Style TargetType="{x:Type Button}"

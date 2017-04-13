@@ -26,12 +26,12 @@ namespace YTY.amt.Model
       }
     }
 
-    public async Task<(int Id,byte[] Data)> DownloadAsync(CancellationToken cancellationToken)
+    public async Task<(int Id, byte[] Data)> DownloadAsync(CancellationToken cancellationToken)
     {
       var data = await WebServiceClient.GetChunk(FileId, Id);
-      cancellationToken.ThrowIfCancellationRequested();
-      Finished = true;
-      return (Id,data);
+      if (!cancellationToken.IsCancellationRequested)
+        Finished = true;
+      return (Id, data);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

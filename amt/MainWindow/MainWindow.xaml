@@ -11,7 +11,6 @@
         Height="530"
         Width="850"
         Style="{StaticResource WindowGeneralStyle}"
-        Closed="Window_Closed"
         DataContext="{StaticResource MainWindowViewModel}">
   <Grid>
     <Grid.RowDefinitions>
@@ -168,7 +167,7 @@
                       Padding="0,5"
                       Foreground="White"
                       FontSize="14"
-                      Command="{StaticResource SwitchAndStartGameCommand}"
+                      Command="local:Commands.SwitchAndRunGame"
                       CommandParameter="{Binding}"
                       Content="{Binding Name}">
                 <Button.Style>
@@ -216,8 +215,7 @@
       <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="5"
-              Style="{StaticResource ButtonCloseStyle}"
-              Command="{StaticResource CloseWindowCommand}"></Button>
+              Style="{StaticResource ButtonCloseStyle}"></Button>
     </Grid>
     <TabControl Grid.Row="1"
                 Style="{StaticResource TabControlMainStyle}">
@@ -252,7 +250,7 @@
                     <Style TargetType="{x:Type Button}"
                            BasedOn="{StaticResource ButtonSettingStyle}">
                       <Setter Property="Command"
-                              Value="{StaticResource OpenFolderCommand}"></Setter>
+                              Value="local:Commands.OpenFolder"></Setter>
                     </Style>
                   </StackPanel.Resources>
                   <Button CommandParameter="Campaign">战役</Button>
@@ -310,9 +308,9 @@
                            DisplayMemberPath="Name"></ListBox>
                   <StackPanel Grid.Column="1">
                     <Button CommandParameter="{Binding ElementName=lbxActiveDrses,Path=SelectedItem}"
-                            Command="{StaticResource IncrementDrsPriorityCommand}">↑提高优先度</Button>
+                            Command="local:Commands.MoveUpDrs">↑提高优先度</Button>
                     <Button CommandParameter="{Binding ElementName=lbxActiveDrses,Path=SelectedItem}"
-                            Command="{StaticResource DecrementDrsPriorityCommand}">↓降低优先度</Button>
+                            Command="local:Commands.MoveDownDrs">↓降低优先度</Button>
                   </StackPanel>
                 </Grid>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
@@ -772,9 +770,9 @@
                              DisplayMemberPath="Name"></ListBox>
                     <StackPanel Grid.Column="1">
                       <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}"
-                              Command="{StaticResource MoveUpModCommand}">↑上移</Button>
+                              Command="local:Commands.MoveUpMod">↑上移</Button>
                       <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}"
-                              Command="{StaticResource MoveDownModCommand}">↓下移</Button>
+                              Command="local:Commands.MoveDownMod">↓下移</Button>
                     </StackPanel>
                   </Grid>
                 </StackPanel>

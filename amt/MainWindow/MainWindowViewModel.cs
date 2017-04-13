@@ -22,7 +22,8 @@ namespace YTY.amt
     {
       set
       {
-        if (value) My.WorkshopWindow.Show();
+        if (value)
+          new WorkshopWindow().Show();
       }
     }
 

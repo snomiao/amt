@@ -26,11 +26,6 @@ namespace YTY.amt
       InitializeComponent();
     }
 
-    private void Window_Closed(object sender, EventArgs e)
-    {
-      My.App.Shutdown();
-    }
-
     private void btnSetHawkempirePath_Click(object sender, RoutedEventArgs e)
     {
       var fbd = new FolderBrowserDialog();

@@ -98,34 +98,40 @@ namespace YTY.amt.Model
         }
 
         var tasks = Chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync(cancellationToken));
-        var working = tasks.Take(5).ToList();
-        foreach (var skipped in tasks.Skip(5))
+        var working = new List<Task<(int, byte[])>>();
+        foreach (var task in tasks)
         {
-          var finished = await Task.WhenAny(working);
-          working.Remove(finished);
-          working.Add(skipped);
-          ContinueWith(finished);
+          if (working.Count < 5)
+          {
+            working.Add(task);
+          }
+          else
+          {
+            var finished = await Task.WhenAny(working);
+            working.Remove(finished);
+            working.Add(task);
+            await ContinueWith(await finished);
+          }
         }
         while (working.Count > 0)
         {
           var finished = await Task.WhenAny(working);
           working.Remove(finished);
-          await ContinueWith(finished);
+          await ContinueWith(await finished);
         }
 
-        async Task ContinueWith(Task<(int Id, byte[] Data)> finished)
+        async Task ContinueWith((int Id, byte[] Data) finished)
         {
           if (cancellationToken.IsCancellationRequested)
           {
             UpdateStatus (ResourceFileStatus.Paused);
             cancellationToken.ThrowIfCancellationRequested();
           }
-          var finishedChunk = await finished;
-          fs.Seek(finishedChunk.Id * ConfigModel.CHUNKSIZE, SeekOrigin.Begin);
-          await fs.WriteAsync(finishedChunk.Data, 0, finishedChunk.Data.Length);
-          FinishedSize += finishedChunk.Data.Length;
-          progress.Report(finishedChunk.Data.Length);
-          DatabaseClient.UpdateFileChunkFinished(Id, finishedChunk.Id, true);
+          fs.Seek(finished.Id * ConfigModel.CHUNKSIZE, SeekOrigin.Begin);
+          await fs.WriteAsync(finished.Data, 0, finished.Data.Length);
+          FinishedSize += finished.Data.Length;
+          progress.Report(finished.Data.Length);
+          DatabaseClient.UpdateFileChunkFinished(Id, finished.Id, true);
         }
       }
 

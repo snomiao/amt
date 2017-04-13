@@ -94,6 +94,16 @@ namespace YTY.amt.Model
       Directory.CreateDirectory(folder);
       Process.Start(folder);
     }
+
+    public void CopyExe()
+    {
+    // TODO  
+    }
+
+    public void Run()
+    {
+      // TODO
+    }
   }
 
   public enum ModOpenFolder

@@ -15,11 +15,11 @@ using YTY.amt.Model;
 namespace YTY.amt
 {
   /// <summary>
-  /// Interaction logic for Workshop.xaml
+  /// Interaction logic for WorkshopWindow.xaml
   /// </summary>
-  public partial class Workshop : Window
+  public partial class WorkshopWindow : Window
   {
-    public Workshop()
+    public WorkshopWindow()
     {
       InitializeComponent();
     }

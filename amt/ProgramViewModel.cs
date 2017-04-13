@@ -13,7 +13,10 @@ namespace YTY.amt
   {
     public static App App { get; } = Application.Current as App;
 
-    public static WorkshopWindowViewModel WorkshopWindow { get; } =
+    public static WorkshopWindowViewModel WorkshopViewModel { get; } =
       App.FindResource(nameof(WorkshopWindowViewModel)) as WorkshopWindowViewModel;
+
+    public static WorkshopWindow WorkshopWindow { get; } =
+      App.FindResource(nameof(WorkshopWindow)) as WorkshopWindow;
   }
 }

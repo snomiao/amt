@@ -25,7 +25,7 @@ namespace YTY.amt
 
     public override ICommand Command =>
       Model.Status == WorkshopResourceStatus.Installed ?
-      DrsModel.IsActivated ? WorkshopCommands.DeactivateResource : WorkshopCommands.ActivateResource
+      DrsModel.IsActivated ? Commands.DeactivateDrs : Commands.ActivateDrs
       : base.Command;
 
     private DrsViewModel(DrsResourceModel model) : base(model) { }
