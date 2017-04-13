@@ -103,6 +103,7 @@ namespace YTY.amt.Model
     public void Run()
     {
       // TODO
+      Debug.WriteLine(ExePath);
     }
   }
 

@@ -45,6 +45,10 @@ namespace YTY.amt
 
     public static ICommand ShowSelectedResourceView { get; } = new ShowSelectedResourceViewCommand();
 
+    public static ICommand CreateProcessRelativePath { get; } = new CreateProcessRelativePathCommand();
+
+    public static ICommand CreateProcessAbsolutePath { get; } = new CreateProcessAbsolutePathCommand();
+
     private class ActivateDrsCommand : ICommand
     {
       public event EventHandler CanExecuteChanged;
@@ -351,37 +355,49 @@ namespace YTY.amt
         }
       }
     }
-  }
 
-
-
-
-  public class CreateProcessCommand : ICommand
-  {
-    public event EventHandler CanExecuteChanged
+    private class CreateProcessRelativePathCommand : ICommand
     {
-      add { CommandManager.RequerySuggested += value; }
-      remove { CommandManager.RequerySuggested -= value; }
-    }
+      public event EventHandler CanExecuteChanged;
 
-    public bool CanExecute(object parameter)
-    {
-      return !string.IsNullOrWhiteSpace(parameter as string);
-    }
-
-    public void Execute(object parameter)
-    {
-      var p = new Process() { StartInfo = new ProcessStartInfo(parameter as string) { UseShellExecute = true } };
-      try
+      public bool CanExecute(object parameter)
       {
-        p.Start();
+        return true;
       }
-      catch (Win32Exception ex)
+
+      public void Execute(object parameter)
       {
-        MessageBox.Show(ex.ToString());
+        try
+        {
+          Process.Start(new ProcessStartInfo(ProgramModel.MakeHawkempirePath((string)parameter)) { UseShellExecute = true });
+        }
+        catch (Win32Exception ex)
+        {
+          MessageBox.Show(ex.ToString());
+        }
       }
     }
+
+    private class CreateProcessAbsolutePathCommand : ICommand
+    {
+      public event EventHandler CanExecuteChanged;
+
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public void Execute(object parameter)
+      {
+        try
+        {
+          Process.Start(new ProcessStartInfo((string)parameter) { UseShellExecute = true });
+        }
+        catch (Win32Exception ex)
+        {
+          MessageBox.Show(ex.ToString());
+        }
+      }
+    }
   }
-
-
 }

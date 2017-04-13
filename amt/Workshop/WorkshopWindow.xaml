@@ -317,7 +317,7 @@
               </Grid.RowDefinitions>
               <TextBlock Grid.Row="0"
                          FontSize="30">                  
-            <Hyperlink Command="{StaticResource CreateProcessCommand}"
+            <Hyperlink Command="local:Commands.CreateProcessAbsolutePath"
                        CommandParameter="{Binding Model.SourceUrl}">
               <Run Text="{Binding Model.Name,Mode=OneWay}"></Run>
             </Hyperlink>
