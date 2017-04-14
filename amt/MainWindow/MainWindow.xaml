@@ -489,13 +489,19 @@
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">嘲讽音效语言</TextBlock>
               <StackPanel Orientation="Horizontal">
                 <TextBlock>当前嘲讽音效：</TextBlock>
-                <TextBlock x:Name="txbTaunt" />
+                <TextBlock Text="{Binding Source={x:Static model:ProgramModel.Config },Path=CurrentTaunt.Name}"></TextBlock>
                 <TextBlock>。请选择嘲讽音效。</TextBlock>
               </StackPanel>
-              <WrapPanel>
-                <Button>英文嘲讽音效</Button>
-                <Button>中文嘲讽音效</Button>
-              </WrapPanel>
+              <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                       ItemsSource="{Binding Source={x:Static model:ProgramModel.Taunts}}"
+                       SelectedItem="{Binding Source={x:Static model:ProgramModel.Config} ,Path=CurrentTaunt,Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <ToggleButton Content="{Binding Name}"
+                                  IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"></ToggleButton>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
             </StackPanel>
           </TabItem>
           <TabItem Header="联机">
@@ -567,7 +573,9 @@
                                    Width="36"
                                    Margin="3"
                                    RenderOptions.BitmapScalingMode="Fant"></Image>
-                            <TextBlock Text="{Binding Name}" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
+                            <TextBlock Text="{Binding Name}"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"></TextBlock>
                           </StackPanel>
                         </Button>
                       </DataTemplate>
