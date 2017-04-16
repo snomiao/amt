@@ -12,7 +12,6 @@
     <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>
     <lib:NegateBooleanConverter x:Key="NegateBooleanConverter"></lib:NegateBooleanConverter>
-    <local:ScenarioTranslatorViewModel x:Key="ScenarioTranslatorViewModel"></local:ScenarioTranslatorViewModel>
     <lib:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></lib:BoolToVisibilityConverter>
 
     <ToolTip x:Key="ttpPortForwarding">

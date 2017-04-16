@@ -65,6 +65,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WpfAnimatedGif, Version=1.4.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WpfAnimatedGif.1.4.14\lib\net\WpfAnimatedGif.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -72,17 +75,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DrsViewModel.cs" />
-    <Compile Include="Drs\DrsFile.cs" />
-    <Compile Include="Drs\DrsTable.cs" />
     <Compile Include="ModViewModel.cs" />
     <Compile Include="ProgramViewModel.cs" />
-    <Compile Include="ScenarioTranslator\Commands.cs" />
-    <Compile Include="ScenarioTranslator\NodeViewModel.cs" />
-    <Compile Include="ScenarioTranslator\WindowViewModel.cs" />
     <Compile Include="MainWindow\MainWindowViewModel.cs" />
-    <Compile Include="ScenarioTranslator\ScenarioTranslator.xaml.cs">
-      <DependentUpon>ScenarioTranslator.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Workshop\WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop\WorkshopWindow.xaml.cs">
       <DependentUpon>WorkshopWindow.xaml</DependentUpon>
@@ -101,10 +96,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ScenarioTranslator\ScenarioTranslator.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Workshop\WorkshopWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

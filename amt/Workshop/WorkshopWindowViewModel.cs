@@ -31,7 +31,7 @@ namespace YTY.amt
       new ObservableCollection<WorkshopResourceViewModel>(
         ProgramModel.Resources.Select(WorkshopResourceViewModel.FromModel));
 
-    public ICollectionView ByTypeResourcesView { get; } 
+    public ICollectionView ByTypeResourcesView { get; }
 
     public ICollectionView DownloadingResourcesView { get; }
 
@@ -48,9 +48,12 @@ namespace YTY.amt
     public WorkshopWindowViewModel()
     {
       ProgramModel.Resources.CollectionChanged += Resources_CollectionChanged;
-      ByTypeResourcesView = new CollectionViewSource {Source = WorkshopResources}.View;
+      ByTypeResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
+      ByTypeResourcesView.SortDescriptions.Add(
+        new SortDescription("Model.LastChangeDate", ListSortDirection.Descending));
+      ByTypeResourcesView.SortDescriptions.Add(
+        new SortDescription("Model.LastFileChangeDate", ListSortDirection.Descending));
       DownloadingResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
-      //DownloadingResourcesView = CollectionViewSource.GetDefaultView(WorkshopResources);
       DownloadingResourcesView.Filter = o =>
       {
         var status = (o as WorkshopResourceViewModel).Model.Status;

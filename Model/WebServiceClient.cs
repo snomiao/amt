@@ -76,7 +76,7 @@ namespace YTY.amt.Model
         {
           Id = (int)o.id,
           Size = (int)o.s,
-          Path = ( (string)o.p).Replace('/','\\').TrimStart('\\'),
+          Path = ((string)o.p).Replace('/', '\\').TrimStart('\\'),
           Sha1 = (string)o.h,
           UpdateDate = (int)o.t,
           Status = (int)o.d,
@@ -91,6 +91,24 @@ namespace YTY.amt.Model
       var request = new HttpRequestMessage(HttpMethod.Get, $"res.php?action=ls&file={Util.Int2Csid(fileId)}");
       request.Headers.Range = new RangeHeaderValue(chunkId * ConfigModel.CHUNKSIZE, (chunkId + 1) * ConfigModel.CHUNKSIZE - 1);
       return await (await client.SendAsync(request)).Content.ReadAsByteArrayAsync();
+    }
+
+    public static async Task GetResourceImageBytes(int resourceId, IProgress<byte[]> progress)
+    {
+      var imageIds = await GetResourceImageList(resourceId);
+      foreach (var imageId in imageIds)
+      {
+        var imageBytes = await client.GetByteArrayAsync($"res.php?action=ls&img={Util.Int2Csid(imageId)}");
+        progress.Report(imageBytes);
+      }
+    }
+
+    private static async Task<int[]> GetResourceImageList(int resourceId)
+    {
+      var commaSeparatedString = await client.GetStringAsync($"api/?q=lsimg&resid={Util.Int2Csid(resourceId)}");
+      return string.IsNullOrWhiteSpace(commaSeparatedString) ?
+        Enumerable.Empty<int>().ToArray() :
+        commaSeparatedString.Split(',').Select(int.Parse).ToArray();
     }
   }
 }

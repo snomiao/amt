@@ -347,7 +347,7 @@ namespace YTY.amt
         ProgramViewModel.WorkshopViewModel.CurrentTab = 1;
         try
         {
-          await viewModel.Model.GetResourceImagesAsync();
+          await viewModel.Model.GetImages();
         }
         catch (InvalidOperationException ex)
         {

@@ -97,13 +97,13 @@ namespace YTY.amt.Model
 
     public void CopyExe()
     {
-    // TODO  
+        File.Copy(ProgramModel.MakeHawkempirePath(ExePath), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"),true);
     }
 
     public void Run()
     {
-      // TODO
-      Debug.WriteLine(ExePath);
+      CopyExe();
+      Process.Start(ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"));
     }
 
     internal static readonly ModResourceModel[] BuiltInGames =
@@ -112,28 +112,28 @@ namespace YTY.amt.Model
       {
         Id = -1,
         Name = "帝国时代Ⅱ 1.5",
-        ExePath = @"exe\age2_x1.5.exe",
+        ExePath = @"Manager\exe\age2_x1.5.exe",
         FolderPath=@"Games\The Conquerors 1.4",
       },
       new ModResourceModel
       {
         Id = AGE2_1C,
         Name = "帝国时代Ⅱ 1.0C",
-        ExePath = @"exe\age2_x1.0c.exe",
+        ExePath = @"Manager\exe\age2_x1.0c.exe",
         FolderPath="",
       },
       new ModResourceModel
       {
         Id = -3,
         Name = "被遗忘的帝国",
-        ExePath = @"exe\age2_x2.exe",
+        ExePath = @"Manager\exe\age2_x2.exe",
         FolderPath=@"Games\Forgotten Empires",
       },
       new ModResourceModel
       {
         Id = -4,
         Name = "WAIFor 触发扩展版",
-        ExePath = @"exe\age2_wtep.exe",
+        ExePath = @"Manager\exe\age2_wtep.exe",
         FolderPath=@"Games\The Conquerors 1.4",
       },
     };

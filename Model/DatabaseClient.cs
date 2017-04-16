@@ -156,11 +156,6 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
       }
     }
 
-    public static async Task GetResourceImagesAsync(this WorkshopResourceModel model)
-    {
-
-    }
-
     public static void UpdateResourceLastFileChange(int id, int lastFileChange)
     {
       using (var connection = GetConnection())

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YTY.amt"
+        xmlns:wag="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
         Title="翔鹰帝国创意工坊"
         Height="610"
@@ -73,8 +74,6 @@
         <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="*"></ColumnDefinition>
-        <ColumnDefinition Width="auto"></ColumnDefinition>
-        <ColumnDefinition Width="auto"></ColumnDefinition>
       </Grid.ColumnDefinitions>
       <Grid.Background>
         <LinearGradientBrush>
@@ -102,9 +101,9 @@
         <StackPanel.Resources>
           <Style TargetType="{x:Type Image }">
             <Setter Property="Width"
-                    Value="56"></Setter>
+                    Value="50"></Setter>
             <Setter Property="Height"
-                    Value="56"></Setter>
+                    Value="50"></Setter>
             <Setter Property="Margin"
                     Value="0,0,0,5"></Setter>
             <Setter Property="RenderOptions.BitmapScalingMode"
@@ -114,7 +113,7 @@
             <Setter Property="HorizontalAlignment"
                     Value="Center"></Setter>
             <Setter Property="FontSize"
-                    Value="14"></Setter>
+                    Value="12"></Setter>
             <Setter Property="Foreground"
                     Value="White"></Setter>
           </Style>
@@ -125,7 +124,7 @@
             <Setter Property="VerticalAlignment"
                     Value="Center"></Setter>
             <Setter Property="Margin"
-                    Value="3,15,3,0"></Setter>
+                    Value="0,18,1,0"></Setter>
             <Setter Property="Command"
                     Value="local:Commands.FilterResource"></Setter>
             <Style.Triggers>
@@ -202,11 +201,29 @@
             <TextBlock>AI</TextBlock>
           </StackPanel>
         </Button>
+        <Button CommandParameter="Taunt">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/1.png"></Image>
+            <TextBlock>嘲讽</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Language">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/2.png"></Image>
+            <TextBlock>语言</TextBlock>
+          </StackPanel>
+        </Button>
       </StackPanel>
-      <Button Grid.Column="3"
-              Style="{StaticResource ButtonMinimizeStyle}"></Button>
-      <Button Grid.Column="4"
-              Style="{StaticResource ButtonCloseStyle}"></Button>
+      <Grid Grid.Column="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"></ColumnDefinition>
+          <ColumnDefinition Width="auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0"
+                Style="{StaticResource ButtonMinimizeStyle}"></Button>
+        <Button Grid.Column="1"
+                Style="{StaticResource ButtonCloseStyle}"></Button>
+      </Grid>
     </Grid>
     <Image Grid.Row="1"
            Source="/resources;component/Resources/aboutbg.png"></Image>
@@ -224,6 +241,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"></TextBox>
           </Grid>
           <ScrollViewer Grid.Row="1">
             <ItemsControl x:Name="itc"
@@ -358,9 +376,44 @@
                 <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
               </Grid.RowDefinitions>
-              <StackPanel Grid.Row="0">
-
-              </StackPanel>
+              <ScrollViewer Grid.Row="0"
+                            HorizontalScrollBarVisibility="Auto"
+                            VerticalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Model.Images}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal"></StackPanel>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton Style="{StaticResource ToggleButtonNoneStyle}"
+                                    Cursor="Hand"
+                                    ToolTip="点击放大">
+                        <Grid>
+                          <Image wag:ImageBehavior.AnimatedSource="{Binding}"
+                                 Height="110"
+                                 RenderOptions.BitmapScalingMode="Fant"></Image>
+                          <Popup IsOpen="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton},Path=IsChecked,Mode=TwoWay}"
+                                 StaysOpen="False"
+                                 PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                                 Placement="Center"
+                                 PopupAnimation="Fade"
+                                 AllowsTransparency="True">
+                            <ToggleButton Style="{StaticResource ToggleButtonNoneStyle}"
+                                          Cursor="Hand"
+                                          BorderThickness="2"
+                                          BorderBrush="BlueViolet"
+                                          IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Popup},Path=IsOpen,Mode=TwoWay}">
+                              <Image wag:ImageBehavior.AnimatedSource="{Binding}"></Image>
+                            </ToggleButton>
+                          </Popup>
+                        </Grid>
+                      </ToggleButton>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
               <TextBlock Grid.Row="1"
                          FontSize="16"
                          TextWrapping="Wrap"

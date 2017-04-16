@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace YTY.amt.Model
 {
@@ -30,6 +31,7 @@ namespace YTY.amt.Model
     private string sourceUrl;
     private WorkshopResourceStatus status;
     private long finishedSize;
+    private bool begunGettingImages;
     #endregion
 
     #region PROTECTED PROPERTIES
@@ -178,6 +180,8 @@ namespace YTY.amt.Model
 
     public ObservableCollection<ResourceFileModel> Files { get; } = new ObservableCollection<ResourceFileModel>();
 
+    public ObservableCollection<BitmapImage> Images { get; } = new ObservableCollection<BitmapImage>();
+
     public WorkshopResourceStatus Status
     {
       get { return status; }
@@ -200,6 +204,22 @@ namespace YTY.amt.Model
     {
       Status = value;
       DatabaseClient.UpdateResourceStatus(Id, value);
+    }
+
+    public async Task GetImages()
+    {
+      if (begunGettingImages)
+        return;
+      begunGettingImages = true;
+      await WebServiceClient.GetResourceImageBytes(Id,
+        new Progress<byte[]>(imageBytes =>
+        {
+          var bitmapImage = new BitmapImage();
+          bitmapImage.BeginInit();
+          bitmapImage.StreamSource = new MemoryStream(imageBytes);
+          bitmapImage.EndInit();
+          Images.Add(bitmapImage);
+        }));
     }
 
     internal void LocalLoadFiles()

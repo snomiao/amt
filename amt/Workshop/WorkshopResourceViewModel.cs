@@ -107,8 +107,9 @@ namespace YTY.amt
       "resmgx", // Replay
       "resmod", // Mod
       "resai", // Ai
-      "resdrs", // Taunt
+      "1", // Taunt
       "resdrs", // Undefined
+      "2", // Language
     }.Select(f => getImageFromFile(f)).ToArray();
 
     public ImageSource Image
