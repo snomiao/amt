@@ -21,8 +21,7 @@ namespace YTY.amt.Model
           {
             if (resource.Status == WorkshopResourceStatus.Installing)
               resource.Status = WorkshopResourceStatus.Paused;
-            if (resource.Status == WorkshopResourceStatus.Paused)
-              resource.LocalLoadFiles();
+            resource.LocalLoadFiles();
           }
           return new ObservableCollection<WorkshopResourceModel>(ret);
         });

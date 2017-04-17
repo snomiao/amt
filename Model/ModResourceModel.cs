@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Diagnostics;
+using YTY.DrsLib;
 
 namespace YTY.amt.Model
 {
@@ -97,13 +98,29 @@ namespace YTY.amt.Model
 
     public void CopyExe()
     {
-        File.Copy(ProgramModel.MakeHawkempirePath(ExePath), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"),true);
+      File.Copy(ProgramModel.MakeHawkempirePath(ExePath), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"),true);
     }
 
     public void Run()
     {
       CopyExe();
+      ApplyDrses();
       Process.Start(ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"));
+    }
+
+    private void ApplyDrses()
+    {
+      var dic = builtInDrsFiles.ToDictionary(f => f, f => DrsFile.Load(ProgramModel.MakeHawkempirePath(f)));
+      foreach (var drs in ProgramModel.ActiveDrses.Reverse())
+      {
+        foreach (var file in drs.Files)
+        {
+          var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
+          var id = int.Parse(Path.GetFileNameWithoutExtension(file.Path));
+          var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
+          dic[drsName][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(ProgramModel.MakeHawkempirePath(file.Path));
+        }
+      }
     }
 
     internal static readonly ModResourceModel[] BuiltInGames =
@@ -136,6 +153,20 @@ namespace YTY.amt.Model
         ExePath = @"Manager\exe\age2_wtep.exe",
         FolderPath=@"Games\The Conquerors 1.4",
       },
+    };
+
+    private static readonly string[] builtInDrsFiles =
+    {
+      "gamedata.drs",
+      "graphics.drs",
+      "interfac.drs",
+      "sounds.drs",
+      "terrain.drs",
+    };
+
+    private static readonly string[] drsTables =
+    {
+      "bina","shp","slp","wav",
     };
   }
 
