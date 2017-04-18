@@ -33,7 +33,9 @@ namespace YTY.amt
 
     public static ICommand OpenFolder { get; } = new OpenFolderCommand();
 
-    public static ICommand FilterResource { get; } = new FilterResourceCommand();
+    public static ICommand FilterResourceByType { get; } = new FilterResourceByTypeCommand();
+
+    public static ICommand FilterResourceByContent { get; } = new FilterResourceByContentCommand();
 
     public static ICommand InstallResource { get; } = new InstallResourceCommand();
 
@@ -228,7 +230,7 @@ namespace YTY.amt
       }
     }
 
-    private class FilterResourceCommand : ICommand
+    private class FilterResourceByTypeCommand : ICommand
     {
       public event EventHandler CanExecuteChanged;
 
@@ -239,18 +241,23 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
-        var param = parameter as string;
-        if (param == "All")
-        {
-          ProgramViewModel.WorkshopViewModel.ByTypeResourcesView.Filter = null;
-        }
-        else
-        {
-          WorkshopResourceType filter;
-          Enum.TryParse(param, out filter);
-          ProgramViewModel.WorkshopViewModel.ByTypeResourcesView.Filter = item => (item as WorkshopResourceViewModel).Model.Type == filter;
-        }
+        ProgramViewModel.WorkshopViewModel.SetByTypeFilter(parameter as string);
         ProgramViewModel.WorkshopViewModel.CurrentTab = 0;
+      }
+    }
+
+    private class FilterResourceByContentCommand : ICommand
+    {
+      public event EventHandler CanExecuteChanged;
+
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public void Execute(object parameter)
+      {
+        ProgramViewModel.WorkshopViewModel.SetByNameFilter(parameter as string);
       }
     }
 

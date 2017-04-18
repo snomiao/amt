@@ -16,10 +16,37 @@ namespace YTY.amt
   {
     private int currentTab;
     private WorkshopResourceViewModel selectedItem;
+    private Predicate<object> byTypeFilter = o => true;
+    private Predicate<object> byNameFilter = o => true;
+
+    private Predicate<object> ByTypeFilter
+    {
+      get => byTypeFilter;
+      set
+      {
+        byTypeFilter = value;
+        RefreshResourcesView();
+      }
+    }
+
+    private Predicate<object> ByNameFilter
+    {
+      get => byNameFilter;
+      set
+      {
+        byNameFilter = value;
+        RefreshResourcesView();
+      }
+    }
+
+    private void RefreshResourcesView()
+    {
+      ResourcesView.Filter = o => ByTypeFilter(o as WorkshopResourceViewModel) && ByNameFilter(o as WorkshopResourceViewModel);
+    }
 
     public int CurrentTab
     {
-      get { return currentTab; }
+      get => currentTab;
       set
       {
         currentTab = value;
@@ -31,7 +58,7 @@ namespace YTY.amt
       new ObservableCollection<WorkshopResourceViewModel>(
         ProgramModel.Resources.Select(WorkshopResourceViewModel.FromModel));
 
-    public ICollectionView ByTypeResourcesView { get; }
+    public ICollectionView ResourcesView { get; }
 
     public ICollectionView DownloadingResourcesView { get; }
 
@@ -48,10 +75,10 @@ namespace YTY.amt
     public WorkshopWindowViewModel()
     {
       ProgramModel.Resources.CollectionChanged += Resources_CollectionChanged;
-      ByTypeResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
-      ByTypeResourcesView.SortDescriptions.Add(
+      ResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
+      ResourcesView.SortDescriptions.Add(
         new SortDescription("Model.LastChangeDate", ListSortDirection.Descending));
-      ByTypeResourcesView.SortDescriptions.Add(
+      ResourcesView.SortDescriptions.Add(
         new SortDescription("Model.LastFileChangeDate", ListSortDirection.Descending));
       DownloadingResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
       DownloadingResourcesView.Filter = o =>
@@ -59,6 +86,31 @@ namespace YTY.amt
         var status = (o as WorkshopResourceViewModel).Model.Status;
         return status == WorkshopResourceStatus.Installing || status == WorkshopResourceStatus.Paused;
       };
+    }
+
+    internal void SetByTypeFilter(string resourceType)
+    {
+      if (resourceType == "All")
+      {
+        ByTypeFilter = o => true;
+      }
+      else
+      {
+        Enum.TryParse(resourceType, out WorkshopResourceType filter);
+        ByTypeFilter = o => (o as WorkshopResourceViewModel).Model.Type == filter;
+      }
+    }
+
+    internal void SetByNameFilter(string contains)
+    {
+      if (string.IsNullOrWhiteSpace(contains))
+      {
+        ByNameFilter = o => true; 
+      }
+      else
+      {
+        ByNameFilter = o => (o as WorkshopResourceViewModel).Model.Name.Contains(contains);
+      }
     }
 
     private void Resources_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
