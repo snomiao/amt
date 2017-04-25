@@ -98,7 +98,7 @@ namespace YTY.amt.Model
 
     public void CopyExe()
     {
-      File.Copy(ProgramModel.MakeHawkempirePath(ExePath), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"),true);
+      File.Copy(ProgramModel.MakeHawkempirePath(ExePath), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
     }
 
     public void Run()
@@ -110,7 +110,7 @@ namespace YTY.amt.Model
 
     private void ApplyDrses()
     {
-      var dic = builtInDrsFiles.ToDictionary(f => f, f => DrsFile.Load(ProgramModel.MakeHawkempirePath(f)));
+      var dic = builtInDrsFiles.ToDictionary(f => f, f => DrsFile.Load(ProgramModel.MakeHawkempirePath(Path.Combine(@"Manager\drs", f))));
       foreach (var drs in ProgramModel.ActiveDrses.Reverse())
       {
         foreach (var file in drs.Files)
@@ -120,6 +120,10 @@ namespace YTY.amt.Model
           var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
           dic[drsName][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(ProgramModel.MakeHawkempirePath(file.Path));
         }
+      }
+      foreach (var pair in dic)
+      {
+        pair.Value.Save(ProgramModel.MakeHawkempirePath(Path.Combine("Data",pair.Key)));
       }
     }
 
