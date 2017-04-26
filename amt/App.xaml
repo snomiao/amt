@@ -35,11 +35,11 @@
                    Handler="Window_MouseLeftButtonDown"></EventSetter>
     </Style>
 
-    <Style x:Key="ButtonNoneStyle"
-           TargetType="{x:Type Button}">
+    <Style x:Key="ButtonBaseNoneStyle"
+           TargetType="ButtonBase">
       <Setter Property="Template">
         <Setter.Value>
-          <ControlTemplate TargetType="{x:Type Button}">
+          <ControlTemplate TargetType="{x:Type ButtonBase}">
             <Border BorderThickness="{TemplateBinding BorderThickness}"
                     BorderBrush="{TemplateBinding BorderBrush}"
                     Background="{TemplateBinding Background}"
@@ -50,6 +50,8 @@
           </ControlTemplate>
         </Setter.Value>
       </Setter>
+      <Setter Property="SnapsToDevicePixels"
+              Value="True"></Setter>
       <Setter Property="VerticalContentAlignment"
               Value="Center"></Setter>
       <Setter Property="HorizontalContentAlignment"
@@ -149,7 +151,7 @@
     </Style>
 
     <Style x:Key="ButtonSystemStyle"
-           BasedOn="{StaticResource ButtonNoneStyle}"
+           BasedOn="{StaticResource ButtonBaseNoneStyle}"
            TargetType="{x:Type Button}">
       <Setter Property="Focusable"
               Value="False"></Setter>
@@ -529,7 +531,7 @@
           </Setter>
         </Style>
         <Style TargetType="{x:Type Button}"
-               BasedOn="{StaticResource ButtonNoneStyle}">
+               BasedOn="{StaticResource ButtonBaseNoneStyle}">
           <Setter Property="Margin"
                   Value="3,3"></Setter>
           <Setter Property="Background"

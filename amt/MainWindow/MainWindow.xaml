@@ -57,7 +57,7 @@
               IsEnabled="{Binding IsValidHawkempirePath}">
         <Button.Style>
           <Style TargetType="{x:Type Button}"
-                 BasedOn="{StaticResource ButtonNoneStyle}">
+                 BasedOn="{StaticResource ButtonBaseNoneStyle}">
             <Setter Property="Background"
                     Value="LimeGreen"></Setter>
             <Style.Triggers>
@@ -159,11 +159,12 @@
              StaysOpen="False"
              Placement="Bottom"
              PlacementTarget="{Binding ElementName=btnStartGame}"
-             Width="186">
+             Width="186" AllowsTransparency="True">
         <ItemsControl ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Button BorderThickness="1"
+              <Button BorderThickness="0,1,0,0"
+                      BorderBrush="SeaShell"
                       Padding="0,5"
                       Foreground="White"
                       FontSize="14"
@@ -172,7 +173,7 @@
                       Content="{Binding Name}">
                 <Button.Style>
                   <Style TargetType="{x:Type Button}"
-                         BasedOn="{StaticResource ButtonNoneStyle}">
+                         BasedOn="{StaticResource ButtonBaseNoneStyle}">
                     <Setter Property="Background"
                             Value="DarkSeaGreen"></Setter>
                     <Style.Triggers>

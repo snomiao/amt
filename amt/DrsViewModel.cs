@@ -18,9 +18,9 @@ namespace YTY.amt
       DrsModel.IsActivated ? "停用该模组" : "启用该模组"
       : base.ButtonText;
 
-    public override SolidColorBrush ButtonBackground =>
+    public override Color ButtonBackground =>
       Model.Status == WorkshopResourceStatus.Installed ?
-      DrsModel.IsActivated ? Brushes.Gray : Brushes.Blue
+      DrsModel.IsActivated ? Colors.Gray : Colors.Blue
       : base.ButtonBackground;
 
     public override ICommand Command =>

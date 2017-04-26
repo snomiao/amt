@@ -37,24 +37,24 @@ namespace YTY.amt
       }
     }
 
-    public virtual SolidColorBrush ButtonBackground
+    public virtual Color ButtonBackground
     {
       get
       {
         switch (Model.Status)
         {
           case WorkshopResourceStatus.NotInstalled:
-            return Brushes.Green;
+            return Colors.Green;
           case WorkshopResourceStatus.Installing:
-            return Brushes.Yellow;
+            return Colors.DarkKhaki;
           case WorkshopResourceStatus.Paused:
-            return Brushes.Green;
+            return Colors.YellowGreen;
           case WorkshopResourceStatus.Installed:
-            return Brushes.Gray;
+            return Colors.Gray;
           case WorkshopResourceStatus.NeedUpdate:
-            return Brushes.HotPink;
+            return Colors.HotPink;
         }
-        return Brushes.Transparent;
+        return Colors.DarkRed;
       }
     }
 
@@ -90,6 +90,8 @@ namespace YTY.amt
         return string.Join("/", ret);
       }
     }
+
+    public DateTime UpdateDate => Util.FromUnixTimestamp(Model.LastChangeDate);
 
     private static BitmapImage getImageFromFile(string file)
     {

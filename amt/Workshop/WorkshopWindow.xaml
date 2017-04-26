@@ -19,43 +19,65 @@
       <RowDefinition Height="*"></RowDefinition>
     </Grid.RowDefinitions>
     <Grid.Resources>
+      <Style x:Key="ButtonBaseResourceStyle"
+             TargetType="ButtonBase"
+             BasedOn="{StaticResource ButtonBaseNoneStyle}">
+        <Setter Property="Foreground"
+                Value="White"></Setter>
+        <Setter Property="CommandParameter"
+                Value="{Binding Model}"></Setter>
+        <Setter Property="Background">
+          <Setter.Value>
+            <SolidColorBrush Color="{Binding ButtonBackground}"></SolidColorBrush>
+          </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+          <EventTrigger RoutedEvent="MouseEnter">
+            <BeginStoryboard>
+              <Storyboard>
+                <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                By="DarkGray"
+                                Duration="0:0:0.2"></ColorAnimation>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger>
+          <EventTrigger RoutedEvent="MouseLeave">
+            <BeginStoryboard>
+              <Storyboard>
+                <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                Duration="0:0:0.2"></ColorAnimation>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger>
+        </Style.Triggers>
+      </Style>
+
       <Style x:Key="ButtonResourceExecuterStyle"
              TargetType="{x:Type Button}"
-             BasedOn="{StaticResource ButtonNoneStyle}">
+             BasedOn="{StaticResource ButtonBaseResourceStyle}">
         <Setter Property="Width"
                 Value="90"></Setter>
         <Setter Property="Height"
                 Value="35"></Setter>
-        <Setter Property="BorderThickness"
-                Value="0.5"></Setter>
-        <Setter Property="BorderBrush"
-                Value="Black"></Setter>
-        <Setter Property="Foreground"
-                Value="White"></Setter>
         <Setter Property="Content"
                 Value="{Binding ButtonText}"></Setter>
-        <Setter Property="Background"
-                Value="{Binding ButtonBackground}"></Setter>
-        <Setter Property="CommandParameter"
-                Value="{Binding Model}"></Setter>
         <Setter Property="Command"
                 Value="{Binding Command}"></Setter>
+        <Setter Property="BorderThickness"
+                Value="0,0,1,0"></Setter>
+        <Setter Property="BorderBrush"
+                Value="Transparent"></Setter>
       </Style>
-      <Style x:Key="ButtonResourceMoreStyle"
-             TargetType="{x:Type Button}"
-             BasedOn="{StaticResource ButtonNoneStyle}">
-        <Setter Property="Background"
-                Value="Green"></Setter>
+
+      <Style x:Key="ToggleButtonResourceMoreStyle"
+             TargetType="{x:Type ToggleButton}"
+             BasedOn="{StaticResource ButtonBaseResourceStyle}">
         <Setter Property="Width"
                 Value="35"></Setter>
         <Setter Property="Height"
                 Value="35"></Setter>
         <Setter Property="Margin"
                 Value="0,0,10,0"></Setter>
-        <Setter Property="BorderThickness"
-                Value="0.5"></Setter>
-        <Setter Property="BorderBrush"
-                Value="Black"></Setter>
         <Setter Property="ContentTemplate">
           <Setter.Value>
             <DataTemplate>
@@ -67,6 +89,19 @@
             </DataTemplate>
           </Setter.Value>
         </Setter>
+      </Style>
+
+      <Style TargetType="Button"
+             BasedOn="{StaticResource ButtonBaseResourceStyle}"
+             x:Key="ButtonResourceCommandListStyle">
+        <Setter Property="Width"
+                Value="125"></Setter>
+        <Setter Property="Height"
+                Value="30"></Setter>
+        <Setter Property="BorderThickness"
+                Value="0,1,0,0"></Setter>
+        <Setter Property="BorderBrush"
+                Value="SeaShell"></Setter>
       </Style>
     </Grid.Resources>
     <Grid Grid.Row="0">
@@ -118,7 +153,7 @@
                     Value="White"></Setter>
           </Style>
           <Style TargetType="{x:Type Button }"
-                 BasedOn="{StaticResource ButtonNoneStyle}">
+                 BasedOn="{StaticResource ButtonBaseNoneStyle}">
             <Setter Property="Background"
                     Value="Transparent"></Setter>
             <Setter Property="VerticalAlignment"
@@ -264,14 +299,35 @@
                   <Button Margin="10"
                           Height="80"
                           Command="local:Commands.ShowSelectedResourceView"
-                          CommandParameter="{Binding}">
+                          CommandParameter="{Binding}"
+                          BorderBrush="Transparent"
+                          BorderThickness="3">
                     <Button.Style>
                       <Style TargetType="{x:Type Button}"
-                             BasedOn="{StaticResource ButtonNoneStyle}">
+                             BasedOn="{StaticResource ButtonBaseNoneStyle}">
                         <Setter Property="Background"
                                 Value="#3f3f3f3f"></Setter>
                         <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch"></Setter>
+                        <Style.Triggers>
+                          <EventTrigger RoutedEvent="MouseEnter">
+                            <BeginStoryboard>
+                              <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color"
+                                                To="LightCoral"
+                                                Duration="0:0:0.2"></ColorAnimation>
+                              </Storyboard>
+                            </BeginStoryboard>
+                          </EventTrigger>
+                          <EventTrigger RoutedEvent="MouseLeave">
+                            <BeginStoryboard>
+                              <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color"
+                                                Duration="0:0:0.2"></ColorAnimation>
+                              </Storyboard>
+                            </BeginStoryboard>
+                          </EventTrigger>
+                        </Style.Triggers>
                       </Style>
                     </Button.Style>
                     <Grid>
@@ -302,9 +358,26 @@
                                  Margin="0,0,10,0"
                                  Text="{Binding Model.Rating}"></TextBlock>
                       <Button Grid.Column="3"
-                              Style="{StaticResource ButtonResourceExecuterStyle}"></Button>
-                      <Button Grid.Column="4"
-                              Style="{StaticResource ButtonResourceMoreStyle}"></Button>
+                              Style="{StaticResource ButtonResourceExecuterStyle}"
+                              x:Name="button">
+                      </Button>
+                      <ToggleButton Grid.Column="4"
+                                    x:Name="toggle"
+                                    Style="{StaticResource ToggleButtonResourceMoreStyle}">
+                      </ToggleButton>
+                      <Popup IsOpen="{Binding ElementName=toggle,Path=IsChecked}"
+                             StaysOpen="False"
+                             PlacementTarget="{Binding ElementName=button}"
+                             AllowsTransparency="True">
+                        <StackPanel>
+                          <StackPanel.Resources>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource ButtonResourceCommandListStyle}"></Style>
+                          </StackPanel.Resources>
+                          <Button Content="查看原帖"></Button>
+                          <Button Content="删除资源"></Button>
+                        </StackPanel>
+                      </Popup>
                     </Grid>
                   </Button>
                 </DataTemplate>
@@ -351,7 +424,7 @@
                 <TextBlock.Text>
                   <MultiBinding StringFormat="作者：{0} 更新时间：{1:d}">
                     <Binding Path="Model.AuthorName"></Binding>
-                    <Binding Path="Model.LastFileChangeDate"></Binding>
+                    <Binding Path="UpdateDate"></Binding>
                   </MultiBinding>
                 </TextBlock.Text>
               </TextBlock>
@@ -371,8 +444,8 @@
                        Text="{Binding Model.Rating}"></TextBlock>
             <Button Grid.Column="3"
                     Style="{StaticResource ButtonResourceExecuterStyle}"></Button>
-            <Button Grid.Column="4"
-                    Style="{StaticResource ButtonResourceMoreStyle}"></Button>
+            <ToggleButton Grid.Column="4"
+                          Style="{StaticResource ToggleButtonResourceMoreStyle}"></ToggleButton>
           </Grid>
           <ScrollViewer Grid.Row="1"
                         Margin="0,20,0,0"
