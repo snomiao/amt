@@ -55,8 +55,7 @@ namespace YTY.amt
     }
 
     public ObservableCollection<WorkshopResourceViewModel> WorkshopResources { get; } =
-      new ObservableCollection<WorkshopResourceViewModel>(
-        ProgramModel.Resources.Select(WorkshopResourceViewModel.FromModel));
+      new ObservableCollection<WorkshopResourceViewModel>();
 
     public ICollectionView ResourcesView { get; }
 
@@ -75,6 +74,12 @@ namespace YTY.amt
     public WorkshopWindowViewModel()
     {
       ProgramModel.Resources.CollectionChanged += Resources_CollectionChanged;
+      foreach (var model in ProgramModel.Resources)
+      {
+        WorkshopResources.Add(WorkshopResourceViewModel.FromModel(model));
+        model.PropertyChanged += Model_PropertyChanged;
+      }
+
       ResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
       ResourcesView.SortDescriptions.Add(
         new SortDescription("Model.LastChangeDate", ListSortDirection.Descending));
@@ -84,7 +89,9 @@ namespace YTY.amt
       DownloadingResourcesView.Filter = o =>
       {
         var status = (o as WorkshopResourceViewModel).Model.Status;
-        return status == WorkshopResourceStatus.Installing || status == WorkshopResourceStatus.Paused;
+        return status == WorkshopResourceStatus.Installing ||
+               status == WorkshopResourceStatus.Paused ||
+               status == WorkshopResourceStatus.Failed;
       };
     }
 
@@ -105,7 +112,7 @@ namespace YTY.amt
     {
       if (string.IsNullOrWhiteSpace(contains))
       {
-        ByNameFilter = o => true; 
+        ByNameFilter = o => true;
       }
       else
       {
@@ -118,7 +125,18 @@ namespace YTY.amt
       if (e.Action == NotifyCollectionChangedAction.Add)
       {
         foreach (WorkshopResourceModel model in e.NewItems)
+        {
+          model.PropertyChanged += Model_PropertyChanged;
           WorkshopResources.Add(WorkshopResourceViewModel.FromModel(model));
+        }
+      }
+    }
+
+    private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(WorkshopResourceModel.Status))
+      {
+        DownloadingResourcesView.Refresh();
       }
     }
 

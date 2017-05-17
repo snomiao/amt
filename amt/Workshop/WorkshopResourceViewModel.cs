@@ -72,6 +72,8 @@ namespace YTY.amt
             return Commands.ResumeResource;
           case WorkshopResourceStatus.Installed:
             return Commands.DeleteResource;
+          case WorkshopResourceStatus.NeedUpdate:
+            return Commands.UpdateResource;
         }
         return null;
       }
@@ -142,7 +144,9 @@ namespace YTY.amt
           var m = o as ResourceFileModel;
           return m.Status == ResourceFileStatus.BeforeDownload ||
           m.Status == ResourceFileStatus.Downloading ||
-          m.Status == ResourceFileStatus.Paused;
+          m.Status == ResourceFileStatus.Paused ||
+          m.Status == ResourceFileStatus.ChecksumFailed ||
+          m.Status == ResourceFileStatus.NeedUpdate;
         };
     }
 
@@ -174,7 +178,7 @@ namespace YTY.amt
           OnPropertyChanged(nameof(ButtonText));
           OnPropertyChanged(nameof(ButtonBackground));
           OnPropertyChanged(nameof(Command));
-          //DownloadingFilesView.Refresh();
+          DownloadingFilesView.Refresh();
           break;
         case nameof(DrsResourceModel.IsActivated):
           OnPropertyChanged(nameof(ButtonText));

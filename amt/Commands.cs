@@ -39,6 +39,8 @@ namespace YTY.amt
 
     public static ICommand InstallResource { get; } = new InstallResourceCommand();
 
+    public static ICommand UpdateResource { get; } = new UpdateResourceCommand();
+
     public static ICommand PauseResource { get; } = new PauseResourceCommand();
 
     public static ICommand ResumeResource { get; } = new ResumeResourceCommand();
@@ -276,7 +278,33 @@ namespace YTY.amt
         try
         {
           var task = model.InstallAsync();
-          ProgramViewModel.WorkshopViewModel.DownloadingResourcesView.Refresh();
+          //ProgramViewModel.WorkshopViewModel.DownloadingResourcesView.Refresh();
+          ProgramViewModel.WorkshopViewModel.CurrentTab = 2;
+          await task;
+        }
+        catch (InvalidOperationException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
+      }
+    }
+
+    private class UpdateResourceCommand : ICommand
+    {
+      public event EventHandler CanExecuteChanged;
+
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public async void Execute(object parameter)
+      {
+        var model = parameter as WorkshopResourceModel;
+        try
+        {
+          var task = model.UpdateAsync();
+          //ProgramViewModel.WorkshopViewModel.DownloadingResourcesView.Refresh();
           ProgramViewModel.WorkshopViewModel.CurrentTab = 2;
           await task;
         }
