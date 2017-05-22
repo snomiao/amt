@@ -8,68 +8,33 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
 using System.Threading.Tasks;
-using YTY;
+using System.Collections.Specialized;
 
 namespace YTY.amt
 {
-  public class MainViewModel:ViewModelBase
+  public class MainViewModel
   {
-    public int Build
-    {
-      get { return GlobalVars.Dal.Build; }
-      set { GlobalVars.Dal.Build = value; }
-    }
+    public ObservableCollection<FileViewModel> Files { get; } = new ObservableCollection<FileViewModel>();
 
-    public ObservableCollection<UpdateItemViewModel> LocalFiles { get; private set; }
-
-    public ICollectionView LocalFilesView { get; private set; }
+    public ICollectionView FilesView { get; }
 
     public MainViewModel()
     {
+      ProgramModel.Files.CollectionChanged += Files_CollectionChanged;
+      FilesView = new CollectionViewSource { Source = Files }.View;
+      FilesView.Filter = item => (item as FileViewModel).Model.Status != FileStatus.Finished;
     }
 
-    public void Init()
+    private void Files_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      LocalFiles = new ObservableCollection<UpdateItemViewModel>(GlobalVars.Dal.GetUpdateItems());
-      LocalFilesView = CollectionViewSource.GetDefaultView(LocalFiles);
-      LocalFilesView.Filter = item => (item as UpdateItemViewModel).Status != UpdateItemStatus.Finished;
-    }
-
-    public async Task StartUpdate()
-    {
-      await GlobalVars.UpdateServerViewModel.GetUpdateSourcesAsync().ConfigureAwait(false);
-      if (GlobalVars.UpdateServerViewModel.Status == UpdateServerStatus.NeedUpdate)
+      switch (e.Action)
       {
-        GlobalVars.Dal.Build = GlobalVars.UpdateServerViewModel.Build;
-        var newUpdateItems = new List<UpdateItemViewModel>();
-        foreach (var serverFile in GlobalVars.UpdateServerViewModel.ServerFiles)
-        {
-          var localFile = LocalFiles.FirstOrDefault(l => l.Id == serverFile.Id);
-          if (localFile == null)
+        case NotifyCollectionChangedAction.Add:
+          foreach (FileModel model in e.NewItems)
           {
-            var newUpdateItem = new UpdateItemViewModel(serverFile.Id, serverFile.SourceUri, serverFile.TargetPath, serverFile.Size, serverFile.Version.Clone() as Version, serverFile.MD5, UpdateItemStatus.Ready, new ChunkViewModel[0]);
-            newUpdateItems.Add(newUpdateItem);
-            LocalFiles.Add(newUpdateItem);
+            Files.Add(FileViewModel.FromModel(model));
           }
-          else
-          {
-            if (serverFile.Version > localFile.Version)
-            {
-              localFile.Size = serverFile.Size;
-              localFile.MD5 = serverFile.MD5;
-              localFile.Version = serverFile.Version.Clone() as Version;
-              localFile.Status = UpdateItemStatus.Ready;
-            }
-          }
-        }
-        GlobalVars.Dal.SaveUpdateItems(newUpdateItems);
-      }
-      if (GlobalVars.UpdateServerViewModel.Status != UpdateServerStatus.ConnectFailed && GlobalVars.UpdateServerViewModel.Status != UpdateServerStatus.ServerError)
-      {
-        foreach (var pendingItem in LocalFiles.Where(f => f.Status == UpdateItemStatus.Ready || f.Status == UpdateItemStatus.Downloading || f.Status == UpdateItemStatus.Error))
-        {
-          await pendingItem.StartAsync();
-        }
+          break;
       }
     }
   }

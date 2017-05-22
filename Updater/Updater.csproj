@@ -39,6 +39,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net45\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.103.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
@@ -65,13 +68,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ByteCountToTextConverter.cs" />
+    <Compile Include="ChunkModel.cs" />
+    <Compile Include="DatabaseClient.cs" />
+    <Compile Include="FileDto.cs" />
+    <Compile Include="FileModel.cs" />
+    <Compile Include="FileViewModel.cs" />
     <Compile Include="MainViewModel.cs" />
-    <Compile Include="DAL.cs" />
-    <Compile Include="SqliteOp.cs" />
-    <Compile Include="UpdateItemViewModel.cs" />
-    <Compile Include="UpdateServerViewModel.cs" />
+    <Compile Include="ProgramModel.cs" />
+    <Compile Include="UpdateServerModel.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="ViewModelBase.cs" />
     <Compile Include="WebDownloader.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -85,10 +90,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

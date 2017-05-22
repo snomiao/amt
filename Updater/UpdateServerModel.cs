@@ -7,20 +7,21 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace YTY.amt
 {
-  public class UpdateServerViewModel : ViewModelBase
+  public static class UpdateServerModel
   {
     private const string SERVERURI = "http://www.hawkaoc.net/amt/UpdateSources.xml";
 
-    private XElement xe;
-    private UpdateServerStatus status;
-    private List<ServerFile> files;
+    private static XElement xe;
+    private static UpdateServerStatus status;
+    private static readonly List<FileDto> files = new List<FileDto>();
 
-    public int Build => (int)xe.Attribute(nameof(Build));
+    public static int Build => (int) xe.Attribute(nameof(Build));
 
-    public UpdateServerStatus Status
+    public static UpdateServerStatus Status
     {
       get { return status; }
       set
@@ -30,14 +31,9 @@ namespace YTY.amt
       }
     }
 
-    public IEnumerable<ServerFile> ServerFiles => files;
+    public static IEnumerable<FileDto> ServerFiles => files;
 
-    public UpdateServerViewModel()
-    {
-      files = new List<ServerFile>();
-    }
-
-    public async Task GetUpdateSourcesAsync()
+    public static async Task GetUpdateSourcesAsync()
     {
       Status = UpdateServerStatus.Getting;
       try
@@ -47,7 +43,7 @@ namespace YTY.amt
           using (var ms = new MemoryStream(await wc.DownloadDataTaskAsync(SERVERURI)))
           {
             xe = XElement.Load(ms);
-            if (Build > GlobalVars.MainViewModel.Build)
+            if (Build > ProgramModel.Build)
             {
               foreach (var ele in xe.Elements("UpdateSource"))
               {
@@ -57,14 +53,14 @@ namespace YTY.amt
                   {
                     var dir = ele.Value.Remove(ele.Value.LastIndexOf("/") + 1);
                     foreach (var file in XElement.Load(ms1).Elements("File"))
-                      files.Add(new ServerFile()
+                      files.Add(new FileDto
                       {
-                        Id = (int)file.Attribute("Id"),
+                        Id = (int) file.Attribute("Id"),
                         SourceUri = new Uri(new Uri(dir), file.Element("Name").Value).ToString(),
-                        TargetPath = file.Element("Name").Value,
-                        Size = (long)file.Element("Size"),
-                        Version = new Version(file.Element("Version").Value),
-                        MD5 = file.Element("MD5").Value
+                        FileName = file.Element("Name").Value,
+                        Size = (long) file.Element("Size"),
+                        Version = file.Element("Version").Value,
+                        Md5 = file.Element("MD5").Value,
                       });
                   }
                 }
@@ -84,8 +80,14 @@ namespace YTY.amt
           Status = UpdateServerStatus.ConnectFailed;
       }
     }
-  }
 
+    public static event PropertyChangedEventHandler PropertyChanged;
+
+    private static void OnPropertyChanged(string propertyName)
+    {
+      PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
+    }
+  }
 
   public enum UpdateServerStatus
   {
@@ -94,20 +96,5 @@ namespace YTY.amt
     UpToDate,
     ConnectFailed,
     ServerError
-  }
-
-  public class ServerFile
-  {
-    public int Id { get; set; }
-
-    public string SourceUri { get; set; }
-
-    public string TargetPath { get; set; }
-
-    public long Size { get; set; }
-
-    public Version Version { get; set; }
-
-    public string MD5 { get; set; }
   }
 }

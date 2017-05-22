@@ -12,7 +12,7 @@ namespace YTY.amt
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-      await GlobalVars.MainViewModel.StartUpdate();
+      await ProgramModel.StartUpdate();
     }
   }
 }

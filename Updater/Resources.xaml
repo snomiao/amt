@@ -1,8 +1,0 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:YTY.amt">
-  <local:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></local:ByteCountToTextConverter>
-  <local:UpdateServerViewModel x:Key="UpdateServerViewModel"></local:UpdateServerViewModel>
-  <local:MainViewModel x:Key="MainViewModel"></local:MainViewModel>
-  <local:DAL x:Key="DAL"></local:DAL>
-</ResourceDictionary>
