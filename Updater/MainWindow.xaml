@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YTY.amt"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="帝国时代管家更新器"
         Height="600"
         Width="900"
         Loaded="Window_Loaded">
@@ -17,7 +17,7 @@
     </Grid.RowDefinitions>
     <ScrollViewer Grid.Row="1"
                   VerticalScrollBarVisibility="Auto">
-      <ItemsControl ItemsSource="{Binding Source={StaticResource MainViewModel},Path=LocalFilesView}">
+      <ItemsControl ItemsSource="{Binding Source={StaticResource MainViewModel},Path=FilesView}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <Border BorderThickness="0,0,0,1"
@@ -25,7 +25,7 @@
                     Margin="10,5">
               <StackPanel>
                 <TextBlock Text="{Binding Path=Model.FileName}"></TextBlock>
-                <TextBlock Text="{Binding Path=Model.Status}"></TextBlock>
+                <TextBlock Text="{Binding Path=Status}"></TextBlock>
                 <Grid>
                   <ItemsControl ItemsSource="{Binding Path=Model.Chunks}">
                     <ItemsControl.ItemsPanel>

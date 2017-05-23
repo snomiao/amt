@@ -2,17 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:YTY.amt"
-             xmlns:lib="clr-namespace:YTY;assembly=lib"
              StartupUri="MainWindow/MainWindow.xaml"
              ShutdownMode="OnMainWindowClose">
   <Application.Resources>
 
     <local:WorkshopWindow x:Key="WorkshopWindow"></local:WorkshopWindow>
     <local:WorkshopWindowViewModel x:Key="WorkshopWindowViewModel"></local:WorkshopWindowViewModel>
-    <lib:ByteCountToTextConverter x:Key="ByteCountToTextConverter"></lib:ByteCountToTextConverter>
     <local:MainWindowViewModel x:Key="MainWindowViewModel"></local:MainWindowViewModel>
-    <lib:NegateBooleanConverter x:Key="NegateBooleanConverter"></lib:NegateBooleanConverter>
-    <lib:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></lib:BoolToVisibilityConverter>
 
     <ToolTip x:Key="ttpPortForwarding">
       <TextBlock TextWrapping="Wrap"

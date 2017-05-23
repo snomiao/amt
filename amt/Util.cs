@@ -11,52 +11,12 @@ namespace YTY.amt
 {
   public static class Util
   {
-    private const string CSIDDIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!-._~";
     private static readonly DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
     private static readonly int NUMCSIDDIGITS;
-    private static readonly MD5 md5 = MD5.Create();
-    private static readonly SHA1 sha1 = SHA1.Create();
-
-    static Util()
-    {
-      NUMCSIDDIGITS = CSIDDIGITS.Length;
-    }
 
     public static DateTime FromUnixTimestamp(int unixTimestamp)
     {
       return UNIXTIMESTAMPBASE + TimeSpan.FromSeconds(unixTimestamp);
-    }
-
-    public static uint Csid2Int(string csid)
-    {
-      var weight = 1;
-      return (uint)csid.Aggregate(0, (sum, digit) =>
-      {
-        sum += CSIDDIGITS.IndexOf(digit) * weight;
-        weight *= NUMCSIDDIGITS;
-        return sum;
-      });
-    }
-
-    public static string Int2Csid(int value)
-    {
-      var ret = string.Empty;
-      do
-      {
-        ret += CSIDDIGITS[value % NUMCSIDDIGITS];
-        value = value / NUMCSIDDIGITS;
-      } while (value > 0);
-      return ret;
-    }
-
-    public static string GetFileMd5(string fileName)
-    {
-      return BitConverter.ToString(md5.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
-    }
-
-    public static string GetFileSha1(string fileName)
-    {
-      return BitConverter.ToString(sha1.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
     }
 
     public static IEnumerable<Size> GetScreenResolutions()

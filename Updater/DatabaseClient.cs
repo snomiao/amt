@@ -24,6 +24,11 @@ namespace YTY.amt
       return new SQLiteConnection(connectionStringBuilder.ConnectionString).OpenAndReturn();
     }
 
+    private static SQLiteTransaction GetTransaction()
+    {
+      return GetConnection().BeginTransaction();
+    }
+
     static DatabaseClient()
     {
       InitializeDatabase();
@@ -58,12 +63,10 @@ INSERT INTO Meta(Build) VALUES(0);");
       get { return GetConnection().QueryFirstOrDefault<int>("SELECT Build FROM Meta"); }
       set
       {
-        using (var connection = GetConnection())
+        using (var transaction = GetTransaction())
         {
-          using (var transaction = connection.BeginTransaction())
-          {
-            connection.Execute("INSERT OR REPLACE INTO Meta(Build) VALUES(@Build)", new { Build = value }, transaction);
-          }
+          transaction.Connection.Execute("INSERT OR REPLACE INTO Meta(Build) VALUES(@Build)", new { Build = value }, transaction);
+          transaction.Commit();
         }
       }
     }
@@ -75,49 +78,46 @@ INSERT INTO Meta(Build) VALUES(0);");
 
     public static void SaveFiles(IEnumerable<FileDto> dtos)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO File(Id,SourceUri,FileName,Status,Size,Version,Md5) VALUES(@Id,@SourceUri,@FileName,@Status,@Size,@Version,@Md5)", dtos, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO File(Id,SourceUri,FileName,Status,Size,Version,Md5) VALUES(@Id,@SourceUri,@FileName,@Status,@Size,@Version,@Md5)", dtos, transaction);
+        transaction.Commit();
       }
     }
 
     public static void SaveChunks(IEnumerable<ChunkModel> chunks)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO Chunk(FileId,Id,Status) VALUES(@FileId,@Id,@Status)", chunks,transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Chunk(FileId,Id,Status) VALUES(@FileId,@Id,@Status)", chunks, transaction);
+        transaction.Commit();
       }
     }
 
     public static void DeleteChunks(IEnumerable<ChunkModel> chunks)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("DELETE FROM Chunk WHERE FileId=@FileId AND Id=@Id", chunks, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("DELETE FROM Chunk WHERE FileId=@FileId AND Id=@Id", chunks, transaction);
+        transaction.Commit();
       }
     }
 
     public static void UpdateChunk(ChunkModel chunk)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("UPDATE Chunk SET Status=@Status WHERE FileId=@FileId AND Id=@Id", chunk, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("UPDATE Chunk SET Status=@Status WHERE FileId=@FileId AND Id=@Id", chunk, transaction);
+        transaction.Commit();
+      }
+    }
+
+    public static void UpdateFileStatus(FileDto dto)
+    {
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("UPDATE File SET Status=@Status WHERE Id=@Id", dto, transaction);
+        transaction.Commit();
       }
     }
   }

@@ -103,7 +103,7 @@ namespace YTY.amt
     /// <summary>
     /// Convert <see cref="WorkshopResourceType"/> to resource image file name.
     /// </summary>
-    private static BitmapImage[] imageArray = new[] {
+    private static readonly BitmapImage[] imageArray = new[] {
       "resdrs", // Drs
       "rescpx", // Campaign
       "resscx", // Scenario
@@ -114,23 +114,11 @@ namespace YTY.amt
       "1", // Taunt
       "resdrs", // Undefined
       "2", // Language
-    }.Select(f => getImageFromFile(f)).ToArray();
+    }.Select(getImageFromFile).ToArray();
 
-    public ImageSource Image
-    {
-      get
-      {
-        return imageArray[(int)Model.Type];
-      }
-    }
+    public ImageSource Image => imageArray[(int)Model.Type];
 
-    public string ProgressText
-    {
-      get
-      {
-        return $"{ My.ByteCountToTextConverter.Convert(Model.FinishedSize, null, null, null)} / {My.ByteCountToTextConverter.Convert(Model.TotalSize, null, null, null)} ({(double)Model.FinishedSize / Model.TotalSize:P1})";
-      }
-    }
+    public string ProgressText => $"{ Converters.ByteCountToText.Convert(Model.FinishedSize, null, null, null)} / {Converters.ByteCountToText.Convert(Model.TotalSize, null, null, null)} ({(double)Model.FinishedSize / Model.TotalSize:P1})";
 
     public ICollectionView DownloadingFilesView { get; }
 

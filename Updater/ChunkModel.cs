@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace YTY.amt
 {
-  public class ChunkModel
+  public class ChunkModel:INotifyPropertyChanged
   {
     private ChunkStatus status;
 

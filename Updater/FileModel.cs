@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace YTY.amt
 {
-  public class FileModel
+  public class FileModel:INotifyPropertyChanged
   {
     private long size;
     private Version version;
@@ -74,6 +74,12 @@ namespace YTY.amt
       }
     }
 
+    public void UpdateStatus(FileStatus status)
+    {
+      Status = status;
+      DatabaseClient.UpdateFileStatus(ToDto());
+    }
+
     public ObservableCollection<ChunkModel> Chunks { get; } = new ObservableCollection<ChunkModel>();
 
     public async Task DownloadAsync()
@@ -86,7 +92,7 @@ namespace YTY.amt
         var wd = new WebDownloader(SourceUri, size);
         if (status == FileStatus.Ready)
         {
-          Status = FileStatus.Downloading;
+          UpdateStatus(FileStatus.Downloading);
           for (var i = 0; i < wd.NumChunks; i++)
           {
             Chunks.Add(new ChunkModel
@@ -106,46 +112,40 @@ namespace YTY.amt
 
         using (var fs = new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
         {
-          //var tasks = chunks.Where(ch => ch.Status == DownloadChunkStatus.New);
           FinishedSize = Chunks.Count(ch => ch.Status == ChunkStatus.Done) * 65536;
-          var tasks = Chunks.Where(ch => ch.Status == ChunkStatus.New).Select(ch => wd.DownloadChunkAsync(ch.Id)).ToList();
-          var numTasks = tasks.Count;
-          //var processing = tasks.Take(10).Select(ch=>wd.DownloadChunkAsync(ch.Index)). ToList();
-          //foreach (var remaining in tasks.Skip(10))
-          //{
-          //  var recentlyCompletedTask = await TaskEx.WhenAny(processing).ConfigureAwait(false);
-          //  processing.Remove(recentlyCompletedTask);
-          //  processing.Add(wd.DownloadChunkAsync(remaining.Index));
-          //  var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
-          //  Debug.WriteLine($"{indexAndData.Item1} returned");
-          //  fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
-          //  await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length).ConfigureAwait(false);
-          //  await chunks.First(ch => ch.Index == indexAndData.Item1).SetStatusAsync(DownloadChunkStatus.Done).ConfigureAwait(false);
-          //}
-          //var processingCount = processing.Count;
-          //for (var i = 0; i < processingCount; i++)
-          //{
-          //  var recentlyCompletedTask = await TaskEx.WhenAny(processing).ConfigureAwait(false);
-          //  processing.Remove(recentlyCompletedTask);
-          //  var indexAndData = await recentlyCompletedTask.ConfigureAwait(false);
-          //  Debug.WriteLine($"{indexAndData.Item1} returned");
-          //  fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
-          //  await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length).ConfigureAwait(false);
-          //  await chunks.First(ch => ch.Index == indexAndData.Item1).SetStatusAsync(DownloadChunkStatus.Done).ConfigureAwait(false);
-          //}
-          for (var i = 0; i < numTasks; i++)
+          var tasks = Chunks.Where(ch => ch.Status == ChunkStatus.New).Select(ch => wd.DownloadChunkAsync(ch.Id));
+          var working = new List<Task<Tuple<int, byte[]>>>();
+          foreach (var task in tasks)
           {
-            var recentlyCompletedTask = await Task.WhenAny(tasks);
-            tasks.Remove(recentlyCompletedTask);
-            var indexAndData = await recentlyCompletedTask;
-            fs.Seek(wd.ChunkSize * indexAndData.Item1, SeekOrigin.Begin);
-            await fs.WriteAsync(indexAndData.Item2, 0, indexAndData.Item2.Length);
-            Chunks.First(ch => ch.Id == indexAndData.Item1).Status = ChunkStatus.Done;
-            FinishedSize += indexAndData.Item2.Length;
+            if (working.Count < 5)
+            {
+              working.Add(task);
+            }
+            else
+            {
+              var finished =await Task.WhenAny(working);
+              working.Remove(finished);
+              working.Add(task);
+              await ContinueWith(await finished);
+            }
+          }
+          while (working.Count > 0)
+          {
+            var finished = await Task.WhenAny(working);
+            working.Remove(finished);
+            await ContinueWith(await finished);
+          }
+
+          async Task ContinueWith(Tuple<int, byte[]> finished)
+          {
+            fs.Seek(wd.ChunkSize * finished.Item1, SeekOrigin.Begin);
+            await fs.WriteAsync(finished.Item2, 0, finished.Item2.Length);
+            Chunks.First(ch => ch.Id == finished.Item1).Status = ChunkStatus.Done;
+            FinishedSize += finished.Item2.Length;
           }
         }
         DatabaseClient.DeleteChunks(Chunks);
-        Status = FileStatus.Finished;
+        UpdateStatus(FileStatus.Finished);
       }
       catch (WebException)
       {

@@ -14,7 +14,8 @@ namespace YTY.amt
 {
   public class MainViewModel
   {
-    public ObservableCollection<FileViewModel> Files { get; } = new ObservableCollection<FileViewModel>();
+    public ObservableCollection<FileViewModel> Files { get; } 
+      = new ObservableCollection<FileViewModel>(ProgramModel.Files.Select(FileViewModel.FromModel));
 
     public ICollectionView FilesView { get; }
 

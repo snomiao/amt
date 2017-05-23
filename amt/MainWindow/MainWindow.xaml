@@ -3,9 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:YTY.amt;assembly=amt"
+        xmlns:local="clr-namespace:YTY.amt"
         xmlns:model="clr-namespace:YTY.amt.Model;assembly=Model"
-        xmlns:lib="clr-namespace:YTY;assembly=lib"
         mc:Ignorable="d"
         Title="帝国时代管家"
         Height="530"
@@ -159,7 +158,8 @@
              StaysOpen="False"
              Placement="Bottom"
              PlacementTarget="{Binding ElementName=btnStartGame}"
-             Width="186" AllowsTransparency="True">
+             Width="186"
+             AllowsTransparency="True">
         <ItemsControl ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
@@ -228,11 +228,7 @@
             <ScrollViewer>
               <StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">版本切换</TextBlock>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock>当前版本</TextBlock>
-                  <TextBlock></TextBlock>
-                  <TextBlock>。请单击按钮，切换游戏版本并不启动游戏。</TextBlock>
-                </StackPanel>
+                <TextBlock>单击按钮，切换游戏版本并不启动游戏。</TextBlock>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
                          ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}"
                          SelectedItem="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentGame,Mode=TwoWay}">
@@ -244,6 +240,11 @@
                     </DataTemplate>
                   </ListBox.ItemTemplate>
                 </ListBox>
+                <Button HorizontalAlignment="Right" Opacity="0.7">
+                  <Button.LayoutTransform>
+                    <ScaleTransform  ScaleX="0.7" ScaleY="0.7"></ScaleTransform>  
+                  </Button.LayoutTransform>
+                  运行帝国时代Ⅱ 1.0A版</Button>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">打开目录</TextBlock>
                 <TextBlock>单击按钮，打开当前版本的特定目录。</TextBlock>
                 <StackPanel Orientation="Horizontal">
@@ -265,23 +266,13 @@
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">1000人口上限功能</TextBlock>
                 <StackPanel Orientation="Horizontal">
-                  <TextBlock>当前1000人口上限功能</TextBlock>
-                  <TextBlock></TextBlock>
-                  <TextBlock>。请选择开启或关闭1000人口上限。</TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=PopulationLimit,Mode=TwoWay}">开启1000人口上限</ToggleButton>
-                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=PopulationLimit,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">关闭1000人口上限</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=PopulationLimit,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭1000人口上限</ToggleButton>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">多队列训练</TextBlock>
                 <StackPanel Orientation="Horizontal">
-                  <TextBlock>当前多队列训练功能</TextBlock>
-                  <TextBlock></TextBlock>
-                  <TextBlock>。请选择开启或关闭多队列训练。</TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay}">开启多队列训练</ToggleButton>
-                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">关闭多队列训练</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭多队列训练</ToggleButton>
                 </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键</TextBlock>
                 <DockPanel>
@@ -315,11 +306,6 @@
                   </StackPanel>
                 </Grid>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock>当前游戏界面语言：</TextBlock>
-                  <TextBlock></TextBlock>
-                  <TextBlock>。请选择游戏界面语言。</TextBlock>
-                </StackPanel>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
                          ItemsSource="{Binding Source={x:Static model:ProgramModel.Languages}}"
                          SelectedItem="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentLanguage,Mode=TwoWay}">
@@ -333,21 +319,11 @@
                 </ListBox>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">开场影片</TextBlock>
                 <StackPanel Orientation="Horizontal">
-                  <TextBlock>程序启动开场影片：</TextBlock>
-                  <TextBlock></TextBlock>
-                  <TextBlock>。请选择开启或关闭。</TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=Splash,Mode=TwoWay}">开场影片开启</ToggleButton>
-                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=Splash,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">开场影片关闭</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=Splash,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">开场影片关闭</ToggleButton>
                 </StackPanel>
-                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">分辨率</TextBlock>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock>当前分辨率：</TextBlock>
-                  <TextBlock Text="{Binding Source={x:Static model:ProgramModel.Config},Path=Resolution}">
-                  </TextBlock>
-                  <TextBlock>。请选择或输入自定义数值。</TextBlock>
-                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏分辨率</TextBlock>
+                <TextBlock>请选择或输入自定义数值。</TextBlock>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
                          ItemsSource="{Binding ScreenResolutions}"
                          SelectedValue="{Binding Source={x:Static model:ProgramModel.Config},Path=Resolution,Mode=TwoWay}">
@@ -413,9 +389,6 @@
                                Path="Resolution"
                                Mode="TwoWay"
                                UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                          <!--<lib:GreaterThanRule Min="800"></lib:GreaterThanRule>-->
-                        </Binding.ValidationRules>
                       </Binding>
                     </TextBox.Text>
                   </TextBox>
@@ -438,6 +411,10 @@
                            BasedOn="{StaticResource ToggleButtonOnOffStyle}">
                       <Setter Property="Margin"
                               Value="5"></Setter>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                      <Setter Property="VerticalAlignment"
+                              Value="Center"></Setter>
                     </Style>
                   </Grid.Resources>
                   <TextBlock Grid.Row="0"
@@ -469,30 +446,15 @@
             <StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">背景音乐</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock>当前背景音乐</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请选择开启或关闭背景音乐。</TextBlock>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal">
                 <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=BackgroundMusic,Mode=TwoWay}">开启背景音乐</ToggleButton>
-                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=BackgroundMusic,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">关闭背景音乐</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=BackgroundMusic,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭背景音乐</ToggleButton>
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">战役语音语言</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <TextBlock>当前战役语音：</TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock>。请选择战役语音。</TextBlock>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal">
                 <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=IsEnglishCampaignNarration,Mode=TwoWay}">英文战役语音</ToggleButton>
-                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=IsEnglishCampaignNarration,Mode=TwoWay,Converter={StaticResource NegateBooleanConverter}}">中文战役语音</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=IsEnglishCampaignNarration,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">中文战役语音</ToggleButton>
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">嘲讽音效语言</TextBlock>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock>当前嘲讽音效：</TextBlock>
-                <TextBlock Text="{Binding Source={x:Static model:ProgramModel.Config },Path=CurrentTaunt.Name}"></TextBlock>
-                <TextBlock>。请选择嘲讽音效。</TextBlock>
-              </StackPanel>
               <ListBox Style="{StaticResource ListBoxNoneStyle}"
                        ItemsSource="{Binding Source={x:Static model:ProgramModel.Taunts}}"
                        SelectedItem="{Binding Source={x:Static model:ProgramModel.Config} ,Path=CurrentTaunt,Mode=TwoWay}">
@@ -526,12 +488,6 @@
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}"
                          ToolTip="{StaticResource ttpPortForwarding}">联机优化</TextBlock>
-              <StackPanel Orientation="Horizontal"
-                          ToolTip="{StaticResource ttpPortForwarding}">
-                <TextBlock>当前联机优化</TextBlock>
-                <TextBlock x:Name="txbPortForwarding"></TextBlock>
-                <TextBlock>。请选择开启或关闭。</TextBlock>
-              </StackPanel>
               <StackPanel Orientation="Horizontal"
                           ToolTip="{StaticResource ttpPortForwarding}">
                 <Button>关闭联机优化</Button>

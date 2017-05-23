@@ -74,10 +74,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters.cs" />
     <Compile Include="DrsViewModel.cs" />
     <Compile Include="ModViewModel.cs" />
     <Compile Include="ProgramViewModel.cs" />
     <Compile Include="MainWindow\MainWindowViewModel.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="Workshop\WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop\WorkshopWindow.xaml.cs">
       <DependentUpon>WorkshopWindow.xaml</DependentUpon>
@@ -110,10 +112,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\lib.csproj">
-      <Project>{a31e68c4-c6a3-4c8b-b24c-3916f85c1b6c}</Project>
-      <Name>lib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{f52a00b8-4e23-423e-9701-c0b580f265f3}</Project>
       <Name>Model</Name>
@@ -121,10 +119,6 @@
     <ProjectReference Include="..\resources\resources.csproj">
       <Project>{23c92b4b-ef39-48f0-9277-c2e5da3144fe}</Project>
       <Name>resources</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Util\Util.csproj">
-      <Project>{0554445b-7d90-465c-aac4-61e1590e570f}</Project>
-      <Name>Util</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

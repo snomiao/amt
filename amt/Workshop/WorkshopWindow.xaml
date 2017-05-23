@@ -433,7 +433,7 @@
                 <TextBlock.Text>
                   <MultiBinding StringFormat="大小：{0} 游戏版本：{1} 下载量：{2}">
                     <Binding Path="Model.TotalSize"
-                             Converter="{StaticResource ByteCountToTextConverter}"></Binding>
+                             Converter="{x:Static local:Converters.ByteCountToText}"></Binding>
                     <Binding Path="GameVersion"></Binding>
                     <Binding Path="Model.DownloadCount"></Binding>
                   </MultiBinding>
