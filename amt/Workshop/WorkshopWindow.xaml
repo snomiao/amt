@@ -374,8 +374,9 @@
                             <Style TargetType="Button"
                                    BasedOn="{StaticResource ButtonResourceCommandListStyle}"></Style>
                           </StackPanel.Resources>
-                          <Button Content="查看原帖"></Button>
-                          <Button Content="删除资源"></Button>
+                          <Button Content="查看原帖" Command="local:Commands.CreateProcessAbsolutePath"
+                                  CommandParameter="{Binding Model.SourceUrl}"></Button>
+                          <Button Content="删除资源" Command="local:Commands.DeleteResource"></Button>
                         </StackPanel>
                       </Popup>
                     </Grid>
@@ -544,9 +545,9 @@
                                 <RowDefinition Height="*"></RowDefinition>
                               </Grid.RowDefinitions>
                               <TextBlock Grid.Row="0"
-                                         Text="{Binding Path}"></TextBlock>
+                                         Text="{Binding Model.Path}"></TextBlock>
                               <ItemsControl Grid.Row="1"
-                                            ItemsSource="{Binding Chunks}">
+                                            ItemsSource="{Binding Model.Chunks}">
                                 <ItemsControl.ItemsPanel>
                                   <ItemsPanelTemplate>
                                     <WrapPanel></WrapPanel>
@@ -566,7 +567,7 @@
                                             </Setter.Value>
                                           </Setter>
                                           <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Finished}"
+                                            <DataTrigger Binding="{Binding Model.Finished}"
                                                          Value="True">
                                               <DataTrigger.EnterActions>
                                                 <BeginStoryboard>

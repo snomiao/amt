@@ -81,7 +81,6 @@ namespace YTY.amt.Model
         switch (status)
         {
           case ResourceFileStatus.BeforeDownload:
-          case ResourceFileStatus.NeedUpdate:
           case ResourceFileStatus.ChecksumFailed:
             var numChunks = (Size + ConfigModel.CHUNKSIZE - 1) / ConfigModel.CHUNKSIZE;
             for (var i = 0; i < numChunks; i++)
@@ -144,7 +143,6 @@ namespace YTY.amt.Model
       else
       {
         UpdateStatus(ResourceFileStatus.ChecksumFailed);
-        throw new InvalidOperationException(nameof(ResourceFileStatus.ChecksumFailed));
       }
     }
 
@@ -176,6 +174,5 @@ namespace YTY.amt.Model
     Paused,
     Finished,
     ChecksumFailed,
-    NeedUpdate,
   }
 }

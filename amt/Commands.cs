@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.ComponentModel;
+using System.IO;
 using YTY.amt.Model;
 
 namespace YTY.amt
@@ -181,8 +182,15 @@ namespace YTY.amt
       public void Execute(object parameter)
       {
         var game = parameter as ModResourceModel;
-        ProgramModel.Config.CurrentGame = game;
-        game.Run();
+        try
+        {
+          ProgramModel.Config.CurrentGame = game;
+          game.Run();
+        }
+        catch (IOException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
     }
 

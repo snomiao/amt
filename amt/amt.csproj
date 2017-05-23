@@ -80,6 +80,7 @@
     <Compile Include="ProgramViewModel.cs" />
     <Compile Include="MainWindow\MainWindowViewModel.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="Workshop\FileViewModel.cs" />
     <Compile Include="Workshop\WorkshopWindowViewModel.cs" />
     <Compile Include="Workshop\WorkshopWindow.xaml.cs">
       <DependentUpon>WorkshopWindow.xaml</DependentUpon>

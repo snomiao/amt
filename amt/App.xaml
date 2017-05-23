@@ -636,5 +636,13 @@
         </Setter.Value>
       </Setter>
     </Style>
+    
+    <FlowDocument x:Key="fdcFrontPageLoading">
+      <Paragraph>首页加载中...</Paragraph>
+    </FlowDocument>
+    
+    <FlowDocument x:Key="fdcFrontPageError">
+      <Paragraph>首页加载错误</Paragraph>
+    </FlowDocument>
   </Application.Resources>
 </Application>

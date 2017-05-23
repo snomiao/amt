@@ -16,7 +16,7 @@ namespace YTY.amt
     public static WorkshopWindowViewModel WorkshopViewModel { get; } =
       App.FindResource(nameof(WorkshopWindowViewModel)) as WorkshopWindowViewModel;
 
-    public static WorkshopWindow WorkshopWindow { get; } =
-      App.FindResource(nameof(WorkshopWindow)) as WorkshopWindow;
+    public static MainWindowViewModel MainWindowViewModel { get; } =
+      (MainWindowViewModel) App.FindResource(nameof(MainWindowViewModel));
   }
 }

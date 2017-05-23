@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Net;
 
 namespace YTY.amt
 {
@@ -33,9 +34,9 @@ namespace YTY.amt
       txbHawkempirePath.Text = fbd.SelectedPath;
     }
 
-    private void TextBox_Error(object sender, ValidationErrorEventArgs e)
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-      Debug.WriteLine(e.Action);
+      await ProgramViewModel.MainWindowViewModel.GetFrontPage();
     }
   }
 }

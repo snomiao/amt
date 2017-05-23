@@ -296,7 +296,7 @@ namespace YTY.amt.Model
           file.UpdateDate = dto.UpdateDate;
           if ((FileServerStatus)dto.Status == FileServerStatus.Alive)
           {
-            file.Status = ResourceFileStatus.NeedUpdate;
+            file.Status = ResourceFileStatus.BeforeDownload;
           }
           else // Deleted
           {

@@ -10,7 +10,8 @@
         Height="530"
         Width="850"
         Style="{StaticResource WindowGeneralStyle}"
-        DataContext="{StaticResource MainWindowViewModel}">
+        DataContext="{StaticResource MainWindowViewModel}"
+        Loaded="Window_Loaded">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="135"></RowDefinition>
@@ -220,7 +221,9 @@
     </Grid>
     <TabControl Grid.Row="1"
                 Style="{StaticResource TabControlMainStyle}">
-      <TabItem Header="启动界面"></TabItem>
+      <TabItem Header="启动界面">
+        <FlowDocumentScrollViewer Document="{Binding FrontPage}"></FlowDocumentScrollViewer>
+      </TabItem>
       <TabItem Header="游戏设置"
                IsEnabled="{Binding IsValidHawkempirePath}">
         <TabControl Style="{StaticResource TabControlSubStyle}">
@@ -383,7 +386,7 @@
                   <ToggleButton IsChecked="{Binding FullScreen,Mode=TwoWay}">全屏</ToggleButton>
                   <ToggleButton IsChecked="{Binding WorkingArea,Mode=TwoWay}">窗口化全屏</ToggleButton>
                   <TextBlock>自定义：</TextBlock>
-                  <TextBox Validation.Error="TextBox_Error">
+                  <TextBox>
                     <TextBox.Text>
                       <Binding Source="{x:Static model:ProgramModel.Config}"
                                Path="Resolution"

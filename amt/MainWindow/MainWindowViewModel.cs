@@ -4,12 +4,18 @@ using System.IO;
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
+using System.Windows.Documents;
+using System.Threading.Tasks;
+using System.Windows.Markup;
 using YTY.amt.Model;
 
 namespace YTY.amt
 {
   public class MainWindowViewModel : INotifyPropertyChanged
   {
+    private FlowDocument frontPage;
+
     private static readonly Size fullScreen = new Size(SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
 
     private static readonly Size workingArea =
@@ -59,6 +65,15 @@ namespace YTY.amt
       }
     }
 
+    public FlowDocument FrontPage
+    {
+      get => frontPage;
+      set
+      {
+        frontPage = value;
+        OnPropertyChanged(nameof(FrontPage));
+      }
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -86,6 +101,35 @@ namespace YTY.amt
           OnPropertyChanged(nameof(WorkingArea));
           break;
       }
+    }
+
+    public async Task GetFrontPage()
+    {
+      FrontPage = (FlowDocument)ProgramViewModel.App.FindResource("fdcFrontPageLoading");
+      using (var wc = new WebClient())
+      {
+        wc.BaseAddress = "http://www.hawkaoc.net/hawkclient/mainpage.xaml";
+        try
+        {
+          var s  = await wc.DownloadStringTaskAsync(string.Empty);
+          FrontPage= (FlowDocument)XamlReader.Parse(s);
+          foreach (var link in Util.GetDescendants(FrontPage).OfType<Hyperlink>())
+          {
+            link.Click += Link_Click;
+          }
+        }
+        catch (WebException ex)
+        {
+          FrontPage= (FlowDocument) ProgramViewModel.App.FindResource("fdcFrontPageError");
+        }
+      }
+
+    }
+
+    private void Link_Click(object sender, RoutedEventArgs e)
+    {
+      var link = (Hyperlink) sender;
+      Commands.CreateProcessAbsolutePath.Execute(link.Tag);
     }
   }
 }

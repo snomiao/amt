@@ -95,7 +95,7 @@ namespace YTY.amt
 
     public DateTime UpdateDate => Util.FromUnixTimestamp(Model.LastChangeDate);
 
-    private static BitmapImage getImageFromFile(string file)
+    private static BitmapImage GetImageFromFile(string file)
     {
       return new BitmapImage(new Uri($"/resources;component/Resources/{file}.png", UriKind.Relative));
     }
@@ -114,7 +114,7 @@ namespace YTY.amt
       "1", // Taunt
       "resdrs", // Undefined
       "2", // Language
-    }.Select(getImageFromFile).ToArray();
+    }.Select(GetImageFromFile).ToArray();
 
     public ImageSource Image => imageArray[(int)Model.Type];
 
@@ -126,15 +126,14 @@ namespace YTY.amt
     {
       Model = model;
       model.PropertyChanged += Model_PropertyChanged;
-      DownloadingFilesView = CollectionViewSource.GetDefaultView(model.Files);
+      DownloadingFilesView = CollectionViewSource.GetDefaultView(model.Files.Select(FileViewModel.FromModel));
       DownloadingFilesView.Filter = o =>
         {
-          var m = o as ResourceFileModel;
+          var m =((FileViewModel) o).Model;
           return m.Status == ResourceFileStatus.BeforeDownload ||
           m.Status == ResourceFileStatus.Downloading ||
           m.Status == ResourceFileStatus.Paused ||
-          m.Status == ResourceFileStatus.ChecksumFailed ||
-          m.Status == ResourceFileStatus.NeedUpdate;
+          m.Status == ResourceFileStatus.ChecksumFailed;
         };
     }
 
@@ -166,7 +165,6 @@ namespace YTY.amt
           OnPropertyChanged(nameof(ButtonText));
           OnPropertyChanged(nameof(ButtonBackground));
           OnPropertyChanged(nameof(Command));
-          DownloadingFilesView.Refresh();
           break;
         case nameof(DrsResourceModel.IsActivated):
           OnPropertyChanged(nameof(ButtonText));

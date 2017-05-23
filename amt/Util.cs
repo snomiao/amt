@@ -32,6 +32,21 @@ namespace YTY.amt
       }
     }
 
+    public static IEnumerable<DependencyObject> GetDescendants(DependencyObject obj)
+    {
+      foreach (object child in LogicalTreeHelper.GetChildren(obj))
+      {
+        if (child is DependencyObject d)
+        {
+          yield return d;
+          foreach (var child2 in GetDescendants(d))
+          {
+            yield return child2;
+          }
+        }
+      }
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     private struct DEVMODE
     {
