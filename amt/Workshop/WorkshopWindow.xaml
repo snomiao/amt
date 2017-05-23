@@ -12,7 +12,7 @@
         Style="{StaticResource WindowGeneralStyle}"
         x:Name="wnd"
         Loaded="wnd_Loaded"
-        DataContext="{Binding Source={StaticResource WorkshopWindowViewModel}}">
+        DataContext="{x:Static local:ProgramViewModel.WorkshopViewModel}">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="138"></RowDefinition>
@@ -274,6 +274,7 @@
           <Grid Grid.Row="0"
                 Background="LightGray">
             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="auto" MinWidth="100"></ColumnDefinition>
               <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBox Grid.Column="0">
@@ -283,6 +284,8 @@
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox},Path=Text}"></KeyBinding>
               </TextBox.InputBindings>
             </TextBox>
+            <TextBlock Grid.Column="1"
+                       Text="回车键搜索"></TextBlock>
           </Grid>
           <ScrollViewer Grid.Row="1">
             <ItemsControl x:Name="itc"
@@ -352,11 +355,11 @@
                                  Text="{Binding Model.Name}"
                                  TextWrapping="Wrap">
                       </TextBlock>
-                      <TextBlock Grid.Column="2"
+                      <!--<TextBlock Grid.Column="2"
                                  VerticalAlignment="Center"
                                  FontSize="14"
                                  Margin="0,0,10,0"
-                                 Text="{Binding Model.Rating}"></TextBlock>
+                                 Text="{Binding Model.Rating}"></TextBlock>-->
                       <Button Grid.Column="3"
                               Style="{StaticResource ButtonResourceExecuterStyle}"
                               x:Name="button">
@@ -374,9 +377,11 @@
                             <Style TargetType="Button"
                                    BasedOn="{StaticResource ButtonResourceCommandListStyle}"></Style>
                           </StackPanel.Resources>
-                          <Button Content="查看原帖" Command="local:Commands.CreateProcessAbsolutePath"
+                          <Button Content="查看原帖"
+                                  Command="local:Commands.Hyperlink"
                                   CommandParameter="{Binding Model.SourceUrl}"></Button>
-                          <Button Content="删除资源" Command="local:Commands.DeleteResource"></Button>
+                          <Button Content="删除资源"
+                                  Command="local:Commands.DeleteResource"></Button>
                         </StackPanel>
                       </Popup>
                     </Grid>
@@ -388,7 +393,7 @@
         </Grid>
       </TabItem>
       <TabItem Header="资源详情页">
-        <Grid DataContext="{Binding Source={StaticResource WorkshopWindowViewModel},Path=SelectedItem}"
+        <Grid DataContext="{Binding Path=SelectedItem}"
               Margin="20">
           <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -415,7 +420,7 @@
               </Grid.RowDefinitions>
               <TextBlock Grid.Row="0"
                          FontSize="30">                  
-            <Hyperlink Command="local:Commands.CreateProcessAbsolutePath"
+            <Hyperlink Command="local:Commands.Hyperlink"
                        CommandParameter="{Binding Model.SourceUrl}">
               <Run Text="{Binding Model.Name,Mode=OneWay}"></Run>
             </Hyperlink>
@@ -441,12 +446,30 @@
                 </TextBlock.Text>
               </TextBlock>
             </Grid>
-            <TextBlock Grid.Column="2"
-                       Text="{Binding Model.Rating}"></TextBlock>
+            <!--<TextBlock Grid.Column="2"
+                       Text="{Binding Model.Rating}"></TextBlock>-->
             <Button Grid.Column="3"
+                    x:Name="button"
                     Style="{StaticResource ButtonResourceExecuterStyle}"></Button>
             <ToggleButton Grid.Column="4"
+                          x:Name="toggle"
                           Style="{StaticResource ToggleButtonResourceMoreStyle}"></ToggleButton>
+            <Popup IsOpen="{Binding ElementName=toggle,Path=IsChecked}"
+                   StaysOpen="False"
+                   PlacementTarget="{Binding ElementName=button}"
+                   AllowsTransparency="True">
+              <StackPanel>
+                <StackPanel.Resources>
+                  <Style TargetType="Button"
+                         BasedOn="{StaticResource ButtonResourceCommandListStyle}"></Style>
+                </StackPanel.Resources>
+                <Button Content="查看原帖"
+                        Command="local:Commands.Hyperlink"
+                        CommandParameter="{Binding Model.SourceUrl}"></Button>
+                <Button Content="删除资源"
+                        Command="local:Commands.DeleteResource"></Button>
+              </StackPanel>
+            </Popup>
           </Grid>
           <ScrollViewer Grid.Row="1"
                         Margin="0,20,0,0"
@@ -567,7 +590,7 @@
                                             </Setter.Value>
                                           </Setter>
                                           <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Model.Finished}"
+                                            <DataTrigger Binding="{Binding Finished}"
                                                          Value="True">
                                               <DataTrigger.EnterActions>
                                                 <BeginStoryboard>

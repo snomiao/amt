@@ -129,7 +129,7 @@ namespace YTY.amt
     private void Link_Click(object sender, RoutedEventArgs e)
     {
       var link = (Hyperlink) sender;
-      Commands.CreateProcessAbsolutePath.Execute(link.Tag);
+      Commands.Hyperlink.Execute(link.Tag);
     }
   }
 }

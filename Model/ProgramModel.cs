@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Reflection;
+using System.IO;
 using AutoMapper;
 
 namespace YTY.amt.Model
 {
   public static class ProgramModel
   {
+    private static readonly string EXEPATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
     private static readonly Lazy<ConfigModel> config = new Lazy<ConfigModel>(DatabaseClient.GetConfig);
 
     private static readonly Lazy<ObservableCollection<WorkshopResourceModel>> resources =
@@ -37,16 +41,11 @@ namespace YTY.amt.Model
       new Lazy<ObservableCollection<ModResourceModel>>(() => new ObservableCollection<ModResourceModel>(
         ModResourceModel.BuiltInGames.Concat(Mods)));
 
-    private static readonly LanguageResourceModel[] builtInLanguages =
-    {
-      new LanguageResourceModel {Id = -1, Name = "中文"},
-      new LanguageResourceModel {Id = -2, Name = "英语"},
-    };
 
     private static readonly Lazy<ObservableCollection<LanguageResourceModel>> languages =
       new Lazy<ObservableCollection<LanguageResourceModel>>(
         () => new ObservableCollection<LanguageResourceModel>(
-          builtInLanguages.Concat(Resources
+          LanguageResourceModel.BuiltInLanguages.Concat(Resources
           .OfType<LanguageResourceModel>()
           .Where(m => m.Status == WorkshopResourceStatus.Installed)
           )));
@@ -113,7 +112,12 @@ namespace YTY.amt.Model
 
     public static string MakeHawkempirePath(string relativePath)
     {
-      return System.IO.Path.Combine(Config.HawkempirePath, relativePath);
+      return Path.Combine(Config.HawkempirePath, relativePath);
+    }
+
+    public static string MakeExeRelativePath(string relativePath)
+    {
+      return Path.Combine(EXEPATH, relativePath);
     }
 
     public static async Task UpdateResources()

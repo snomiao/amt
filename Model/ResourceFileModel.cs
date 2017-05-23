@@ -13,6 +13,8 @@ namespace YTY.amt.Model
 {
   public class ResourceFileModel : INotifyPropertyChanged
   {
+    private const string PATH_MANAGER = @"manager\";
+
     private ResourceFileStatus status;
     private int finishedSize;
 
@@ -25,7 +27,20 @@ namespace YTY.amt.Model
 
     public string Path { get; set; }
 
-    public string FullPathName => ProgramModel.MakeHawkempirePath(Path);
+    public string FullPathName
+    {
+      get
+      {
+        if (Path.StartsWith(PATH_MANAGER, StringComparison.InvariantCultureIgnoreCase))
+        {
+          return ProgramModel.MakeExeRelativePath(Path.Remove(0,PATH_MANAGER.Length));
+        }
+        else
+        {
+          return ProgramModel.MakeHawkempirePath(Path);
+        }
+      }
+    }
 
     public int UpdateDate { get; set; }
 
@@ -124,7 +139,7 @@ namespace YTY.amt.Model
         {
           if (cancellationToken.IsCancellationRequested)
           {
-            UpdateStatus (ResourceFileStatus.Paused);
+            UpdateStatus(ResourceFileStatus.Paused);
             cancellationToken.ThrowIfCancellationRequested();
           }
           fs.Seek(finished.Id * ConfigModel.CHUNKSIZE, SeekOrigin.Begin);

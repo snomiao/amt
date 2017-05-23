@@ -316,12 +316,20 @@ namespace YTY.amt.Model
       var directories = Files.Select(f => Path.GetDirectoryName(f.FullPathName)).Distinct().OrderBy(d => d.Count(s => s.Equals('\\')));
       foreach (var file in Files)
       {
-        File.Delete(file.FullPathName);
+        try
+        {
+          File.Delete(file.FullPathName);
+        }
+        catch (IOException) { }
       }
       foreach (var directory in directories)
       {
-        if (!Directory.EnumerateFiles(directory).Any())
-          Directory.Delete(directory);
+        try
+        {
+          if (!Directory.EnumerateFiles(directory).Any())
+            Directory.Delete(directory);
+        }
+        catch(IOException) { }
       }
       DatabaseClient.DeleteResourceFiles(Id);
       UpdateStatus(WorkshopResourceStatus.NotInstalled);

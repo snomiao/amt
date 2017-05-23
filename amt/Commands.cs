@@ -52,7 +52,9 @@ namespace YTY.amt
 
     public static ICommand CreateProcessRelativePath { get; } = new CreateProcessRelativePathCommand();
 
-    public static ICommand CreateProcessAbsolutePath { get; } = new CreateProcessAbsolutePathCommand();
+    public static ICommand Hyperlink { get; } = new HyperlinkCommand();
+
+    public static ICommand OpenTool { get; } = new OpenToolCommand();
 
     private class ActivateDrsCommand : ICommand
     {
@@ -65,8 +67,15 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
-        var model = parameter as DrsResourceModel;
-        model.Activate();
+        var model = (DrsResourceModel)parameter;
+        try
+        {
+          model.Activate();
+        }
+        catch (IOException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
     }
 
@@ -81,8 +90,15 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
-        var model = parameter as DrsResourceModel;
-        model.Deactivate();
+        var model = (DrsResourceModel)parameter;
+        try
+        {
+          model.Deactivate();
+        }
+        catch (IOException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
     }
 
@@ -96,8 +112,15 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
-        var drs = parameter as DrsResourceModel;
-        drs.IncrementPriority();
+        var drs = (DrsResourceModel)parameter;
+        try
+        {
+          drs.IncrementPriority();
+        }
+        catch (IOException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
 
       public event EventHandler CanExecuteChanged
@@ -117,8 +140,15 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
-        var drs = parameter as DrsResourceModel;
-        drs.DecrementPriority();
+        var drs = (DrsResourceModel)parameter;
+        try
+        {
+          drs.DecrementPriority();
+        }
+        catch (IOException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
 
       public event EventHandler CanExecuteChanged
@@ -412,7 +442,12 @@ namespace YTY.amt
       {
         try
         {
-          Process.Start(new ProcessStartInfo(ProgramModel.MakeHawkempirePath((string)parameter)) { UseShellExecute = true });
+          var exePath = ProgramModel.MakeHawkempirePath((string)parameter);
+          Process.Start(new ProcessStartInfo(exePath)
+          {
+            WorkingDirectory = Path.GetDirectoryName(exePath),
+            UseShellExecute = true,
+          });
         }
         catch (Win32Exception ex)
         {
@@ -421,7 +456,7 @@ namespace YTY.amt
       }
     }
 
-    private class CreateProcessAbsolutePathCommand : ICommand
+    private class HyperlinkCommand : ICommand
     {
       public event EventHandler CanExecuteChanged
       {
@@ -436,15 +471,34 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
+        Process.Start(new ProcessStartInfo((string)parameter)
+        {
+          UseShellExecute = true,
+        });
+      }
+    }
+
+    private class OpenToolCommand : ICommand
+    {
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public void Execute(object parameter)
+      {
+        var tool = (ToolModel)parameter;
         try
         {
-          Process.Start(new ProcessStartInfo((string)parameter) { UseShellExecute = true });
+          tool.Open();
         }
         catch (Win32Exception ex)
         {
-          MessageBox.Show(ex.ToString());
+          MessageBox.Show(ex.Message);
         }
       }
+
+      public event EventHandler CanExecuteChanged;
     }
   }
 }

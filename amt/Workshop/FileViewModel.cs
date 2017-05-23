@@ -20,7 +20,7 @@ namespace YTY.amt
 
     private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      
+      OnPropertyChanged(e.PropertyName);
     }
 
     public static FileViewModel FromModel(ResourceFileModel model)

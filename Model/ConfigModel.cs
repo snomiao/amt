@@ -1,14 +1,17 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Collections.Generic;
+using Microsoft.Win32;
+using System.IO;
 
 namespace YTY.amt.Model
 {
   public class ConfigModel : INotifyPropertyChanged
   {
-#region CONSTANTS 
+    #region CONSTANTS 
     internal const int CHUNKSIZE = 65536;
-#endregion
+    private const string REGISTRYKEY = @"SOFTWARE\Microsoft\Microsoft Games\Age of Empires II: The Conquerors Expansion\1.0";
+    #endregion
 
     internal string hawkempirePath;
     internal ModResourceModel currentGame;
@@ -31,8 +34,8 @@ namespace YTY.amt.Model
       get { return hawkempirePath; }
       set
       {
-        hawkempirePath = value;
         DatabaseClient.SaveConfigEntry(nameof(HawkempirePath), value);
+        hawkempirePath = value;
         OnPropertyChanged(nameof(HawkempirePath));
       }
     }
@@ -42,9 +45,9 @@ namespace YTY.amt.Model
       get { return currentGame; }
       set
       {
-        currentGame = value;
-        currentGame.CopyExe();
+        value.CopyExe();
         DatabaseClient.SaveConfigEntry(nameof(CurrentGame), value.Id);
+        currentGame = value;
         OnPropertyChanged(nameof(CurrentGame));
       }
     }
@@ -54,9 +57,11 @@ namespace YTY.amt.Model
       get { return populationLimit; }
       set
       {
-        populationLimit = value;
-        // TODO
+        Registry.CurrentUser
+          .CreateSubKey(REGISTRYKEY)
+          .SetValue("Extend Population", value ? 1 : 0, RegistryValueKind.DWord);
         DatabaseClient.SaveConfigEntry(nameof(PopulationLimit), value);
+        populationLimit = value;
         OnPropertyChanged(nameof(PopulationLimit));
       }
     }
@@ -66,9 +71,11 @@ namespace YTY.amt.Model
       get { return multipleQueue; }
       set
       {
-        multipleQueue = value;
-        //TODO
+        Registry.CurrentUser
+          .CreateSubKey(REGISTRYKEY)
+          .SetValue("Multiple Queue", value ? 1 : 0, RegistryValueKind.DWord);
         DatabaseClient.SaveConfigEntry(nameof(MultipleQueue), value);
+        multipleQueue = value;
         OnPropertyChanged(nameof(MultipleQueue));
       }
     }
@@ -78,9 +85,9 @@ namespace YTY.amt.Model
       get { return currentLanguage; }
       set
       {
-        currentLanguage = value;
-        //TODO
+        value.Activate();
         DatabaseClient.SaveConfigEntry(nameof(CurrentLanguage), value.Id);
+        currentLanguage = value;
         OnPropertyChanged(nameof(CurrentLanguage));
       }
     }
@@ -90,8 +97,8 @@ namespace YTY.amt.Model
       get { return splash; }
       set
       {
-        splash = value;
         DatabaseClient.SaveConfigEntry(nameof(Splash), value);
+        splash = value;
         OnPropertyChanged(nameof(Splash));
       }
     }
@@ -101,8 +108,14 @@ namespace YTY.amt.Model
       get { return resolution; }
       set
       {
-        resolution = value;
+        Registry.CurrentUser
+          .CreateSubKey(REGISTRYKEY)
+          .SetValue("Screen Width", value.Width, RegistryValueKind.DWord);
+        Registry.CurrentUser
+          .CreateSubKey(REGISTRYKEY)
+          .SetValue("Screen Height", value.Height, RegistryValueKind.DWord);
         DatabaseClient.SaveConfigEntry(nameof(Resolution), value);
+        resolution = value;
         OnPropertyChanged(nameof(Resolution));
       }
     }
@@ -112,8 +125,24 @@ namespace YTY.amt.Model
       get { return backgroundMusic; }
       set
       {
-        backgroundMusic = value;
+        var soundM3UManager = ProgramModel.MakeExeRelativePath(@"sound\music.m3u");
+        var soundM3uC = ProgramModel.MakeHawkempirePath(@"sound\music.m3u");
+        var soundM3U4 = ProgramModel.MakeHawkempirePath(@"games\the conquerors 1.4\sound\music.m3u");
+        var soundM3UFe = ProgramModel.MakeHawkempirePath(@"games\forgotten empires\sound\music.m3u");
+        if (value)
+        {
+          File.Copy(soundM3UManager, soundM3uC, true);
+          File.Copy(soundM3UManager, soundM3U4, true);
+          File.Copy(soundM3UManager, soundM3UFe, true);
+        }
+        else
+        {
+          File.Delete(soundM3uC);
+          File.Delete(soundM3U4);
+          File.Delete(soundM3UFe);
+        }
         DatabaseClient.SaveConfigEntry(nameof(BackgroundMusic), value);
+        backgroundMusic = value;
         OnPropertyChanged(nameof(BackgroundMusic));
       }
     }
@@ -123,8 +152,16 @@ namespace YTY.amt.Model
       get { return isEnglishCampaignNarration; }
       set
       {
-        isEnglishCampaignNarration = value;
+        foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(@"sound\campaign\" + (value ? "en" : "zh"))))
+        {
+          File.Copy(file, Path.Combine(ProgramModel.MakeHawkempirePath(@"sound\campaign"), Path.GetFileName(file)), true);
+        }
+        foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(@"sound\scenario\" + (value ? "en" : "zh"))))
+        {
+          File.Copy(file, Path.Combine(ProgramModel.MakeHawkempirePath(@"sound\scenario"), Path.GetFileName(file)), true);
+        }
         DatabaseClient.SaveConfigEntry(nameof(IsEnglishCampaignNarration), value);
+        isEnglishCampaignNarration = value;
         OnPropertyChanged(nameof(IsEnglishCampaignNarration));
       }
     }
@@ -134,8 +171,11 @@ namespace YTY.amt.Model
       get { return allShown_AocA; }
       set
       {
-        allShown_AocA = value;
+        File.Copy(ProgramModel.MakeExeRelativePath(
+          value ? @"dat\allshown\empires2_x1_age2x1a.dat" : @"dat\original\empires2_x1.dat"),
+          ProgramModel.MakeHawkempirePath(@"data\empires2_x1.dat"), true);
         DatabaseClient.SaveConfigEntry(nameof(AllShown_AocA), value);
+        allShown_AocA = value;
         OnPropertyChanged(nameof(AllShown_AocA));
       }
     }
@@ -145,8 +185,11 @@ namespace YTY.amt.Model
       get { return allShown_AocC; }
       set
       {
-        allShown_AocC = value;
+        File.Copy(ProgramModel.MakeExeRelativePath(
+          value ? @"dat\allshown\empires2_x1_p1_age2x1c.dat" : @"dat\original\empires2_x1_p1.dat"),
+          ProgramModel.MakeHawkempirePath(@"data\empires2_x1_p1.dat"), true);
         DatabaseClient.SaveConfigEntry(nameof(AllShown_AocC), value);
+        allShown_AocC = value;
         OnPropertyChanged(nameof(AllShown_AocC));
       }
     }
@@ -156,8 +199,11 @@ namespace YTY.amt.Model
       get { return allShown_Aoc15; }
       set
       {
-        allShown_Aoc15 = value;
+        File.Copy(ProgramModel.MakeExeRelativePath(
+          value ? @"dat\allshown\empires2_x1_p1_age2x1c.dat" : @"dat\original\empires2_x1_p1.dat"),
+          ProgramModel.MakeHawkempirePath(@"games\the conquerors 1.4\data\empires2_x1_p1.dat"), true);
         DatabaseClient.SaveConfigEntry(nameof(AllShown_Aoc15), value);
+        allShown_Aoc15 = value;
         OnPropertyChanged(nameof(AllShown_Aoc15));
       }
     }
@@ -167,8 +213,11 @@ namespace YTY.amt.Model
       get { return allShown_AoFE; }
       set
       {
-        allShown_AoFE = value;
+        File.Copy(ProgramModel.MakeExeRelativePath(
+          value ? @"dat\allshown\empires2_x1_p1_age2x2.dat" : @"dat\original\empires2_x1_p1_fe.dat"),
+          ProgramModel.MakeHawkempirePath(@"Games\forgotten empires\data\empires2_x1_p1.dat"), true);
         DatabaseClient.SaveConfigEntry(nameof(AllShown_AoFE), value);
+        allShown_AoFE = value;
         OnPropertyChanged(nameof(AllShown_AoFE));
       }
     }
@@ -189,9 +238,9 @@ namespace YTY.amt.Model
       get { return currentTaunt; }
       set
       {
-        currentTaunt = value;
-        currentTaunt.Activate();
+        value.Activate();
         DatabaseClient.SaveConfigEntry(nameof(CurrentTaunt), value.Id);
+        currentTaunt = value;
         OnPropertyChanged(nameof(CurrentTaunt));
       }
     }

@@ -46,7 +46,7 @@ namespace YTY.amt.Model
         ret.currentGame =
           ProgramModel.Games.First(m => m.Id == GetInt(nameof(ConfigModel.CurrentGame), -1));
         ret.allShown_Aoc15 = GetBool(nameof(ConfigModel.AllShown_Aoc15), false);
-        ret.AllShown_AocA = GetBool(nameof(ConfigModel.AllShown_AocA), false);
+        ret.allShown_AocA = GetBool(nameof(ConfigModel.AllShown_AocA), false);
         ret.allShown_AocC = GetBool(nameof(ConfigModel.AllShown_AocC), false);
         ret.allShown_AoFE = GetBool(nameof(ConfigModel.AllShown_AoFE), false);
         ret.populationLimit = GetBool(nameof(ConfigModel.PopulationLimit), true);

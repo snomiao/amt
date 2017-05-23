@@ -18,6 +18,8 @@ namespace YTY.amt
     private WorkshopResourceViewModel selectedItem;
     private Predicate<object> byTypeFilter = o => true;
     private Predicate<object> byNameFilter = o => true;
+    private readonly CollectionViewSource viewSourceForDownloading;
+    private readonly CollectionViewSource viewSourceAll;
 
     private Predicate<object> ByTypeFilter
     {
@@ -57,9 +59,9 @@ namespace YTY.amt
     public ObservableCollection<WorkshopResourceViewModel> WorkshopResources { get; } =
       new ObservableCollection<WorkshopResourceViewModel>();
 
-    public ICollectionView ResourcesView { get; }
+    public ICollectionView ResourcesView => viewSourceAll.View;
 
-    public ICollectionView DownloadingResourcesView { get; }
+    public ICollectionView DownloadingResourcesView => viewSourceForDownloading.View;
 
     public WorkshopResourceViewModel SelectedItem
     {
@@ -80,12 +82,12 @@ namespace YTY.amt
         model.PropertyChanged += Model_PropertyChanged;
       }
 
-      ResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
-      ResourcesView.SortDescriptions.Add(
+      viewSourceAll = new CollectionViewSource {Source = WorkshopResources};
+      viewSourceAll.SortDescriptions.Add(
         new SortDescription("Model.LastChangeDate", ListSortDirection.Descending));
-      ResourcesView.SortDescriptions.Add(
+      viewSourceAll.SortDescriptions.Add(
         new SortDescription("Model.LastFileChangeDate", ListSortDirection.Descending));
-      DownloadingResourcesView = new CollectionViewSource { Source = WorkshopResources }.View;
+      viewSourceForDownloading = new CollectionViewSource { Source = WorkshopResources };
       DownloadingResourcesView.Filter = o =>
       {
         var status = (o as WorkshopResourceViewModel).Model.Status;

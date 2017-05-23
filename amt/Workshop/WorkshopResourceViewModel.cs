@@ -8,6 +8,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 using YTY.amt.Model;
 
 namespace YTY.amt
@@ -122,11 +124,15 @@ namespace YTY.amt
 
     public ICollectionView DownloadingFilesView { get; }
 
+    public ObservableCollection<FileViewModel> Files { get; } 
+
     protected WorkshopResourceViewModel(WorkshopResourceModel model)
     {
       Model = model;
+      Files = new ObservableCollection<FileViewModel>(model.Files.Select(FileViewModel.FromModel));
+      model.Files.CollectionChanged += Files_CollectionChanged;
       model.PropertyChanged += Model_PropertyChanged;
-      DownloadingFilesView = CollectionViewSource.GetDefaultView(model.Files.Select(FileViewModel.FromModel));
+      DownloadingFilesView = CollectionViewSource.GetDefaultView(Files);
       DownloadingFilesView.Filter = o =>
         {
           var m =((FileViewModel) o).Model;
@@ -135,6 +141,19 @@ namespace YTY.amt
           m.Status == ResourceFileStatus.Paused ||
           m.Status == ResourceFileStatus.ChecksumFailed;
         };
+    }
+
+    private void Files_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (ResourceFileModel model in e.NewItems)
+          {
+            Files.Add(FileViewModel.FromModel(model));
+          }
+          break;
+      }
     }
 
     public static WorkshopResourceViewModel FromModel(WorkshopResourceModel model)

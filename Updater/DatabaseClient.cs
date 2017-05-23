@@ -31,7 +31,10 @@ namespace YTY.amt
 
     static DatabaseClient()
     {
-      InitializeDatabase();
+      if (!System.IO.File.Exists(CONFIGFILE))
+      {
+        InitializeDatabase();
+      }
     }
 
     private static void InitializeDatabase()
@@ -65,7 +68,7 @@ INSERT INTO Meta(Build) VALUES(0);");
       {
         using (var transaction = GetTransaction())
         {
-          transaction.Connection.Execute("INSERT OR REPLACE INTO Meta(Build) VALUES(@Build)", new { Build = value }, transaction);
+          transaction.Connection.Execute("UPDATE Meta SET Build=@Build", new { Build = value }, transaction);
           transaction.Commit();
         }
       }

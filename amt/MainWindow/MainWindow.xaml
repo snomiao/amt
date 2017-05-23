@@ -10,7 +10,7 @@
         Height="530"
         Width="850"
         Style="{StaticResource WindowGeneralStyle}"
-        DataContext="{StaticResource MainWindowViewModel}"
+        DataContext="{x:Static local:ProgramViewModel.MainWindowViewModel}"
         Loaded="Window_Loaded">
   <Grid>
     <Grid.RowDefinitions>
@@ -53,7 +53,7 @@
               FontSize="24"
               Foreground="White"
               Command="local:Commands.SwitchAndRunGame"
-              CommandParameter="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentGame}"
+              CommandParameter="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame}"
               IsEnabled="{Binding IsValidHawkempirePath}">
         <Button.Style>
           <Style TargetType="{x:Type Button}"
@@ -213,7 +213,7 @@
                  FontSize="16"
                  Foreground="White"
                  Margin="0,0,0,10"
-                 Text="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentGame.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
+                 Text="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
       <Button Grid.Column="4"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
       <Button Grid.Column="5"
@@ -221,6 +221,9 @@
     </Grid>
     <TabControl Grid.Row="1"
                 Style="{StaticResource TabControlMainStyle}">
+      <TabControl.Background>
+        <ImageBrush ImageSource="/resources;component/Resources/aboutbg.png"></ImageBrush>
+      </TabControl.Background>
       <TabItem Header="启动界面">
         <FlowDocumentScrollViewer Document="{Binding FrontPage}"></FlowDocumentScrollViewer>
       </TabItem>
@@ -234,7 +237,7 @@
                 <TextBlock>单击按钮，切换游戏版本并不启动游戏。</TextBlock>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
                          ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}"
-                         SelectedItem="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentGame,Mode=TwoWay}">
+                         SelectedItem="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame,Mode=TwoWay}">
                   <ListBox.ItemTemplate>
                     <DataTemplate>
                       <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"
@@ -243,11 +246,16 @@
                     </DataTemplate>
                   </ListBox.ItemTemplate>
                 </ListBox>
-                <Button HorizontalAlignment="Right" Opacity="0.7">
+                <Button HorizontalAlignment="Right"
+                        Opacity="0.7"
+                        Content="运行帝国时代Ⅱ 1.0A版"
+                        Command="local:Commands.CreateProcessRelativePath"
+                        CommandParameter="age2_x1a\age2_x1.exe">
                   <Button.LayoutTransform>
-                    <ScaleTransform  ScaleX="0.7" ScaleY="0.7"></ScaleTransform>  
+                    <ScaleTransform  ScaleX="0.7"
+                                     ScaleY="0.7"></ScaleTransform>
                   </Button.LayoutTransform>
-                  运行帝国时代Ⅱ 1.0A版</Button>
+                </Button>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">打开目录</TextBlock>
                 <TextBlock>单击按钮，打开当前版本的特定目录。</TextBlock>
                 <StackPanel Orientation="Horizontal">
@@ -277,8 +285,8 @@
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay}">开启多队列训练</ToggleButton>
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭多队列训练</ToggleButton>
                 </StackPanel>
-                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键</TextBlock>
-                <DockPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键（维护中）</TextBlock>
+                <DockPanel IsEnabled="False">
                   <Button>使用C版默认快捷键</Button>
                   <Button>使用AoFE默认快捷键</Button>
                   <Button Visibility="Collapsed">帝国时代用户管理器</Button>
@@ -311,7 +319,7 @@
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
                          ItemsSource="{Binding Source={x:Static model:ProgramModel.Languages}}"
-                         SelectedItem="{Binding Source={x:Static model:ProgramModel.Config},Path=CurrentLanguage,Mode=TwoWay}">
+                         SelectedItem="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentLanguage,Mode=TwoWay}">
                   <ListBox.ItemTemplate>
                     <DataTemplate>
                       <ToggleButton Style="{StaticResource ToggleButtonSettingStyle}"
@@ -430,16 +438,16 @@
                              Grid.Column="0">1.0A 版</TextBlock>
                   <ToggleButton Grid.Row="0"
                                 Grid.Column="1"
-                                IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=AllShown_Aoc15}"></ToggleButton>
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_Aoc15}"></ToggleButton>
                   <ToggleButton Grid.Row="1"
                                 Grid.Column="1"
-                                IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=AllShown_AocC}"></ToggleButton>
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_AocC}"></ToggleButton>
                   <ToggleButton Grid.Row="2"
                                 Grid.Column="1"
-                                IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=AllShown_AoFE}"></ToggleButton>
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_AoFE}"></ToggleButton>
                   <ToggleButton Grid.Row="3"
                                 Grid.Column="1"
-                                IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=AllShown_AocA}"></ToggleButton>
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_AocA}"></ToggleButton>
                 </Grid>
               </StackPanel>
             </ScrollViewer>
@@ -449,18 +457,18 @@
             <StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">背景音乐</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=BackgroundMusic,Mode=TwoWay}">开启背景音乐</ToggleButton>
-                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=BackgroundMusic,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭背景音乐</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=BackgroundMusic,Mode=TwoWay}">开启背景音乐</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=BackgroundMusic,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭背景音乐</ToggleButton>
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">战役语音语言</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=IsEnglishCampaignNarration,Mode=TwoWay}">英文战役语音</ToggleButton>
-                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=IsEnglishCampaignNarration,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">中文战役语音</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=IsEnglishCampaignNarration,Mode=TwoWay}">英文战役语音</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=IsEnglishCampaignNarration,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">中文战役语音</ToggleButton>
               </StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">嘲讽音效语言</TextBlock>
               <ListBox Style="{StaticResource ListBoxNoneStyle}"
                        ItemsSource="{Binding Source={x:Static model:ProgramModel.Taunts}}"
-                       SelectedItem="{Binding Source={x:Static model:ProgramModel.Config} ,Path=CurrentTaunt,Mode=TwoWay}">
+                       SelectedItem="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel} ,Path=CurrentTaunt,Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                   <DataTemplate>
                     <ToggleButton Content="{Binding Name}"
@@ -527,7 +535,9 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Button ToolTip="{Binding ToolTip}">
+                        <Button ToolTip="{Binding ToolTip}"
+                                Command="local:Commands.OpenTool"
+                                CommandParameter="{Binding}">
                           <StackPanel>
                             <Image Source="{Binding IconPath}"
                                    Width="36"
@@ -557,6 +567,7 @@
                   <StackPanel Orientation="Horizontal">
                     <Button Click="btnSetHawkempirePath_Click">设置游戏路径</Button>
                     <TextBlock x:Name="txbHawkempirePath"
+                               VerticalAlignment="Center"
                                Text="{Binding Source={x:Static model:ProgramModel.Config},Path=HawkempirePath,Mode=TwoWay}"></TextBlock>
                   </StackPanel>
                 </StackPanel>
@@ -582,6 +593,48 @@
                 </StackPanel>
               </StackPanel>
             </ScrollViewer>
+          </TabItem>
+          <TabItem Header="关于与升级">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+              </Grid.ColumnDefinitions>
+              <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="auto"></RowDefinition>
+                  <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Image x:Name="imgAbout"
+                       Grid.Row="0"
+                       Source="/resources;component/Resources/abouthawk.png"
+                       Width="385"
+                       Height="208"
+                       VerticalAlignment="Top"
+                       Margin="0,10,0,5"
+                       Cursor="Hand">
+                  <Image.InputBindings>
+                    <MouseBinding MouseAction="LeftClick" Command="local:Commands.Hyperlink" CommandParameter="http://www.hawkaoc.net"> </MouseBinding>
+                  </Image.InputBindings>
+                </Image>
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal">
+                  <Button HorizontalAlignment="Left" Content="检查更新"></Button>
+                  <TextBlock></TextBlock>
+                </StackPanel>
+              </Grid>
+              <FlowDocumentScrollViewer Grid.Column="1"
+                                        VerticalScrollBarVisibility="Disabled">
+                <FlowDocument>
+                  <Paragraph>帝国时代管家（amt.exe）是飞翔之鹰工作室为广大帝国玩家专门设计的一款游戏管理应用，界面美观，简单实用。它能帮助玩家免去游戏各类复杂的设置，能够轻松进行游戏一键游戏版本切换、更新、联机、作品共享和游戏高级开发等功能。不仅如此，玩家还能及时获取最新的帝国资讯、作品和开发成果。无论您是帝国时代系列的忠实粉丝还是刚刚接触这款经典游戏的新人玩家，帝国时代管家都将为您带来更极致、简单的帝国时代游戏体验！</Paragraph>
+                  <Paragraph TextAlignment="Right">
+                    <Run Foreground="Brown">当前管家版本：3.2</Run> /
+                    <Hyperlink Command="local:Commands.Hyperlink" CommandParameter="http://www.hawkaoc.net/hawkclient/changelog.txt">软件更新日志</Hyperlink> /
+                    <Hyperlink Command="local:Commands.Hyperlink" CommandParameter="http://121.42.152.168/website/">了解制作团队</Hyperlink>
+                  </Paragraph>
+                </FlowDocument>
+              </FlowDocumentScrollViewer>
+            </Grid>
           </TabItem>
         </TabControl>
       </TabItem>

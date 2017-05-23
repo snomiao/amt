@@ -38,7 +38,6 @@ namespace YTY.amt
       await UpdateServerModel.GetUpdateSourcesAsync();
       if (UpdateServerModel.Status == UpdateServerStatus.NeedUpdate)
       {
-        Build = UpdateServerModel.Build;
         var newFiles = new List<FileModel>();
         foreach (var serverFile in UpdateServerModel.ServerFiles)
         {
@@ -69,6 +68,7 @@ namespace YTY.amt
         {
           await file.DownloadAsync();
         }
+        Build = UpdateServerModel.Build;
       }
     }
   }

@@ -74,6 +74,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConfigViewModel.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="DrsViewModel.cs" />
     <Compile Include="ModViewModel.cs" />

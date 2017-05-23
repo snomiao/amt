@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace YTY.amt.Model
 {
@@ -14,7 +15,11 @@ namespace YTY.amt.Model
     {
       if (IsBuiltIn)
       {
-
+        var tauntPath = ProgramModel.MakeHawkempirePath("taunt");
+        foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(Path)))
+        {
+          File.Copy(file, System.IO.Path.Combine(tauntPath, System.IO.Path.GetFileName(file)), true);
+        }
       }
       else
       {
@@ -28,13 +33,13 @@ namespace YTY.amt.Model
       {
         Id=-2,
         Name="中文嘲讽音效",
-        Path=@"Manager\taunt\zh",
+        Path=@"taunt\zh",
       },
       new TauntResourceModel
       {
         Id=-1,
         Name="英文嘲讽音效",
-        Path=@"Manager\taunt\en",
+        Path=@"taunt\en",
       },
     };
   }

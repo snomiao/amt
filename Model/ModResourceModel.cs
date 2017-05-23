@@ -98,34 +98,23 @@ namespace YTY.amt.Model
 
     public void CopyExe()
     {
-      File.Copy(ProgramModel.MakeHawkempirePath(ExePath), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
+      File.Copy(IsBuiltIn?
+        ProgramModel.MakeExeRelativePath(ExePath):
+        ProgramModel.MakeHawkempirePath(ExePath),
+        ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
     }
 
     public void Run()
     {
       CopyExe();
-      ApplyDrses();
-      Process.Start(ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"));
+      var exePath = ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe");
+      Process.Start(new ProcessStartInfo(exePath, ProgramModel.Config.Splash ? string.Empty : "nostartup")
+      {
+        WorkingDirectory = Path.GetDirectoryName(exePath),
+        UseShellExecute = true,
+      });
     }
 
-    private void ApplyDrses()
-    {
-      var dic = builtInDrsFiles.ToDictionary(f => f, f => DrsFile.Load(ProgramModel.MakeHawkempirePath(Path.Combine(@"Manager\drs", f))));
-      foreach (var drs in ProgramModel.ActiveDrses.Reverse())
-      {
-        foreach (var file in drs.Files)
-        {
-          var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
-          var id = int.Parse(Path.GetFileNameWithoutExtension(file.Path));
-          var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
-          dic[drsName][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(ProgramModel.MakeHawkempirePath(file.Path));
-        }
-      }
-      foreach (var pair in dic)
-      {
-        pair.Value.Save(ProgramModel.MakeHawkempirePath(Path.Combine("Data",pair.Key)));
-      }
-    }
 
     internal static readonly ModResourceModel[] BuiltInGames =
     {
@@ -133,44 +122,30 @@ namespace YTY.amt.Model
       {
         Id = -1,
         Name = "帝国时代Ⅱ 1.5",
-        ExePath = @"Manager\exe\age2_x1.5.exe",
+        ExePath = @"exe\age2_x1.5.exe",
         FolderPath=@"Games\The Conquerors 1.4",
       },
       new ModResourceModel
       {
         Id = AGE2_1C,
         Name = "帝国时代Ⅱ 1.0C",
-        ExePath = @"Manager\exe\age2_x1.0c.exe",
+        ExePath = @"exe\age2_x1.0c.exe",
         FolderPath="",
       },
       new ModResourceModel
       {
         Id = -3,
         Name = "被遗忘的帝国",
-        ExePath = @"Manager\exe\age2_x2.exe",
+        ExePath = @"exe\age2_x2.exe",
         FolderPath=@"Games\Forgotten Empires",
       },
       new ModResourceModel
       {
         Id = -4,
         Name = "WAIFor 触发扩展版",
-        ExePath = @"Manager\exe\age2_wtep.exe",
+        ExePath = @"exe\age2_wtep.exe",
         FolderPath=@"Games\The Conquerors 1.4",
       },
-    };
-
-    private static readonly string[] builtInDrsFiles =
-    {
-      "gamedata.drs",
-      "graphics.drs",
-      "interfac.drs",
-      "sounds.drs",
-      "terrain.drs",
-    };
-
-    private static readonly string[] drsTables =
-    {
-      "bina","shp","slp","wav",
     };
   }
 
