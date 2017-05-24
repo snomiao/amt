@@ -12,7 +12,6 @@ namespace YTY.amt.Model
   {
     private const string CSIDDIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!-._~";
     private static readonly int NUMCSIDDIGITS;
-    private static readonly MD5 md5 = MD5.Create();
     private static readonly SHA1 sha1 = SHA1.Create();
 
     static Util()
@@ -40,11 +39,6 @@ namespace YTY.amt.Model
         value = value / NUMCSIDDIGITS;
       } while (value > 0);
       return ret;
-    }
-
-    public static string GetFileMd5(string fileName)
-    {
-      return BitConverter.ToString(md5.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
     }
 
     public static string GetFileSha1(string fileName)

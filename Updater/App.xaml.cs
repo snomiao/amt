@@ -13,14 +13,16 @@ namespace YTY.amt
     private const string MUTEXNAME = "amtMainMutex";
     private const int WAITTIMEOUT = 5000;
 
+    public static App Program => (App)Application.Current;
+
     private async void Application_Startup(object sender, StartupEventArgs e)
     {
       if (e.Args.Length > 0)
       {
         if (e.Args[0].Equals("--CheckUpdate", StringComparison.InvariantCultureIgnoreCase))
         {
-          await UpdateServerModel.GetUpdateSourcesAsync();
-          Console.Out.Write(UpdateServerModel.Status);
+          await ProgramModel.UpdateServerModel.GetUpdateSourcesAsync();
+          Console.Out.Write(ProgramModel.UpdateServerModel.Status);
         }
         Shutdown();
       }

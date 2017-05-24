@@ -250,7 +250,7 @@
                         Opacity="0.7"
                         Content="运行帝国时代Ⅱ 1.0A版"
                         Command="local:Commands.CreateProcessRelativePath"
-                        CommandParameter="age2_x1a\age2_x1.exe">
+                        CommandParameter="hawk:age2_x1a\age2_x1.exe">
                   <Button.LayoutTransform>
                     <ScaleTransform  ScaleX="0.7"
                                      ScaleY="0.7"></ScaleTransform>
@@ -285,12 +285,15 @@
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay}">开启多队列训练</ToggleButton>
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭多队列训练</ToggleButton>
                 </StackPanel>
-                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键（维护中）</TextBlock>
-                <DockPanel IsEnabled="False">
-                  <Button>使用C版默认快捷键</Button>
-                  <Button>使用AoFE默认快捷键</Button>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键</TextBlock>
+                <DockPanel>
+                  <Button Command="local:Commands.ApplyHotkey"
+                          CommandParameter="c">使用C版默认快捷键</Button>
+                  <Button Command="local:Commands.ApplyHotkey"
+                          CommandParameter="fe">使用AoFE默认快捷键</Button>
                   <Button Visibility="Collapsed">帝国时代用户管理器</Button>
-                  <Button HorizontalAlignment="Right">热键编辑器</Button>
+                  <Button HorizontalAlignment="Right"
+                          Visibility="Collapsed">热键编辑器</Button>
                 </DockPanel>
               </StackPanel>
             </ScrollViewer>
@@ -482,14 +485,16 @@
             <StackPanel>
               <TextBlock Style="{StaticResource TextBlockHeaderStyle}">修复补丁</TextBlock>
               <StackPanel Orientation="Horizontal">
-                <Button>
+                <Button Command="local:Commands.CreateProcessRelativePath"
+                        CommandParameter="manager:tools\setupipx.exe">
                   <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap"
                                MaxWidth="200">使用腾讯、浩方对战平台需要IPX协议，在Win7以上系统当中并没有该协议，翔鹰版在安装时已经默认安装了该协议。</TextBlock>
                   </Button.ToolTip>
                   IPX 补丁
                 </Button>
-                <Button>
+                <Button Command="local:Commands.CreateProcessRelativePath"
+                        CommandParameter="hawk:setupreg.exe">
                   <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap"
                                MaxWidth="200">使用安装版帝国时代时，程序路径储存在注册表中，如果你的帝国时代是拷贝得来，那么注册表中并没有帝国时代路径信息。Voobly平台通过注册表来识别帝国时代路径。</TextBlock>
@@ -614,12 +619,17 @@
                        Margin="0,10,0,5"
                        Cursor="Hand">
                   <Image.InputBindings>
-                    <MouseBinding MouseAction="LeftClick" Command="local:Commands.Hyperlink" CommandParameter="http://www.hawkaoc.net"> </MouseBinding>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="local:Commands.Hyperlink"
+                                  CommandParameter="http://www.hawkaoc.net"></MouseBinding>
                   </Image.InputBindings>
                 </Image>
                 <StackPanel Grid.Row="1"
                             Orientation="Horizontal">
-                  <Button HorizontalAlignment="Left" Content="检查更新"></Button>
+                  <Button HorizontalAlignment="Left"
+                          Content="检查更新"
+                          Command="local:Commands.CheckUpdate"
+                          CommandParameter="True"></Button>
                   <TextBlock></TextBlock>
                 </StackPanel>
               </Grid>
@@ -629,8 +639,10 @@
                   <Paragraph>帝国时代管家（amt.exe）是飞翔之鹰工作室为广大帝国玩家专门设计的一款游戏管理应用，界面美观，简单实用。它能帮助玩家免去游戏各类复杂的设置，能够轻松进行游戏一键游戏版本切换、更新、联机、作品共享和游戏高级开发等功能。不仅如此，玩家还能及时获取最新的帝国资讯、作品和开发成果。无论您是帝国时代系列的忠实粉丝还是刚刚接触这款经典游戏的新人玩家，帝国时代管家都将为您带来更极致、简单的帝国时代游戏体验！</Paragraph>
                   <Paragraph TextAlignment="Right">
                     <Run Foreground="Brown">当前管家版本：3.2</Run> /
-                    <Hyperlink Command="local:Commands.Hyperlink" CommandParameter="http://www.hawkaoc.net/hawkclient/changelog.txt">软件更新日志</Hyperlink> /
-                    <Hyperlink Command="local:Commands.Hyperlink" CommandParameter="http://121.42.152.168/website/">了解制作团队</Hyperlink>
+                    <Hyperlink Command="local:Commands.Hyperlink"
+                               CommandParameter="http://www.hawkaoc.net/hawkclient/changelog.txt">软件更新日志</Hyperlink> /
+                    <Hyperlink Command="local:Commands.Hyperlink"
+                               CommandParameter="http://121.42.152.168/website/">了解制作团队</Hyperlink>
                   </Paragraph>
                 </FlowDocument>
               </FlowDocumentScrollViewer>

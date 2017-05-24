@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Net.Http;
 
 namespace YTY.amt.Model
 {
@@ -30,7 +31,6 @@ namespace YTY.amt.Model
     private int downloadCount;
     private string sourceUrl;
     private WorkshopResourceStatus status;
-    private long finishedSize;
     private bool begunGettingImages;
     #endregion
 
@@ -89,11 +89,19 @@ namespace YTY.amt.Model
 
     public long FinishedSize
     {
-      get { return finishedSize; }
-      set
+      get
       {
-        finishedSize = value;
-        OnPropertyChanged(nameof(FinishedSize));
+        switch (Status)
+        {
+          case WorkshopResourceStatus.Installed:
+            return TotalSize;
+          case WorkshopResourceStatus.Installing:
+          case WorkshopResourceStatus.Paused:
+          case WorkshopResourceStatus.Failed:
+            return Files.Sum(f => f.FinishedSize);
+          default:
+            return 0;
+        }
       }
     }
 
@@ -224,26 +232,20 @@ namespace YTY.amt.Model
 
     internal void LocalLoadFiles()
     {
-      FinishedSize = 0;
       foreach (var f in DatabaseClient.GetResourceFiles(Id))
       {
-        if (f.Status == ResourceFileStatus.Finished)
-          FinishedSize += f.Size;
         if (f.Status == ResourceFileStatus.Downloading)
           f.UpdateStatus(ResourceFileStatus.Paused);
         if (f.Status == ResourceFileStatus.Paused)
         {
           f.LocalLoadChunks();
-          FinishedSize += f.FinishedSize;
         }
         Files.Add(f);
       }
     }
 
-
     public async Task InstallAsync()
     {
-      ThrowIfInvalidStatus(WorkshopResourceStatus.NotInstalled);
       UpdateStatus(WorkshopResourceStatus.Installing);
       var (_, dtos) = await WebServiceClient.GetResourceUpdatedFilesAsync(Id);
       foreach (var dto in dtos)
@@ -260,13 +262,11 @@ namespace YTY.amt.Model
 
     public void Pause()
     {
-      ThrowIfInvalidStatus(WorkshopResourceStatus.Installing);
       cts?.Cancel();
     }
 
     public async Task ResumeAsync()
     {
-      ThrowIfInvalidStatus(WorkshopResourceStatus.Paused);
       UpdateStatus(WorkshopResourceStatus.Installing);
       cts = new CancellationTokenSource();
       await DownloadAsync(cts.Token);
@@ -274,7 +274,6 @@ namespace YTY.amt.Model
 
     public async Task UpdateAsync()
     {
-      ThrowIfInvalidStatus(WorkshopResourceStatus.NeedUpdate);
       var (lastFileChange, dtos) = await WebServiceClient.GetResourceUpdatedFilesAsync(Id, LastFileChangeDate);
       var toSave = new List<ResourceFileModel>(dtos.Count);
       foreach (var dto in dtos)
@@ -329,9 +328,10 @@ namespace YTY.amt.Model
           if (!Directory.EnumerateFiles(directory).Any())
             Directory.Delete(directory);
         }
-        catch(IOException) { }
+        catch (IOException) { }
       }
       DatabaseClient.DeleteResourceFiles(Id);
+      Files.Clear();
       UpdateStatus(WorkshopResourceStatus.NotInstalled);
     }
     #endregion
@@ -357,28 +357,29 @@ namespace YTY.amt.Model
     #endregion
 
 
-    private void ThrowIfInvalidStatus(WorkshopResourceStatus expectedStatuses)
-    {
-      if (!expectedStatuses.HasFlag(Status))
-        throw new InvalidOperationException($"Invalid status '{Status}', expected '{expectedStatuses}'");
-    }
-
     protected async Task DownloadAsync(CancellationToken cancellationToken)
     {
       try
       {
         foreach (var f in Files)
         {
-          await f.DownloadAsync(cancellationToken, new Progress<int>(e => FinishedSize += e));
+          await f.DownloadAsync(cancellationToken);
         }
-        UpdateStatus(WorkshopResourceStatus.Installed);
-        AfterDownload();
+        if (Files.All(f => f.Status == ResourceFileStatus.Finished))
+        {
+          UpdateStatus(WorkshopResourceStatus.Installed);
+          AfterDownload();
+        }
+        else
+        {
+          UpdateStatus(WorkshopResourceStatus.Failed);
+        }
       }
       catch (OperationCanceledException)
       {
         UpdateStatus(WorkshopResourceStatus.Paused);
       }
-      catch (InvalidOperationException)
+      catch (HttpRequestException)
       {
         UpdateStatus(WorkshopResourceStatus.Failed);
         throw;

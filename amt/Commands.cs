@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Http;
 using YTY.amt.Model;
 
 namespace YTY.amt
@@ -55,6 +56,10 @@ namespace YTY.amt
     public static ICommand Hyperlink { get; } = new HyperlinkCommand();
 
     public static ICommand OpenTool { get; } = new OpenToolCommand();
+
+    public static ICommand ApplyHotkey { get; } = new ApplyHotkeyCommand();
+
+    public static ICommand CheckUpdate { get; } = new CheckUpdateCommand();
 
     private class ActivateDrsCommand : ICommand
     {
@@ -320,7 +325,7 @@ namespace YTY.amt
           ProgramViewModel.WorkshopViewModel.CurrentTab = 2;
           await task;
         }
-        catch (InvalidOperationException ex)
+        catch (HttpRequestException ex)
         {
           MessageBox.Show(ex.Message);
         }
@@ -346,7 +351,7 @@ namespace YTY.amt
           ProgramViewModel.WorkshopViewModel.CurrentTab = 2;
           await task;
         }
-        catch (InvalidOperationException ex)
+        catch (HttpRequestException ex)
         {
           MessageBox.Show(ex.Message);
         }
@@ -382,7 +387,14 @@ namespace YTY.amt
       {
         var model = parameter as WorkshopResourceModel;
         ProgramViewModel.WorkshopViewModel.CurrentTab = 2;
-        await model.ResumeAsync();
+        try
+        {
+          await model.ResumeAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
     }
 
@@ -440,9 +452,12 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
+        var paras = ((string)parameter).Split(':');
+        var hawk = paras[0].Equals("hawk", StringComparison.InvariantCultureIgnoreCase);
+        var path = paras[1];
         try
         {
-          var exePath = ProgramModel.MakeHawkempirePath((string)parameter);
+          var exePath = hawk ? ProgramModel.MakeHawkempirePath(path) : ProgramModel.MakeExeRelativePath(path);
           Process.Start(new ProcessStartInfo(exePath)
           {
             WorkingDirectory = Path.GetDirectoryName(exePath),
@@ -499,6 +514,86 @@ namespace YTY.amt
       }
 
       public event EventHandler CanExecuteChanged;
+    }
+
+    private class ApplyHotkeyCommand : ICommand
+    {
+      public event EventHandler CanExecuteChanged;
+
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public void Execute(object parameter)
+      {
+        var isC = "c".Equals((string)parameter, StringComparison.InvariantCultureIgnoreCase);
+        if (MessageBox.Show("本按钮会将所有玩家的快捷键设置为 " + (isC ? "C" : "AoFE") + " 版默认键位，确认继续？", string.Empty, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+        {
+          foreach (var hotkey in Directory.GetFiles(ProgramModel.MakeHawkempirePath(string.Empty), "*.hki", SearchOption.TopDirectoryOnly))
+          {
+            try
+            {
+              File.Copy(ProgramModel.MakeExeRelativePath(@"hki\" + (isC ? "c" : "fe") + ".hki"), hotkey, true);
+            }
+            catch (IOException ex)
+            {
+              MessageBox.Show(ex.Message);
+            }
+          }
+        }
+      }
+    }
+
+    private class CheckUpdateCommand : ICommand
+    {
+      public event EventHandler CanExecuteChanged;
+
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public async void Execute(object parameter)
+      {
+        var process = new Process();
+        var exe = Path.GetFullPath("updater.exe");
+        process.StartInfo = new ProcessStartInfo(exe, "--CheckUpdate")
+        {
+          RedirectStandardOutput = true,
+          UseShellExecute = false,
+        };
+        process.Start();
+        var ret = await process.StandardOutput.ReadToEndAsync();
+        Enum.TryParse(ret, out UpdateServerStatus checkUpdate);
+        switch (checkUpdate)
+        {
+          case UpdateServerStatus.NeedUpdate:
+            if (MessageBox.Show("程序有更新，是否开始下载？", "有更新", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+              Process.Start("updater.exe");
+              ProgramViewModel.App.Shutdown();
+            }
+            break;
+          case UpdateServerStatus.UpToDate:
+            if(bool.Parse((string)parameter))
+            {
+              MessageBox.Show("程序已是最新版本");
+            }
+            break;
+        }
+
+
+      }
+
+      private enum UpdateServerStatus
+      {
+        Getting,
+        NeedUpdate,
+        UpToDate,
+        ConnectFailed,
+        ServerError
+      }
     }
   }
 }

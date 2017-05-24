@@ -18,18 +18,14 @@ namespace YTY.amt
       {
         switch (Model.Status)
         {
-          case FileStatus.Ready:
+          case FileStatus.NotDownloaded:
             return "未下载";
-            break;
           case FileStatus.Downloading:
             return "正在下载";
-            break;
           case FileStatus.Finished:
             return "下载完成";
-            break;
           case FileStatus.Error:
             return "下载出错";
-            break;
         }
         return string.Empty;
       }

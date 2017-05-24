@@ -35,28 +35,10 @@ namespace YTY.amt
       txbHawkempirePath.Text = fbd.SelectedPath;
     }
 
-    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    private void Window_Loaded(object sender, RoutedEventArgs e)
     {
       ProgramViewModel.MainWindowViewModel.GetFrontPage();
-
-      Enum.TryParse(await ProgramViewModel.IpcCheckUpdate(), out UpdateServerStatus checkUpdate);
-      if (checkUpdate == UpdateServerStatus.NeedUpdate)
-      {
-        if (MessageBox.Show("程序有更新，是否开始下载？", "有更新", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-        {
-          Process.Start("updater.exe");
-          ProgramViewModel.App.Shutdown();
-        }
-      }
-    }
-
-    private enum UpdateServerStatus
-    {
-      Getting,
-      NeedUpdate,
-      UpToDate,
-      ConnectFailed,
-      ServerError
+      Commands.CheckUpdate.Execute(bool.FalseString);
     }
   }
 }

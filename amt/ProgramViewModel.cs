@@ -19,19 +19,5 @@ namespace YTY.amt
     public static MainWindowViewModel MainWindowViewModel { get; } = new MainWindowViewModel();
 
     public static ConfigViewModel ConfigViewModel { get; } = ConfigViewModel.FromModel(ProgramModel.Config);
-
-    public static async Task<string> IpcCheckUpdate()
-    {
-      var process = new Process();
-      var exe = System.IO.Path.GetFullPath("updater.exe");
-      process.StartInfo = new ProcessStartInfo(exe, "--CheckUpdate")
-      {
-        RedirectStandardOutput = true,
-        UseShellExecute = false,
-      };
-      process.Start();
-      var ret=await process.StandardOutput.ReadToEndAsync();
-      return ret;
-    }
   }
 }

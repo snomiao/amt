@@ -16,7 +16,7 @@ namespace YTY.amt
 
     public long Size { get; set; }
 
-    public string Version { get; set; }
+    public int Version { get; set; }
 
     public string Md5 { get; set; }
 

@@ -274,7 +274,8 @@
           <Grid Grid.Row="0"
                 Background="LightGray">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="auto" MinWidth="100"></ColumnDefinition>
+              <ColumnDefinition Width="auto"
+                                MinWidth="100"></ColumnDefinition>
               <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBox Grid.Column="0">
@@ -542,18 +543,17 @@
                     <ProgressBar Grid.Row="0"
                                  Maximum="{Binding Model.TotalSize}"
                                  Value="{Binding Model.FinishedSize,Mode=OneWay}"></ProgressBar>
-                    <TextBlock Grid.Row="0"
-                               Text="{Binding ProgressText}"></TextBlock>
                     <Grid Grid.Row="0">
                       <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                       </Grid.ColumnDefinitions>
                       <TextBlock Grid.Column="0"
+                                 Text="{Binding ProgressText}"></TextBlock>
+                      <TextBlock Grid.Column="1"
                                  Text="{Binding Model.Name}"
                                  FontSize="16"
                                  HorizontalAlignment="Center"></TextBlock>
-                      <Button Grid.Column="1"></Button>
                     </Grid>
                     <ItemsControl Grid.Row="1"
                                   ItemsSource="{Binding DownloadingFilesView}">

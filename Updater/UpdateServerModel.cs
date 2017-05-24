@@ -11,17 +11,17 @@ using System.ComponentModel;
 
 namespace YTY.amt
 {
-  public static class UpdateServerModel
+  public class UpdateServerModel:INotifyPropertyChanged
   {
     private const string SERVERURI = "http://www.hawkaoc.net/amt/UpdateSources.xml";
 
-    private static XElement xe;
-    private static UpdateServerStatus status;
-    private static readonly List<FileDto> files = new List<FileDto>();
+    private XElement xe;
+    private UpdateServerStatus status;
+    private readonly List<FileDto> files = new List<FileDto>();
 
-    public static int Build => (int) xe.Attribute(nameof(Build));
+    public int Build => (int) xe.Attribute(nameof(Build));
 
-    public static UpdateServerStatus Status
+    public UpdateServerStatus Status
     {
       get { return status; }
       set
@@ -31,9 +31,9 @@ namespace YTY.amt
       }
     }
 
-    public static IEnumerable<FileDto> ServerFiles => files;
+    public IEnumerable<FileDto> ServerFiles => files;
 
-    public static async Task GetUpdateSourcesAsync()
+    public async Task GetUpdateSourcesAsync()
     {
       Status = UpdateServerStatus.Getting;
       try
@@ -59,7 +59,7 @@ namespace YTY.amt
                         SourceUri = new Uri(new Uri(dir), file.Element("Name").Value).ToString(),
                         FileName = file.Element("Name").Value,
                         Size = (long) file.Element("Size"),
-                        Version = file.Element("Version").Value,
+                        Version = (int) file.Element("Version"),
                         Md5 = file.Element("MD5").Value,
                       });
                   }
@@ -81,11 +81,11 @@ namespace YTY.amt
       }
     }
 
-    public static event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-    private static void OnPropertyChanged(string propertyName)
+    private void OnPropertyChanged(string propertyName)
     {
-      PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
   }
 

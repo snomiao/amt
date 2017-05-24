@@ -16,8 +16,6 @@ namespace YTY.amt.Model
     private const string PATH_MANAGER = @"manager\";
 
     private ResourceFileStatus status;
-    private int finishedSize;
-
 
     public int ResourceId { get; set; }
 
@@ -33,7 +31,7 @@ namespace YTY.amt.Model
       {
         if (Path.StartsWith(PATH_MANAGER, StringComparison.InvariantCultureIgnoreCase))
         {
-          return ProgramModel.MakeExeRelativePath(Path.Remove(0,PATH_MANAGER.Length));
+          return ProgramModel.MakeExeRelativePath(Path.Remove(0, PATH_MANAGER.Length));
         }
         else
         {
@@ -66,11 +64,18 @@ namespace YTY.amt.Model
 
     public int FinishedSize
     {
-      get { return finishedSize; }
-      set
+      get
       {
-        finishedSize = value;
-        OnPropertyChanged(nameof(FinishedSize));
+        switch (Status)
+        {
+          case ResourceFileStatus.Downloading:
+          case ResourceFileStatus.Paused:
+            return Chunks.Count(c => c.Finished) * ConfigModel.CHUNKSIZE;
+          case ResourceFileStatus.Finished:
+            return Size;
+          default:
+            return 0;
+        }
       }
     }
 
@@ -78,7 +83,6 @@ namespace YTY.amt.Model
     {
       foreach (var chunk in DatabaseClient.GetChunks(Id))
         Chunks.Add(chunk);
-      FinishedSize = Chunks.Count(c => c.Finished) * ConfigModel.CHUNKSIZE;
     }
 
     private void EnsureDirectoryExists()
@@ -88,32 +92,35 @@ namespace YTY.amt.Model
         Directory.CreateDirectory(dir);
     }
 
-    public async Task DownloadAsync(CancellationToken cancellationToken, IProgress<int> progress)
+    public async Task DownloadAsync(CancellationToken cancellationToken)
     {
       EnsureDirectoryExists();
+      switch (status)
+      {
+        case ResourceFileStatus.BeforeDownload:
+        case ResourceFileStatus.ChecksumFailed:
+          File.WriteAllText(FullPathName, string.Empty);
+          var numChunks = (Size + ConfigModel.CHUNKSIZE - 1) / ConfigModel.CHUNKSIZE;
+          for (var i = 0; i < numChunks; i++)
+            Chunks.Add(new FileChunkModel { FileId = Id, Id = i });
+          DatabaseClient.SaveChunks(Chunks);
+          UpdateStatus(ResourceFileStatus.Downloading);
+          break;
+        case ResourceFileStatus.Paused:
+          Status = ResourceFileStatus.Downloading;
+          break;
+        case ResourceFileStatus.Downloading:
+          break;
+        case ResourceFileStatus.Deleted:
+        case ResourceFileStatus.Finished:
+          return;
+      }
+
+      var tasks = Chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync(cancellationToken));
+      var working = new List<Task<(int, byte[])>>();
+
       using (var fs = new FileStream(FullPathName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, true))
       {
-        switch (status)
-        {
-          case ResourceFileStatus.BeforeDownload:
-          case ResourceFileStatus.ChecksumFailed:
-            var numChunks = (Size + ConfigModel.CHUNKSIZE - 1) / ConfigModel.CHUNKSIZE;
-            for (var i = 0; i < numChunks; i++)
-              Chunks.Add(new FileChunkModel { FileId = Id, Id = i });
-            DatabaseClient.SaveChunks(Chunks);
-            UpdateStatus(ResourceFileStatus.Downloading);
-            break;
-          case ResourceFileStatus.Paused:
-            Status = ResourceFileStatus.Downloading;
-            break;
-          case ResourceFileStatus.Deleted:
-          case ResourceFileStatus.Downloading:
-          case ResourceFileStatus.Finished:
-            return;
-        }
-
-        var tasks = Chunks.Where(c => !c.Finished).Select(c => c.DownloadAsync(cancellationToken));
-        var working = new List<Task<(int, byte[])>>();
         foreach (var task in tasks)
         {
           if (working.Count < 5)
@@ -144,8 +151,7 @@ namespace YTY.amt.Model
           }
           fs.Seek(finished.Id * ConfigModel.CHUNKSIZE, SeekOrigin.Begin);
           await fs.WriteAsync(finished.Data, 0, finished.Data.Length);
-          FinishedSize += finished.Data.Length;
-          progress.Report(finished.Data.Length);
+          OnPropertyChanged(nameof(FinishedSize));
           DatabaseClient.UpdateFileChunkFinished(Id, finished.Id, true);
         }
       }

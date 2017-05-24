@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace YTY.amt
 {
-  public class FileModel:INotifyPropertyChanged
+  public class FileModel : INotifyPropertyChanged
   {
     private long size;
-    private Version version;
+    private int version;
     private string md5;
     private FileStatus status;
     private long finishedSize;
@@ -23,6 +23,8 @@ namespace YTY.amt
     public string SourceUri { get; private set; }
 
     public string FileName { get; private set; }
+
+    public string FullFileName => Util.MakeQualifiedPath(FileName);
 
     public long Size
     {
@@ -44,7 +46,7 @@ namespace YTY.amt
       }
     }
 
-    public Version Version
+    public int Version
     {
       get { return version; }
       set
@@ -87,13 +89,23 @@ namespace YTY.amt
       if (status == FileStatus.Finished)
         throw new InvalidOperationException();
 
+      if (status == FileStatus.Error)
+      {
+        Status = FileStatus.NotDownloaded;
+      }
+
+
       try
       {
-        var wd = new WebDownloader(SourceUri, size);
-        if (status == FileStatus.Ready)
+        var dir = Path.GetDirectoryName(FullFileName);
+        Directory.CreateDirectory(dir);
+
+        if (status == FileStatus.NotDownloaded)
         {
+          File.WriteAllText(FullFileName, string.Empty);
           UpdateStatus(FileStatus.Downloading);
-          for (var i = 0; i < wd.NumChunks; i++)
+          var numChunks = (Size + WebServiceClient.CHUNKSIZE - 1) / WebServiceClient.CHUNKSIZE;
+          for (var i = 0; i < numChunks; i++)
           {
             Chunks.Add(new ChunkModel
             {
@@ -104,16 +116,15 @@ namespace YTY.amt
           }
           DatabaseClient.SaveChunks(Chunks);
         }
-        if (status == FileStatus.Error)
-          Status =FileStatus.Downloading;
-
-        var dir = Path.GetDirectoryName(Util.MakeQualifiedPath(FileName));
-          Directory.CreateDirectory(dir);
-
-        using (var fs = new FileStream(Util.MakeQualifiedPath(FileName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
+        else if (status == FileStatus.Downloading)
         {
-          FinishedSize = Chunks.Count(ch => ch.Status == ChunkStatus.Done) * 65536;
-          var tasks = Chunks.Where(ch => ch.Status == ChunkStatus.New).Select(ch => wd.DownloadChunkAsync(ch.Id));
+
+        }
+
+
+        using (var fs = new FileStream(FullFileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
+        {
+          var tasks = Chunks.Where(ch => ch.Status == ChunkStatus.New).Select(ch => WebServiceClient.GetChunk(this, ch.Id));
           var working = new List<Task<Tuple<int, byte[]>>>();
           foreach (var task in tasks)
           {
@@ -123,7 +134,7 @@ namespace YTY.amt
             }
             else
             {
-              var finished =await Task.WhenAny(working);
+              var finished = await Task.WhenAny(working);
               working.Remove(finished);
               working.Add(task);
               await ContinueWith(await finished);
@@ -138,14 +149,21 @@ namespace YTY.amt
 
           async Task ContinueWith(Tuple<int, byte[]> finished)
           {
-            fs.Seek(wd.ChunkSize * finished.Item1, SeekOrigin.Begin);
+            fs.Seek(WebServiceClient.CHUNKSIZE * finished.Item1, SeekOrigin.Begin);
             await fs.WriteAsync(finished.Item2, 0, finished.Item2.Length);
-            Chunks.First(ch => ch.Id == finished.Item1).Status = ChunkStatus.Done;
+            Chunks[finished.Item1].UpdateStatus(ChunkStatus.Done);
             FinishedSize += finished.Item2.Length;
           }
         }
         DatabaseClient.DeleteChunks(Chunks);
-        UpdateStatus(FileStatus.Finished);
+        if (Md5.Equals(Util.GetFileMd5(FullFileName), StringComparison.InvariantCultureIgnoreCase))
+        {
+          UpdateStatus(FileStatus.Finished);
+        }
+        else
+        {
+          UpdateStatus(FileStatus.Error);
+        }
       }
       catch (WebException)
       {
@@ -161,7 +179,7 @@ namespace YTY.amt
         SourceUri = dto.SourceUri,
         FileName = dto.FileName,
         Size = dto.Size,
-        Version = Version.Parse(dto.Version),
+        Version = dto.Version,
         Md5 = dto.Md5,
         Status = (FileStatus)dto.Status,
       };
@@ -171,13 +189,13 @@ namespace YTY.amt
     {
       return new FileDto
       {
-        Id=Id,
-        SourceUri=SourceUri,
-        FileName=FileName,
-        Size=size,
-        Version=Version.ToString(),
-        Md5=md5,
-        Status=(int)Status,
+        Id = Id,
+        SourceUri = SourceUri,
+        FileName = FileName,
+        Size = size,
+        Version = Version,
+        Md5 = md5,
+        Status = (int)Status,
       };
     }
 
@@ -191,7 +209,7 @@ namespace YTY.amt
 
   public enum FileStatus
   {
-    Ready,
+    NotDownloaded,
     Downloading,
     Finished,
     Error

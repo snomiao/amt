@@ -30,6 +30,7 @@ namespace YTY.amt
 
     private void Application_Startup(object sender, StartupEventArgs e)
     {
+      Environment.CurrentDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
       lifetimeMutex = new Mutex(true, MUTEXNAME);
     }
   }

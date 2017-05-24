@@ -13,7 +13,7 @@ namespace YTY.amt.Model
     private static readonly SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder
     {
       Pooling = true,
-      DataSource = CONFIGFILE,
+      DataSource =ProgramModel.MakeExeRelativePath( CONFIGFILE),
       JournalMode = SQLiteJournalModeEnum.Persist,
     };
     private const string CONFIGFILE = "config.db";

@@ -34,6 +34,8 @@ namespace YTY.amt
             return "删除资源";
           case WorkshopResourceStatus.NeedUpdate:
             return "更新资源";
+          case WorkshopResourceStatus.Failed:
+            return "下载出错，点此重新安装";
         }
         return "未知状态";
       }
@@ -55,6 +57,8 @@ namespace YTY.amt
             return Colors.Gray;
           case WorkshopResourceStatus.NeedUpdate:
             return Colors.HotPink;
+          case WorkshopResourceStatus.Failed:
+            return Colors.DarkRed;
         }
         return Colors.DarkRed;
       }
@@ -76,6 +80,8 @@ namespace YTY.amt
             return Commands.DeleteResource;
           case WorkshopResourceStatus.NeedUpdate:
             return Commands.UpdateResource;
+          case WorkshopResourceStatus.Failed:
+            return Commands.ResumeResource;
         }
         return null;
       }

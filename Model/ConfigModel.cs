@@ -9,7 +9,7 @@ namespace YTY.amt.Model
   public class ConfigModel : INotifyPropertyChanged
   {
     #region CONSTANTS 
-    internal const int CHUNKSIZE = 65536;
+    internal const int CHUNKSIZE = 1<<18;
     private const string REGISTRYKEY = @"SOFTWARE\Microsoft\Microsoft Games\Age of Empires II: The Conquerors Expansion\1.0";
     #endregion
 

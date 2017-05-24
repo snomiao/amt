@@ -59,11 +59,14 @@ namespace YTY.amt.Model
 
     public override void Delete()
     {
-      try
+      if (IsActivated)
       {
-        Deactivate();
+        try
+        {
+          Deactivate();
+        }
+        catch (IOException) { }
       }
-      catch (IOException) { }
       base.Delete();
     }
 

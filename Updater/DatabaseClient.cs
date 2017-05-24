@@ -14,7 +14,7 @@ namespace YTY.amt
     private static readonly SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder
     {
       Pooling = true,
-      DataSource = CONFIGFILE,
+      DataSource =Util.MakeQualifiedPath( CONFIGFILE),
       JournalMode = SQLiteJournalModeEnum.Persist,
     };
     private const string CONFIGFILE = "Updater.db";
@@ -50,7 +50,7 @@ SourceUri TEXT NOT NULL,
 FileName TEXT NOT NULL,
 Status INTEGER NOT NULL,
 Size INTEGER NOT NULL,
-Version TEXT NOT NULL,
+Version INTEGER NOT NULL,
 Md5 TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS Chunk(
 FileId INTEGER NOT NULL,
@@ -86,6 +86,11 @@ INSERT INTO Meta(Build) VALUES(0);");
         transaction.Connection.Execute("INSERT OR REPLACE INTO File(Id,SourceUri,FileName,Status,Size,Version,Md5) VALUES(@Id,@SourceUri,@FileName,@Status,@Size,@Version,@Md5)", dtos, transaction);
         transaction.Commit();
       }
+    }
+
+    public static IEnumerable<ChunkModel> GetChunks(int fileId)
+    {
+      return GetConnection().Query<ChunkModel>("SELECT Id,Status FROM Chunk WHERE FileId=@fileId ORDER BY Id", new { fileId });
     }
 
     public static void SaveChunks(IEnumerable<ChunkModel> chunks)

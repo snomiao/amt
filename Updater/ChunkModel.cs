@@ -17,8 +17,13 @@ namespace YTY.amt
       {
         status = value;
         OnPropertyChanged(nameof(Status));
-        DatabaseClient.UpdateChunk(this);
       }
+    }
+
+    public void UpdateStatus(ChunkStatus status)
+    {
+      Status = status;
+      DatabaseClient.UpdateChunk(this);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
