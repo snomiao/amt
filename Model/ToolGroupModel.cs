@@ -143,7 +143,7 @@ namespace YTY.amt.Model
         {
           Id=-1,
           Name="高级数据编辑器3.8",
-          Path=@"AGE\高级帝国数据编辑器3.8.exe",
+          Path=@"AGE\age3.8.exe",
           IconPath="/resources;component/Resources/AGE.png",
           ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 3.8 版。\n该程序可以修改帝国时代的数据库DAT文件。",
         },
