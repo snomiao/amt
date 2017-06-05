@@ -68,6 +68,19 @@ namespace YTY.amt.Model
       return ret;
     }
 
+    private static Dictionary<string, string> configs;
+    internal static Dictionary<string, string> GetConfigs()
+    {
+      if (configs == null)
+      {
+        using (var connection = GetConnection())
+        {
+          configs = connection.Query<KeyValuePair<string, string>>("SELECT Key,Value FROM Config").ToDictionary(q => q.Key, q => q.Value);
+        }
+      }
+      return configs;
+    }
+
     internal static void SaveConfigEntry(string key, object value)
     {
       using (var connection = GetConnection())
