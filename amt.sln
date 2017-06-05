@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{A954C548-37E0-4C31-9CF1-805F6F1B8C89}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "resources", "resources\resources.csproj", "{23C92B4B-EF39-48F0-9277-C2E5DA3144FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{F52A00B8-4E23-423E-9701-C0B580F265F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{5C75A3CF-F429-49B5-8E32-3470018D0359}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{F52A00B8-4E23-423E-9701-C0B580F265F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F52A00B8-4E23-423E-9701-C0B580F265F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F52A00B8-4E23-423E-9701-C0B580F265F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C75A3CF-F429-49B5-8E32-3470018D0359}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C75A3CF-F429-49B5-8E32-3470018D0359}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C75A3CF-F429-49B5-8E32-3470018D0359}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C75A3CF-F429-49B5-8E32-3470018D0359}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

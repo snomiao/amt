@@ -79,6 +79,18 @@ namespace YTY.amt.Model
       }
     }
 
+    public void DeleteFromDisk()
+    {
+      try
+      {
+        File.Delete(FullPathName);
+      }
+      catch
+      {
+        // ignored
+      }
+    }
+
     internal void LocalLoadChunks()
     {
       foreach (var chunk in DatabaseClient.GetChunks(Id))

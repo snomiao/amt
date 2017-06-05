@@ -250,10 +250,13 @@ namespace YTY.amt.Model
       var (_, dtos) = await WebServiceClient.GetResourceUpdatedFilesAsync(Id);
       foreach (var dto in dtos)
       {
-        var file = ResourceFileModel.FromDto(dto);
-        file.ResourceId = Id;
-        file.Status = ResourceFileStatus.BeforeDownload;
-        Files.Add(file);
+        if ((FileServerStatus) dto.Status == FileServerStatus.Alive)
+        {
+          var file = ResourceFileModel.FromDto(dto);
+          file.ResourceId = Id;
+          file.Status = ResourceFileStatus.BeforeDownload;
+          Files.Add(file);
+        }
       }
       DatabaseClient.SaveResourceFiles(Files);
       cts = new CancellationTokenSource();
@@ -279,28 +282,31 @@ namespace YTY.amt.Model
       foreach (var dto in dtos)
       {
         var file = Files.FirstOrDefault(l => l.Id == dto.Id);
-        if (file == null)
-        // new resource file
+        var isNew = file != null;
+        var isDeleted = (FileServerStatus) dto.Status == FileServerStatus.Deleted;
+        if (isNew&&!isDeleted)
         {
           file = ResourceFileModel.FromDto(dto);
           file.ResourceId = Id;
           file.Status = ResourceFileStatus.BeforeDownload;
           Files.Add(file);
         }
-        else
-        // resource file exists locally
+        else if (isNew && isDeleted)
+        {
+          // do nothing
+        }
+        else if(!isNew &&!isDeleted)
         {
           file.Sha1 = dto.Sha1;
           file.Size = dto.Size;
           file.UpdateDate = dto.UpdateDate;
-          if ((FileServerStatus)dto.Status == FileServerStatus.Alive)
-          {
-            file.Status = ResourceFileStatus.BeforeDownload;
-          }
-          else // Deleted
-          {
-            file.Status = ResourceFileStatus.Deleted;
-          }
+          file.Status = ResourceFileStatus.BeforeDownload;
+        }
+        else if (!isNew && isDeleted)
+        {
+          file.DeleteFromDisk();
+          DatabaseClient.DeleteFile(file.Id);
+          Files.Remove(file);
         }
         toSave.Add(file);
       }

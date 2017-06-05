@@ -13,7 +13,7 @@ namespace YTY.amt.Model
     private static readonly SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder
     {
       Pooling = true,
-      DataSource =ProgramModel.MakeExeRelativePath( CONFIGFILE),
+      DataSource = ProgramModel.MakeExeRelativePath(CONFIGFILE),
       JournalMode = SQLiteJournalModeEnum.Persist,
     };
     private const string CONFIGFILE = "config.db";
@@ -34,6 +34,11 @@ namespace YTY.amt.Model
     private static SQLiteConnection GetConnection()
     {
       return new SQLiteConnection(connectionStringBuilder.ConnectionString).OpenAndReturn();
+    }
+
+    private static SQLiteTransaction GetTransaction()
+    {
+      return GetConnection().BeginTransaction();
     }
 
     internal static ConfigModel GetConfig()
@@ -130,20 +135,17 @@ ORDER BY d.Priority,m.`Index`");
 
     public static void SaveResources(IEnumerable<WorkshopResourceModel> resources)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute(@"
+        transaction.Connection.Execute(@"
 INSERT OR REPLACE INTO Resource(Id,CreateDate,LastChangeDate,LastFileChangeDate,TotalSize,Rating,DownloadCount,AuthorId,AuthorName,Name,Description,GameVersion,SourceUrl,Type,Status)
 VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status)",
-            resources, transaction);
-          connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
-            resources.OfType<DrsResourceModel>(), transaction);
-          connection.Execute("INSERT OR REPLACE INTO Mod(Id) VALUES(@Id)",
-            resources.OfType<ModResourceModel>(), transaction);
-          transaction.Commit();
-        }
+           resources, transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
+           resources.OfType<DrsResourceModel>(), transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Mod(Id) VALUES(@Id)",
+           resources.OfType<ModResourceModel>(), transaction);
+        transaction.Commit();
       }
     }
 
@@ -159,51 +161,57 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
 
     public static void SaveResourceFiles(IEnumerable<ResourceFileModel> models)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO File(ResourceId,Id,Size,Path,UpdateDate,Sha1,Status) VALUES(@ResourceId,@Id,@Size,@Path,@UpdateDate,@Sha1,@Status)", models, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO File(ResourceId,Id,Size,Path,UpdateDate,Sha1,Status) VALUES(@ResourceId,@Id,@Size,@Path,@UpdateDate,@Sha1,@Status)", models, transaction);
+        transaction.Commit();
       }
     }
 
     public static void UpdateResourceLastFileChange(int id, int lastFileChange)
     {
-      using (var connection = GetConnection())
-        connection.Execute("UPDATE Resource SET LastFileChangeDate=@lastFileChange WHERE Id=@id", new { lastFileChange, id });
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("UPDATE Resource SET LastFileChangeDate=@lastFileChange WHERE Id=@id", new { lastFileChange, id }, transaction);
+        transaction.Commit();
+      }
     }
 
     public static void UpdateResourceStatus(int id, WorkshopResourceStatus status)
     {
-      using (var connection = GetConnection())
-        connection.Execute("UPDATE Resource SET Status=@status WHERE Id=@id", new { id, status });
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("UPDATE Resource SET Status=@status WHERE Id=@id", new { id, status }, transaction);
+        transaction.Commit();
+      }
     }
 
     public static void UpdateResourceFileStatus(int id, ResourceFileStatus status)
     {
-      using (var connection = GetConnection())
-        connection.Execute("UPDATE File SET Status=@status WHERE Id=@id", new { id, status });
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("UPDATE File SET Status=@status WHERE Id=@id", new { id, status }, transaction);
+        transaction.Commit();
+      }
     }
 
     public static void UpdateFileChunkFinished(int fileId, int id, bool finished)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("UPDATE Chunk SET Finished=@finished WHERE FileId=@fileId AND Id=@id",
-            new { fileId, id, finished }, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("UPDATE Chunk SET Finished=@finished WHERE FileId=@fileId AND Id=@id",
+           new { fileId, id, finished }, transaction);
+        transaction.Commit();
       }
     }
 
     public static void DeleteFileChunks(int fileId)
     {
-      using (var connection = GetConnection())
-        connection.Execute("DELETE FROM Chunk WHERE FileId=@fileId", new { fileId });
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("DELETE FROM Chunk WHERE FileId=@fileId", new { fileId }, transaction);
+        transaction.Commit();
+      }
     }
 
     public static IEnumerable<FileChunkModel> GetChunks(int fileId)
@@ -216,31 +224,30 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
 
     public static void SaveChunks(IEnumerable<FileChunkModel> chunks)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO Chunk(FileId,Id,Finished) VALUES(@FileId,@Id,@Finished)", chunks, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Chunk(FileId,Id,Finished) VALUES(@FileId,@Id,@Finished)", chunks, transaction);
+        transaction.Commit();
       }
     }
 
     public static void DeleteResourceFiles(int resourceId)
     {
-      using (var connection = GetConnection())
-        connection.Execute("DELETE FROM File WHERE ResourceId=@resourceId", new { resourceId });
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("DELETE FROM File WHERE ResourceId=@resourceId", new { resourceId }, transaction);
+        transaction.Commit();
+      }
     }
 
     private static void InitializeDatabase()
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        connection.Execute(@"
-CREATE TABLE IF NOT EXISTS Config(
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Config(
 Key TEXT PRIMARY KEY,
-Value TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS Resource(
+Value TEXT NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Resource(
 Id INTEGER PRIMARY KEY,
 CreateDate INTEGER NOT NULL,
 LastChangeDate INTEGER NOT NULL,
@@ -255,77 +262,76 @@ Description TEXT NOT NULL,
 GameVersion INTEGER NOT NULL,
 SourceUrl TEXT,
 Type INTEGER NOT NULL,
-Status INTEGER NOT NULL);
-CREATE TABLE IF NOT EXISTS File(
+Status INTEGER NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS File(
 Id INTEGER PRIMARY KEY,
 ResourceId INTEGER NOT NULL,
 Size INTEGER NOT NULL,
 Path TEXT NOT NULL,
 UpdateDate INTEGER NOT NULL,
 Sha1 TEXT NOT NULL,
-Status INTEGER NOT NULL);
-CREATE TABLE IF NOT EXISTS Chunk(
+Status INTEGER NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Chunk(
 Id INTEGER NOT NULL,
 FileId INTEGER NOT NULL,
 Finished INTEGER NOT NULL,
-PRIMARY KEY(FileId,Id));    
-CREATE TABLE IF NOT EXISTS Mod(
+PRIMARY KEY(FileId,Id))", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Mod(
 Id INTEGER PRIMARY KEY,
 `Index` INTEGER NOT NULL DEFAULT -1,
 ExePath TEXT NOT NULL DEFAULT '',
 XmlPath TEXT NOT NULL DEFAULT '',
-FolderPath TEXT NOT NULL DEFAULT '');
-CREATE TABLE IF NOT EXISTS Drs(
+FolderPath TEXT NOT NULL DEFAULT '')", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Drs(
 Id INTEGER PRIMARY KEY,
 IsActivated INTEGER NOT NULL DEFAULT 0,
-Priority INTEGER NOT NULL DEFAULT -1);
-CREATE TABLE IF NOT EXISTS ToolGroup(
+Priority INTEGER NOT NULL DEFAULT -1)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS ToolGroup(
 Id INTEGER PRIMARY KEY,
-Name TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS Tool(
+Name TEXT NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Tool(
 Id INTEGER PRIMARY KEY,
 Name TEXT NOT NULL,
 Path TEXT NOT NULL,
 IconPath TEXT NOT NULL,
-ToolTip TEXT NOT NULL);");
+ToolTip TEXT NOT NULL)", transaction: transaction);
+        transaction.Commit();
       }
     }
 
     public static void SaveDrses(IEnumerable<DrsResourceModel> drses)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)",
-            drses, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)", drses, transaction);
+        transaction.Commit();
       }
     }
 
     public static void SaveMods(IEnumerable<ModResourceModel> mods)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO Mod(Id,`Index`,ExePath,XmlPath,FolderPath) VALUES(@Id,@Index,@ExePath,@XmlPath,@FolderPath)",
-            mods, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Mod(Id,`Index`,ExePath,XmlPath,FolderPath) VALUES(@Id,@Index,@ExePath,@XmlPath,@FolderPath)", mods, transaction);
+        transaction.Commit();
       }
     }
 
     public static void SaveDrs(DrsResourceModel drs)
     {
-      using (var connection = GetConnection())
+      using (var transaction = GetTransaction())
       {
-        using (var transaction = connection.BeginTransaction())
-        {
-          connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)",drs, transaction);
-          transaction.Commit();
-        }
+        transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)", drs, transaction);
+        transaction.Commit();
+      }
+    }
+
+    public static void DeleteFile(int id)
+    {
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("DELETE FROM File WHERE Id=@id", new {id}, transaction);
+        transaction.Commit();
       }
     }
   }
