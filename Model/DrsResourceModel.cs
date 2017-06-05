@@ -31,14 +31,14 @@ namespace YTY.amt.Model
 
     public void Activate()
     {
-      IsActivated = true;
+      UpdateIsActivated(true);
       ProgramModel.ActiveDrses.Add(this);
       ApplyDrses();
     }
 
     public void Deactivate()
     {
-      IsActivated = false;
+      UpdateIsActivated(false);
       ProgramModel.ActiveDrses.Remove(this);
       ApplyDrses();
     }
@@ -81,13 +81,19 @@ namespace YTY.amt.Model
           var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
           var id = int.Parse(Path.GetFileNameWithoutExtension(file.Path));
           var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
-          dic[drsName][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(ProgramModel.MakeHawkempirePath(file.Path));
+          dic[drsName][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(file.FullPathName);
         }
       }
       foreach (var pair in dic)
       {
         pair.Value.Save(Path.Combine(ProgramModel.MakeHawkempirePath("Data"), pair.Key));
       }
+    }
+
+    private void UpdateIsActivated(bool isActivated)
+    {
+      IsActivated = isActivated;
+      DatabaseClient.SaveDrs(this);
     }
 
     private static readonly string[] builtInDrsFiles =

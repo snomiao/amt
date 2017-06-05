@@ -41,6 +41,9 @@
     <Reference Include="DrsLib">
       <HintPath>..\packages\DrsLib.dll</HintPath>
     </Reference>
+    <Reference Include="INIFileParser, Version=2.4.0.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
+      <HintPath>..\packages\ini-parser.2.4.0\lib\net20\INIFileParser.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -59,6 +62,9 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="Vestris.ResourceLib, Version=1.6.422.0, Culture=neutral, PublicKeyToken=ec632d8ba5e5750d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vestris.ResourceLib.1.6.422\lib\Vestris.ResourceLib.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +72,7 @@
     <Compile Include="DatabaseClient.cs" />
     <Compile Include="DrsResourceModel.cs" />
     <Compile Include="FileChunkModel.cs" />
+    <Compile Include="LanguageIniToDll.cs" />
     <Compile Include="LanguageResourceModel.cs" />
     <Compile Include="ModResourceModel.cs" />
     <Compile Include="ProgramModel.cs" />

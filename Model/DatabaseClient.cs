@@ -303,5 +303,17 @@ ToolTip TEXT NOT NULL);");
         }
       }
     }
+
+    public static void SaveDrs(DrsResourceModel drs)
+    {
+      using (var connection = GetConnection())
+      {
+        using (var transaction = connection.BeginTransaction())
+        {
+          connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)",drs, transaction);
+          transaction.Commit();
+        }
+      }
+    }
   }
 }
