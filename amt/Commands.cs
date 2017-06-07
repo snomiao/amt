@@ -607,10 +607,18 @@ namespace YTY.amt
 
       public void Execute(object parameter)
       {
-        File.Copy(ProgramModel.MakeExeRelativePath(@"dll\language_empty.dll"),
-          ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"), true);
-        Model.Util.ParseIniToDll(ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll.ini"),
-          ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"));
+        try
+        {
+          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\language_empty.dll"),
+            ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"), true);
+          var count = Model.Util.ParseIniToDll(ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll.ini"),
+            ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"));
+          MessageBox.Show($"生成完成！共写入 {count} 条字符串。");
+        }
+        catch (Exception ex)
+        {
+          MessageBox.Show(ex.Message);
+        }
       }
 
       public event EventHandler CanExecuteChanged;

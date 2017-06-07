@@ -74,7 +74,7 @@ namespace YTY.amt.Model
       new FileIniDataParser().WriteFile(iniFileName, ini, Encoding.UTF8);
     }
 
-    public static void ParseIniToDll(string iniFileName, string dllFileName)
+    public static int ParseIniToDll(string iniFileName, string dllFileName)
     {
       var parser = new FileIniDataParser();
       
@@ -134,6 +134,7 @@ namespace YTY.amt.Model
         //}
         Resource.Save(dllFileName, resources);
       }
+      return toWrite.Count;
     }
 
     [DllImport ("kernel32")]
