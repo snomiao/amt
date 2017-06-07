@@ -10,7 +10,8 @@ namespace YTY.amt.Test
   {
     static void Main(string[] args)
     {
-      LanguageIniToDll.ParseIniToDll(@"C:\1.ini",@"c:\test\1.dll");
+      //LanguageIniToDll.ExtractDllToIni(@"language.dll", "1.ini");
+      LanguageIniToDll.ParseIniToDll("1.ini","language.dll");
       Console.WriteLine("Done");
       Console.ReadKey();
     }

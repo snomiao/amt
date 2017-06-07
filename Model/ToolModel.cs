@@ -18,7 +18,7 @@ namespace YTY.amt.Model
     public void Open()
     {
       var exe = System.IO.Path.Combine(ProgramModel.MakeExeRelativePath("tools"), Path);
-      Process.Start(new ProcessStartInfo(Path)
+      Process.Start(new ProcessStartInfo(exe)
       {
         WorkingDirectory =System.IO.Path.GetDirectoryName(exe),
         UseShellExecute = true,
