@@ -73,7 +73,6 @@
     <Compile Include="DatabaseClient.cs" />
     <Compile Include="DrsResourceModel.cs" />
     <Compile Include="FileChunkModel.cs" />
-    <Compile Include="LanguageIniToDll.cs" />
     <Compile Include="LanguageResourceModel.cs" />
     <Compile Include="ModResourceModel.cs" />
     <Compile Include="ProgramModel.cs" />

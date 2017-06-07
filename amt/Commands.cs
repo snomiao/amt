@@ -61,6 +61,8 @@ namespace YTY.amt
 
     public static ICommand CheckUpdate { get; } = new CheckUpdateCommand();
 
+    public static ICommand GenerateDllFromIni { get; } = new GenerateDllFromIniCommand();
+
     private class ActivateDrsCommand : ICommand
     {
       public event EventHandler CanExecuteChanged;
@@ -594,6 +596,24 @@ namespace YTY.amt
         ConnectFailed,
         ServerError
       }
+    }
+
+    private class GenerateDllFromIniCommand:ICommand
+    {
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public void Execute(object parameter)
+      {
+        File.Copy(ProgramModel.MakeExeRelativePath(@"dll\language_empty.dll"),
+          ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"), true);
+        Model.Util.ParseIniToDll(ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll.ini"),
+          ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"));
+      }
+
+      public event EventHandler CanExecuteChanged;
     }
   }
 }

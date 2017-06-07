@@ -331,6 +331,25 @@
                     </DataTemplate>
                   </ListBox.ItemTemplate>
                 </ListBox>
+                <Border BorderThickness="2"
+                        BorderBrush="LightCoral"
+                        Margin="5,0"
+                        Padding="0">
+                  <StackPanel>
+                    <TextBlock FontSize="12"
+                               Text="自定义界面语言字符串的步骤："></TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                      <Button Content="1.点此编辑ini文件"
+                              Command="local:Commands.CreateProcessRelativePath"
+                              CommandParameter="manager:dll\ini\language.dll.ini"></Button>
+                      <Button Content="2.点此生成自定义语言dll"
+                              Command="local:Commands.GenerateDllFromIni"></Button>
+                      <TextBlock FontSize="16"
+                                 Text="3.在上方【游戏界面语言】中选择【自定义】按钮"
+                                 VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">开场影片</TextBlock>
                 <StackPanel Orientation="Horizontal">
                   <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=Splash,Mode=TwoWay}">开场影片开启</ToggleButton>

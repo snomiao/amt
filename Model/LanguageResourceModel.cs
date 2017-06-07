@@ -23,6 +23,11 @@ namespace YTY.amt.Model
       builtIn.Files.Add(new ResourceFileModel { Path = @"manager\dll\en\language_x1.dll" });
       builtIn.Files.Add(new ResourceFileModel { Path = @"manager\dll\en\language_x1_p1.dll" });
       BuiltInLanguages.Add(builtIn);
+      builtIn = new LanguageResourceModel { Id = -3, Name = "自定义" };
+      builtIn.Files.Add(new ResourceFileModel { Path = @"manager\dll\ini\language.dll" });
+      builtIn.Files.Add(new ResourceFileModel { Path = @"manager\dll\ini\language_x1.dll" });
+      builtIn.Files.Add(new ResourceFileModel { Path = @"manager\dll\ini\language_x1_p1.dll" });
+      BuiltInLanguages.Add(builtIn);
     }
 
     public void Activate()
