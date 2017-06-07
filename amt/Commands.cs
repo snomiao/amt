@@ -609,9 +609,9 @@ namespace YTY.amt
       {
         try
         {
-          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\language_empty.dll"),ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"), true);
-          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\language_empty.dll"), ProgramModel.MakeExeRelativePath(@"dll\ini\language_x1.dll"), true);
-          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\language_empty.dll"), ProgramModel.MakeExeRelativePath(@"dll\ini\language_x1_p1.dll"), true);
+          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\ini\language_empty.dll"),ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"), true);
+          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\ini\language_empty.dll"), ProgramModel.MakeExeRelativePath(@"dll\ini\language_x1.dll"), true);
+          File.Copy(ProgramModel.MakeExeRelativePath(@"dll\ini\language_empty.dll"), ProgramModel.MakeExeRelativePath(@"dll\ini\language_x1_p1.dll"), true);
           var count = Model.Util.ParseIniToDll(ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll.ini"),
             ProgramModel.MakeExeRelativePath(@"dll\ini\language.dll"));
           MessageBox.Show($"生成完成！共写入 {count} 条字符串。");
