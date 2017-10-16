@@ -47,7 +47,7 @@ namespace YTY.amt.Model
       using (var connection = GetConnection())
       {
         var dic = connection.Query<KeyValuePair<string, string>>("SELECT Key,Value FROM Config").ToDictionary(q => q.Key, q => q.Value);
-        ret.hawkempirePath = GetString(nameof(ConfigModel.HawkempirePath));
+        ret.hawkempirePath = GetString(nameof(ConfigModel.HawkempirePath), (string)Util.GetAocRegistryValue("EXE Path") ?? string.Empty);
         ret.currentGame =
           ProgramModel.Games.First(m => m.Id == GetInt(nameof(ConfigModel.CurrentGame), -1));
         ret.allShown_Aoc15 = GetBool(nameof(ConfigModel.AllShown_Aoc15), false);
@@ -63,8 +63,9 @@ namespace YTY.amt.Model
         ret.isEnglishCampaignNarration = GetBool(nameof(ConfigModel.IsEnglishCampaignNarration), false);
         ret.workshopTimestamp = GetInt(nameof(ConfigModel.WorkshopTimestamp), 0);
         ret.currentTaunt = ProgramModel.Taunts.First(t => t.Id == GetInt(nameof(ConfigModel.CurrentTaunt), -2));
+        ret.NumericAge = GetBool(nameof(ConfigModel.NumericAge), true);
 
-        string GetString(string key) => dic.TryGetValue(key, out var s) ? s : string.Empty;
+        string GetString(string key, string defaultValue) => dic.TryGetValue(key, out var s) ? s : defaultValue;
         bool GetBool(string key, bool defaultValue) => dic.TryGetValue(key, out var s) && bool.TryParse(s, out var b) ? b : defaultValue;
         int GetInt(string key, int defaultValue)
           => dic.TryGetValue(key, out var s) ? int.TryParse(s, out var i) ? i : defaultValue : defaultValue;
@@ -330,7 +331,7 @@ ToolTip TEXT NOT NULL)", transaction: transaction);
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("DELETE FROM File WHERE Id=@id", new {id}, transaction);
+        transaction.Connection.Execute("DELETE FROM File WHERE Id=@id", new { id }, transaction);
         transaction.Commit();
       }
     }

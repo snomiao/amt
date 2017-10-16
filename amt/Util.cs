@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Windows;
+using YTY.amt.Model;
 
 namespace YTY.amt
 {
@@ -45,6 +46,13 @@ namespace YTY.amt
           }
         }
       }
+    }
+
+    public static IEnumerable<string> EnumerateHkiFiles()
+    {
+      var folders = Directory.GetDirectories(ProgramModel.MakeHawkempirePath("Games"))
+        .Concat(new[] {ProgramModel.MakeHawkempirePath(string.Empty)});
+      return folders.SelectMany(f => Directory.GetFiles(f, "*.hki", SearchOption.TopDirectoryOnly));
     }
 
     [StructLayout(LayoutKind.Sequential)]

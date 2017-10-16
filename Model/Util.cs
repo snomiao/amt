@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Windows;
+using Microsoft.Win32;
 using IniParser;
 using Vestris.ResourceLib;
 
@@ -15,6 +15,7 @@ namespace YTY.amt.Model
   {
     private const string CSIDDIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!-._~";
     private const string SECTION_NAME = "Language.dll";
+    private const string REGISTRYKEY = @"SOFTWARE\Microsoft\Microsoft Games\Age of Empires II: The Conquerors Expansion\1.0";
     private static readonly int NUMCSIDDIGITS;
     private static readonly SHA1 sha1 = SHA1.Create();
 
@@ -77,7 +78,7 @@ namespace YTY.amt.Model
     public static int ParseIniToDll(string iniFileName, string dllFileName)
     {
       var parser = new FileIniDataParser();
-      
+
       var ini = new FileIniDataParser().ReadFile(iniFileName, Encoding.UTF8)[SECTION_NAME];
       var toWrite = new Dictionary<ushort, string>();
       foreach (var kv in ini)
@@ -137,7 +138,35 @@ namespace YTY.amt.Model
       return toWrite.Count;
     }
 
-    [DllImport ("kernel32")]
+    public static object GetAocRegistryValue(string key)
+    {
+      return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry32)
+        .CreateSubKey(REGISTRYKEY).GetValue(key)
+        ?? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32)
+        .CreateSubKey(REGISTRYKEY).GetValue(key);
+    }
+
+    public static void SetAocRegistryValue(string key, string value)
+    {
+      SetAocRegistryValueImpl(key, value, RegistryValueKind.String);
+    }
+
+    public static void SetAocRegistryValue(string key, int value)
+    {
+      SetAocRegistryValueImpl(key, value, RegistryValueKind.DWord);
+    }
+
+    public static void SetAocRegistryValue(string key, bool value)
+    {
+      SetAocRegistryValueImpl(key, value ? 1 : 0, RegistryValueKind.DWord);
+    }
+
+    private static void SetAocRegistryValueImpl(string key, object value, RegistryValueKind kind)
+    {
+      Registry.CurrentUser.CreateSubKey(REGISTRYKEY).SetValue(key, value, kind);
+    }
+
+    [DllImport("kernel32")]
     public static extern IntPtr BeginUpdateResource(string fileName, bool deleteExistingResources);
 
     [DllImport("kernel32")]

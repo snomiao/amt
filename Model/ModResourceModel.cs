@@ -102,6 +102,12 @@ namespace YTY.amt.Model
         ProgramModel.MakeExeRelativePath(ExePath):
         ProgramModel.MakeHawkempirePath(ExePath),
         ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
+      if (Id == -5)
+        // UserPatch 1.5, copy xml
+      {
+        File.Copy(ProgramModel.MakeExeRelativePath(@"xml\age2_up1.5.xml"),
+          ProgramModel.MakeHawkempirePath(@"games\age2_up1.5.xml"), true);
+      }
     }
 
     public void Run()
@@ -146,6 +152,13 @@ namespace YTY.amt.Model
         ExePath = @"exe\age2_wtep.exe",
         FolderPath=@"Games\The Conquerors 1.4",
       },
+      new ModResourceModel
+      {
+        Id=-5,
+        Name="UserPatch 1.5",
+        ExePath=@"exe\age2_up1.5.exe",
+        FolderPath=@"Games\UserPatch 1.5",
+      }
     };
   }
 

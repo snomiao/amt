@@ -532,11 +532,12 @@ namespace YTY.amt
         var isC = "c".Equals((string)parameter, StringComparison.InvariantCultureIgnoreCase);
         if (MessageBox.Show("本按钮会将所有玩家的快捷键设置为 " + (isC ? "C" : "AoFE") + " 版默认键位，确认继续？", string.Empty, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
         {
-          foreach (var hotkey in Directory.GetFiles(ProgramModel.MakeHawkempirePath(string.Empty), "*.hki", SearchOption.TopDirectoryOnly))
+          var hkiSrc = ProgramModel.MakeExeRelativePath(@"hki\" + (isC ? "c" : "fe") + ".hki");
+          foreach (var hkiDest in Util.EnumerateHkiFiles())
           {
             try
             {
-              File.Copy(ProgramModel.MakeExeRelativePath(@"hki\" + (isC ? "c" : "fe") + ".hki"), hotkey, true);
+              File.Copy(hkiSrc, hkiDest, true);
             }
             catch (IOException ex)
             {
