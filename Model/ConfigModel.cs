@@ -199,9 +199,6 @@ namespace YTY.amt.Model
         File.Copy(ProgramModel.MakeExeRelativePath(
           value ? @"dat\allshown\empires2_x1_p1_age2x1c.dat" : @"dat\original\empires2_x1_p1.dat"),
           ProgramModel.MakeHawkempirePath(@"games\the conquerors 1.4\data\empires2_x1_p1.dat"), true);
-        File.Copy(ProgramModel.MakeExeRelativePath(
-   value ? @"dat\allshown\empires2_x1_p1_age2x1c.dat" : @"dat\original\empires2_x1_p1.dat"),
-   ProgramModel.MakeHawkempirePath(@"games\userpatch 1.5\data\empires2_x1_p1.dat"), true);
         DatabaseClient.SaveConfigEntry(nameof(AllShown_Aoc15), value);
         allShown_Aoc15 = value;
         OnPropertyChanged(nameof(AllShown_Aoc15));

@@ -102,11 +102,10 @@ namespace YTY.amt.Model
         ProgramModel.MakeExeRelativePath(ExePath):
         ProgramModel.MakeHawkempirePath(ExePath),
         ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
-      if (Id == -5)
-        // UserPatch 1.5, copy xml
+      if (new []{-1,-3,-4,-5,-6}.Contains( Id ))
       {
-        File.Copy(ProgramModel.MakeExeRelativePath(@"xml\age2_up1.5.xml"),
-          ProgramModel.MakeHawkempirePath(@"games\age2_up1.5.xml"), true);
+        File.Copy(ProgramModel.MakeExeRelativePath(XmlPath),
+          Path.Combine(ProgramModel.MakeHawkempirePath("games"), Path.GetFileName(XmlPath)), true);
       }
     }
 
@@ -128,8 +127,9 @@ namespace YTY.amt.Model
       {
         Id = -1,
         Name = "帝国时代Ⅱ 1.5",
-        ExePath = @"exe\age2_x1.5.exe",
+        ExePath = @"exe\age2_x1.4.exe",
         FolderPath=@"Games\The Conquerors 1.4",
+        XmlPath=@"xml\age2_x1.4.xml",
       },
       new ModResourceModel
       {
@@ -137,27 +137,39 @@ namespace YTY.amt.Model
         Name = "帝国时代Ⅱ 1.0C",
         ExePath = @"exe\age2_x1.0c.exe",
         FolderPath="",
+        XmlPath="",
       },
       new ModResourceModel
       {
         Id = -3,
-        Name = "被遗忘的帝国",
-        ExePath = @"exe\age2_x2.exe",
-        FolderPath=@"Games\Forgotten Empires",
+        Name = "WololoKingdoms",
+        ExePath = @"exe\age2_wk.exe",
+        FolderPath=@"Games\WololoKingdoms",
+        XmlPath=@"xml\age2_wk.xml",
       },
       new ModResourceModel
       {
         Id = -4,
-        Name = "WAIFor 触发扩展版",
-        ExePath = @"exe\age2_wtep.exe",
-        FolderPath=@"Games\The Conquerors 1.4",
+        Name = "被遗忘的帝国",
+        ExePath = @"exe\age2_x2.exe",
+        FolderPath=@"Games\Forgotten Empires",
+        XmlPath=@"xml\age2_x2.xml",
       },
       new ModResourceModel
       {
-        Id=-5,
-        Name="UserPatch 1.5",
-        ExePath=@"exe\age2_up1.5.exe",
-        FolderPath=@"Games\UserPatch 1.5",
+        Id = -5,
+        Name = "WAIFor 触发扩展版",
+        ExePath = @"exe\age2_wtep.exe",
+        FolderPath=@"Games\ETP",
+        XmlPath=@"xml\age2_wtep.xml",
+      },
+      new ModResourceModel
+      {
+        Id=-6,
+        Name="触发补丁版",
+        ExePath=@"exe\age2_etp.exe",
+        FolderPath=@"Games\ETP",
+        XmlPath=@"xml\age2_etp.xml",
       }
     };
   }

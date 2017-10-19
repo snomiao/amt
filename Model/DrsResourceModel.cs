@@ -81,12 +81,12 @@ namespace YTY.amt.Model
           var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
           var id = int.Parse(Path.GetFileNameWithoutExtension(file.Path));
           var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
-          dic[drsName][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(file.FullPathName);
+          dic[MapDrsName(drsName)][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(file.FullPathName);
         }
       }
       foreach (var pair in dic)
       {
-        pair.Value.Save(Path.Combine(ProgramModel.MakeHawkempirePath("Data"), pair.Key));
+        pair.Value.Save(ProgramModel.MakeHawkempirePath(GetDrsPath(pair.Key)));
       }
     }
 
@@ -96,12 +96,73 @@ namespace YTY.amt.Model
       DatabaseClient.SaveDrs(this);
     }
 
+    private string MapDrsName(string drsName)
+    {
+      if (GameVersion == GameVersion.Aofe)
+      {
+        if (drsName.Equals("gamedata_x1.drs", StringComparison.InvariantCultureIgnoreCase))
+        {
+          return "gamedata_x1_fe.drs";
+        }
+        else if (drsName.Equals("gamedata_x1_p1.drs", StringComparison.InvariantCultureIgnoreCase))
+        {
+          return "gamedata_x1_p1_fe.drs";
+        }
+        else
+        {
+          return drsName;
+        }
+      }
+      else if (GameVersion == GameVersion.WololoKingdoms)
+      {
+        if (drsName.Equals("gamedata_x1_p1.drs", StringComparison.InvariantCultureIgnoreCase))
+        {
+          return "gamedata_x1_p1_wk.drs";
+        }
+        else
+        {
+          return drsName;
+        }
+      }
+      else
+      {
+        return drsName;
+      }
+    }
+
+    private string GetDrsPath(string drsName)
+    {
+      if (drsName.Equals("gamedata_x1_fe.drs", StringComparison.InvariantCultureIgnoreCase))
+      {
+        return @"games\forgotten empires\data\gamedata_x1.drs";
+      }
+      else if (drsName.Equals("gamedata_x1_p1_fe.drs", StringComparison.InvariantCultureIgnoreCase))
+      {
+        return @"games\forgotten empires\data\gamedata_x1_p1.drs";
+      }
+      else if (drsName.Equals("gamedata_x1_p1_wk.drs", StringComparison.InvariantCultureIgnoreCase))
+      {
+        return @"games\WololoKingdoms\data\gamedata_x1_p1.drs";
+      }
+      else
+      {
+        return $@"data\{drsName}";
+      }
+    }
+
     private static readonly string[] builtInDrsFiles =
     {
       "gamedata.drs",
+      "gamedata_x1.drs",
+      "gamedata_x1_fe.drs",
+      "gamedata_x1_p1.drs",
+      "gamedata_x1_p1_fe.drs",
+      "gamedata_x1_p1_wk.drs",
+      "gamedata_x1_wk.drs",
       "graphics.drs",
       "interfac.drs",
       "sounds.drs",
+      "sounds_x1.drs",
       "terrain.drs",
     };
 
