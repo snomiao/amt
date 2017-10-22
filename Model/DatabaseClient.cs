@@ -64,6 +64,7 @@ namespace YTY.amt.Model
         ret.workshopTimestamp = GetInt(nameof(ConfigModel.WorkshopTimestamp), 0);
         ret.currentTaunt = ProgramModel.Taunts.First(t => t.Id == GetInt(nameof(ConfigModel.CurrentTaunt), -2));
         ret.NumericAge = GetBool(nameof(ConfigModel.NumericAge), true);
+        ret.WkVersion = GetInt(nameof(ConfigModel.WkVersion), 0);
 
         string GetString(string key, string defaultValue) => dic.TryGetValue(key, out var s) ? s : defaultValue;
         bool GetBool(string key, bool defaultValue) => dic.TryGetValue(key, out var s) && bool.TryParse(s, out var b) ? b : defaultValue;

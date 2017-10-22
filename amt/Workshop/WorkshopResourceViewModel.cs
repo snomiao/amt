@@ -97,6 +97,7 @@ namespace YTY.amt
         if (Model.GameVersion.HasFlag(amt.Model.GameVersion.AocC)) ret.Add("1.0C");
         if (Model.GameVersion.HasFlag(amt.Model.GameVersion.Aoc15)) ret.Add("1.5");
         if (Model.GameVersion.HasFlag(amt.Model.GameVersion.Aofe)) ret.Add("AoFE");
+        if (Model.GameVersion.HasFlag(amt.Model.GameVersion.WololoKingdoms)) ret.Add("WK");
         return string.Join("/", ret);
       }
     }

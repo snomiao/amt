@@ -432,7 +432,7 @@ namespace YTY.amt.Model
     AocC = 0x8,
     Aoc15 = 0x10,
     Aofe = 0x20,
-    WololoKingdoms=0x40,
+    WololoKingdoms=0x100,
   }
 
   public enum WorkshopResourceStatus

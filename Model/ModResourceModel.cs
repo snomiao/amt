@@ -16,7 +16,14 @@ namespace YTY.amt.Model
     /// <summary>
     /// Dummy ID for age2_x1.0c.exe
     /// </summary>
-    public const int AGE2_1C = -2;
+    private const int AGE2_1C = -2;
+
+    /// <summary>
+    /// Dummy ID for age2_wk.exe
+    /// </summary>
+    private const int AGE2_WK = -3;
+
+    private const int WK_VERSION = 1;
 
     private static readonly Regex regexXmlPath = new Regex(@"Games\\\w+\.xml", RegexOptions.IgnoreCase);
     private static readonly Regex regexExePath = new Regex(@"age2_x1\\\w+\.exe", RegexOptions.IgnoreCase);
@@ -98,14 +105,35 @@ namespace YTY.amt.Model
 
     public void CopyExe()
     {
-      File.Copy(IsBuiltIn?
-        ProgramModel.MakeExeRelativePath(ExePath):
+      File.Copy(IsBuiltIn ?
+        ProgramModel.MakeExeRelativePath(ExePath) :
         ProgramModel.MakeHawkempirePath(ExePath),
         ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
-      if (new []{-1,-3,-4,-5,-6}.Contains( Id ))
+      if (new[] { -1, -3, -4, -5, -6 }.Contains(Id))
       {
         File.Copy(ProgramModel.MakeExeRelativePath(XmlPath),
           Path.Combine(ProgramModel.MakeHawkempirePath("games"), Path.GetFileName(XmlPath)), true);
+      }
+      if (Id == AGE2_WK && WK_VERSION > ProgramModel.Config.WkVersion)
+      {
+        foreach (var dir in Directory.GetDirectories(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*", SearchOption.AllDirectories))
+        {
+          Directory.CreateDirectory(dir.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")));
+        }
+        foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*", SearchOption.AllDirectories))
+        {
+          File.Copy(file, file.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")),true);
+        }
+        Directory.CreateDirectory(ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data"));
+        File.Copy(ProgramModel.MakeExeRelativePath(@"dat\original\empires2_x1_p1_wk.dat"),
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\empires2_x1_p1.dat"),true);
+        File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_wk.drs"),
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1.drs"),true);
+        File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_p1_wk.drs"),
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1_p1.drs"),true);
+        File.Copy(ProgramModel.MakeExeRelativePath(@"dll\zh\language_x1_p1_wk.dll"),
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\language_x1_p1.dll"),true);
+        ProgramModel.Config.WkVersion = WK_VERSION;
       }
     }
 
