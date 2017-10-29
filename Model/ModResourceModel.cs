@@ -23,7 +23,7 @@ namespace YTY.amt.Model
     /// </summary>
     private const int AGE2_WK = -3;
 
-    private const int WK_VERSION = 1;
+    private const int WK_VERSION = 2;
 
     private static readonly Regex regexXmlPath = new Regex(@"Games\\\w+\.xml", RegexOptions.IgnoreCase);
     private static readonly Regex regexExePath = new Regex(@"age2_x1\\\w+\.exe", RegexOptions.IgnoreCase);
@@ -130,7 +130,7 @@ namespace YTY.amt.Model
         File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_wk.drs"),
           ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1.drs"),true);
         File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_p1_wk.drs"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1_p1.drs"),true);
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1_p1.drs"),false);
         File.Copy(ProgramModel.MakeExeRelativePath(@"dll\zh\language_x1_p1_wk.dll"),
           ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\language_x1_p1.dll"),true);
         ProgramModel.Config.WkVersion = WK_VERSION;
