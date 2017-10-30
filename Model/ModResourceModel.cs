@@ -116,23 +116,35 @@ namespace YTY.amt.Model
       }
       if (Id == AGE2_WK && WK_VERSION > ProgramModel.Config.WkVersion)
       {
-        foreach (var dir in Directory.GetDirectories(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*", SearchOption.AllDirectories))
+        foreach (var dir in Directory.GetDirectories(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*",
+          SearchOption.AllDirectories))
         {
-          Directory.CreateDirectory(dir.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")));
+          Directory.CreateDirectory(dir.Replace(ProgramModel.MakeExeRelativePath("builtin"),
+            ProgramModel.MakeHawkempirePath("games")));
         }
-        foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*", SearchOption.AllDirectories))
+        foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*",
+          SearchOption.AllDirectories))
         {
-          File.Copy(file, file.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")),true);
+          File.Copy(file,
+            file.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")),
+            true);
         }
         Directory.CreateDirectory(ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data"));
         File.Copy(ProgramModel.MakeExeRelativePath(@"dat\original\empires2_x1_p1_wk.dat"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\empires2_x1_p1.dat"),true);
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\empires2_x1_p1.dat"), true);
         File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_wk.drs"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1.drs"),true);
-        File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_p1_wk.drs"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1_p1.drs"),false);
+          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1.drs"), true);
+        try
+        {
+          File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_p1_wk.drs"),
+            ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1_p1.drs"), false);
+        }
+        catch (IOException)
+        {
+          // ignored
+        }
         File.Copy(ProgramModel.MakeExeRelativePath(@"dll\zh\language_x1_p1_wk.dll"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\language_x1_p1.dll"),true);
+            ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\language_x1_p1.dll"), true);
         ProgramModel.Config.WkVersion = WK_VERSION;
       }
     }
