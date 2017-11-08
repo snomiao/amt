@@ -142,18 +142,18 @@ namespace YTY.amt.Model
         new ToolModel
         {
           Id=-1,
-          Name="高级数据编辑器3.8",
-          Path=@"AGE\age3.8.exe",
+          Name="高级数据编辑器2017.11.7(英文)",
+          Path=@"AGE\AdvancedGenieEditor3.exe",
           IconPath="/resources;component/Resources/AGE.png",
-          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 3.8 版。\n该程序可以修改帝国时代的数据库DAT文件。",
+          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 2017.11.7 版。\n该程序可以修改帝国时代的数据库DAT文件。",
         },
         new ToolModel
         {
           Id=-1,
-          Name="高级数据编辑器2015",
+          Name="高级数据编辑器2015(汉化)",
           Path=@"AGE\AdvancedGenieEditor3CHS.exe",
           IconPath="/resources;component/Resources/AGE2.png",
-          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 2015 版。\n该程序可以修改帝国时代的数据库DAT文件。",
+          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 2015 (汉化)版。\n该程序可以修改帝国时代的数据库DAT文件。",
         },
         //new ToolModel
         //{
