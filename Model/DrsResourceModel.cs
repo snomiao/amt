@@ -32,7 +32,7 @@ namespace YTY.amt.Model
     public void Activate()
     {
       UpdateIsActivated(true);
-      ProgramModel.ActiveDrses.Add(this);
+      ProgramModel.ActiveDrses.Insert(0,this);
       ApplyDrses();
     }
 
@@ -47,14 +47,12 @@ namespace YTY.amt.Model
     {
       var index = Priority;
       ProgramModel.ActiveDrses.Move(index, index - 1);
-      ApplyDrses();
     }
 
     public void DecrementPriority()
     {
       var index = Priority;
       ProgramModel.ActiveDrses.Move(index, index + 1);
-      ApplyDrses();
     }
 
     public override void Delete()
@@ -70,7 +68,7 @@ namespace YTY.amt.Model
       base.Delete();
     }
 
-    private void ApplyDrses()
+    public static void ApplyDrses()
     {
       var dic = builtInDrsFiles.ToDictionary(f => f,
         f => DrsFile.Load(Path.Combine(ProgramModel.MakeExeRelativePath("drs"), f)));
@@ -81,7 +79,7 @@ namespace YTY.amt.Model
           var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
           var id = int.Parse(Path.GetFileNameWithoutExtension(file.Path));
           var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
-          dic[MapDrsName(drsName)][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(file.FullPathName);
+          dic[drs.MapDrsName(drsName)][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(file.FullPathName);
         }
       }
       foreach (var pair in dic)
@@ -130,7 +128,7 @@ namespace YTY.amt.Model
       }
     }
 
-    private string GetDrsPath(string drsName)
+    private static string GetDrsPath(string drsName)
     {
       if (drsName.Equals("gamedata_x1_fe.drs", StringComparison.InvariantCultureIgnoreCase))
       {

@@ -29,6 +29,7 @@ namespace YTY.amt.Model
     internal int workshopTimestamp;
     internal TauntResourceModel currentTaunt;
     internal bool numericAge;
+    internal bool hiddenCivs;
     internal int wkVersion;
 
     public string HawkempirePath
@@ -252,6 +253,18 @@ namespace YTY.amt.Model
         DatabaseClient.SaveConfigEntry(nameof(NumericAge), numericAge);
         Util.SetAocRegistryValue("Numeric Age", numericAge);
         OnPropertyChanged(nameof(NumericAge));
+      }
+    }
+
+    public bool HiddenCivs
+    {
+      get => hiddenCivs;
+      set
+      {
+        hiddenCivs = value;
+        DatabaseClient.SaveConfigEntry(nameof(HiddenCivs), hiddenCivs);
+        Util.SetAocRegistryValue("Hidden Civs", hiddenCivs);
+        OnPropertyChanged(nameof(HiddenCivs));
       }
     }
 

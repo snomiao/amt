@@ -307,6 +307,7 @@
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"></ColumnDefinition>
                     <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
                   </Grid.ColumnDefinitions>
                   <ListBox Grid.Column="0"
                            x:Name="lbxActiveDrses"
@@ -318,6 +319,10 @@
                     <Button CommandParameter="{Binding ElementName=lbxActiveDrses,Path=SelectedItem}"
                             Command="local:Commands.MoveDownDrs">↓降低优先度</Button>
                   </StackPanel>
+                  <Button Grid.Column="2"
+                          Command="local:Commands.ApplyDrses"
+                          FontSize="20"
+                          VerticalAlignment="Center">点此应用优先度设置</Button>
                 </Grid>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
                 <ListBox Style="{StaticResource ListBoxNoneStyle}"
@@ -426,6 +431,13 @@
                     </TextBox.Text>
                   </TextBox>
                 </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">数字时代显示</TextBlock>
+                <TextBlock>开启此选项后，游戏及播放录像时，界面右下角分数显示区域的“xx时代”字样会替换为数字1~4。<LineBreak></LineBreak>
+                  某些玩家对于数字的敏感度可能高于文字，这样在战斗中可以更加迅速地判断当前局势。</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=NumericAge,Mode=TwoWay}">时代显示为数字</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=NumericAge,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">时代显示为文字</ToggleButton>
+                </StackPanel>
                 <TextBlock Style="{StaticResource TextBlockHeaderStyle}">重组资料库</TextBlock>
                 <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
                 <Grid>
@@ -527,6 +539,13 @@
                           ToolTip="{StaticResource ttpPortForwarding}">
                 <Button>关闭联机优化</Button>
                 <Button>开启联机优化</Button>
+              </StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">隐藏民族</TextBlock>
+              <TextBlock>开启后，多人联机大厅界面中，若玩家选择随机类以外的民族，则其他玩家看到他所选的民族将是“未知”字样。</TextBlock>
+              <TextBlock Foreground="Red">必须由创建房间的主机玩家开启此选项才有效。</TextBlock>
+              <StackPanel Orientation="Horizontal">
+                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=HiddenCivs,Mode=TwoWay}">隐藏民族开启</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=HiddenCivs,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">隐藏民族关闭</ToggleButton>
               </StackPanel>
             </StackPanel>
           </TabItem>
@@ -657,7 +676,7 @@
                 <FlowDocument>
                   <Paragraph>帝国时代管家（amt.exe）是飞翔之鹰工作室为广大帝国玩家专门设计的一款游戏管理应用，界面美观，简单实用。它能帮助玩家免去游戏各类复杂的设置，能够轻松进行游戏一键游戏版本切换、更新、联机、作品共享和游戏高级开发等功能。不仅如此，玩家还能及时获取最新的帝国资讯、作品和开发成果。无论您是帝国时代系列的忠实粉丝还是刚刚接触这款经典游戏的新人玩家，帝国时代管家都将为您带来更极致、简单的帝国时代游戏体验！</Paragraph>
                   <Paragraph TextAlignment="Right">
-                    <Run Foreground="Brown">当前管家版本：3.4.0</Run> /
+                    <Run Foreground="Brown">当前管家版本：3.4.4</Run> /
                     <Hyperlink Command="local:Commands.Hyperlink"
                                CommandParameter="http://www.hawkaoc.net/hawkclient/changelog.txt">软件更新日志</Hyperlink> /
                     <Hyperlink Command="local:Commands.Hyperlink"

@@ -63,6 +63,8 @@ namespace YTY.amt
 
     public static ICommand GenerateDllFromIni { get; } = new GenerateDllFromIniCommand();
 
+    public static ICommand ApplyDrses { get; } = new ApplyDrsesCommand();
+
     private class ActivateDrsCommand : ICommand
     {
       public event EventHandler CanExecuteChanged;
@@ -621,6 +623,21 @@ namespace YTY.amt
         {
           MessageBox.Show(ex.Message);
         }
+      }
+
+      public event EventHandler CanExecuteChanged;
+    }
+
+    private class ApplyDrsesCommand:ICommand
+    {
+      public bool CanExecute(object parameter)
+      {
+        return true;
+      }
+
+      public void Execute(object parameter)
+      {
+        DrsResourceModel.ApplyDrses();
       }
 
       public event EventHandler CanExecuteChanged;
