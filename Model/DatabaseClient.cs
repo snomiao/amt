@@ -27,6 +27,7 @@ namespace YTY.amt.Model
         cfg.CreateMap<WorkshopResourceDto, ModResourceModel>();
         cfg.CreateMap<WorkshopResourceDto, TauntResourceModel>();
         cfg.CreateMap<WorkshopResourceDto, LanguageResourceModel>();
+        cfg.CreateMap<WorkshopResourceModel, WorkshopResourceDto>();
       });
       InitializeDatabase();
     }
@@ -142,7 +143,7 @@ ORDER BY d.Priority,m.`Index`");
         transaction.Connection.Execute(@"
 INSERT OR REPLACE INTO Resource(Id,CreateDate,LastChangeDate,LastFileChangeDate,TotalSize,Rating,DownloadCount,AuthorId,AuthorName,Name,Description,GameVersion,SourceUrl,Type,Status)
 VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status)",
-           resources, transaction);
+          Mapper.Map<IEnumerable<WorkshopResourceModel>, IEnumerable<WorkshopResourceDto>>(resources), transaction);
         transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
            resources.OfType<DrsResourceModel>(), transaction);
         transaction.Connection.Execute("INSERT OR REPLACE INTO Mod(Id) VALUES(@Id)",
