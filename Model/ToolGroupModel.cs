@@ -155,14 +155,14 @@ namespace YTY.amt.Model
           IconPath="/resources;component/Resources/AGE2.png",
           ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 2015 (汉化)版。\n该程序可以修改帝国时代的数据库DAT文件。",
         },
-        //new ToolModel
-        //{
-        //  Id=-1,
-        //  Name="语言DLL编辑器",
-        //  Path="",
-        //  IconPath="/resources;component/Resources/语言DLL.png",
-        //  ToolTip="打开【语言DLL编辑器】内置工具。\n该程序可以修改帝国时代的语言DLL文件。",
-        //},
+        new ToolModel
+        {
+          Id=-1,
+          Name="语言dll与ini文本转换器",
+          Path=@"AocDllIniConverter\AocDllIniConverter.exe",
+          IconPath="/resources;component/Resources/语言DLL.png",
+          ToolTip="打开【语言dll与ini文本转换器】工具。\n该程序支持帝国时代的语言DLL文件与ini文本文件互相转换，方便修改游戏字串内容。",
+        },
         new ToolModel
         {
           Id=-1,
