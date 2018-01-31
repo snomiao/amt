@@ -23,7 +23,7 @@ namespace YTY.amt.Model
     /// </summary>
     private const int AGE2_WK = -3;
 
-    private const int WK_VERSION = 6;
+    private const int WK_VERSION = 7;
 
     private static readonly Regex regexXmlPath = new Regex(@"Games\\\w+\.xml", RegexOptions.IgnoreCase);
     private static readonly Regex regexExePath = new Regex(@"age2_x1\\\w+\.exe", RegexOptions.IgnoreCase);
@@ -182,7 +182,7 @@ namespace YTY.amt.Model
       new ModResourceModel
       {
         Id = -3,
-        Name = "WololoKingdoms",
+        Name = "WololoKingdoms 5.7",
         ExePath = @"exe\age2_wk.exe",
         FolderPath=@"Games\WololoKingdoms",
         XmlPath=@"xml\age2_wk.xml",
