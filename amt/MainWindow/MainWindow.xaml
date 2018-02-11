@@ -23,8 +23,6 @@
         <ColumnDefinition Width="*"></ColumnDefinition>
         <ColumnDefinition Width="auto"></ColumnDefinition>
         <ColumnDefinition Width="auto"></ColumnDefinition>
-        <ColumnDefinition Width="auto"></ColumnDefinition>
-        <ColumnDefinition Width="auto"></ColumnDefinition>
       </Grid.ColumnDefinitions>
       <Grid.Background>
         <LinearGradientBrush>
@@ -51,6 +49,7 @@
               Height="50"
               Width="165"
               FontSize="24"
+              Margin="80,0,0,0"
               Foreground="White"
               Command="local:Commands.SwitchAndRunGame"
               CommandParameter="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame}"
@@ -94,7 +93,7 @@
       <ToggleButton Grid.Column="3"
                     Height="50"
                     Width="20"
-                    Margin="1,0,0,0"
+                    Margin="1,0,70,0"
                     IsEnabled="{Binding IsValidHawkempirePath}"
                     IsChecked="{Binding ElementName=pppGameList,Path=IsOpen,Mode=TwoWay}">
         <ToggleButton.Style>
@@ -206,17 +205,96 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </Popup>
-      <TextBlock Grid.Column="0"
-                 Grid.ColumnSpan="4"
+      <TextBlock Grid.Column="2"
+                 Grid.ColumnSpan="2"
                  VerticalAlignment="Bottom"
-                 HorizontalAlignment="Right"
+                 HorizontalAlignment="Center"
                  FontSize="16"
                  Foreground="White"
                  Margin="0,0,0,10"
                  Text="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
-      <Button Grid.Column="4"
+    </Grid>
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0"
+              ToolTip="加入翔鹰帝国QQ群"
+              Width="30"
+              Height="30"
+              Command="{x:Static local:Commands.Hyperlink}"
+              CommandParameter="https://jq.qq.com/?_wv=1027&amp;k=5FIyjil">
+        <Button.Style>
+          <Style TargetType="Button"
+                 BasedOn="{StaticResource ButtonSystemStyle}">
+            <Style.Triggers>
+              <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    To="Coral"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+        <Image Source="/resources;component/Resources/qq.png"></Image>
+      </Button>
+      <Button Grid.Column="1"
+              Width="30"
+              Height="30"
+              ToolTipService.ShowDuration="100000"
+              ToolTipService.PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+              ToolTipService.Placement="Center"
+              ToolTipService.InitialShowDelay="0">
+        <Button.ToolTip>
+          <Image Source="/resources;component/Resources/donate.png"
+                 Width="400"
+                 Height="400"></Image>
+        </Button.ToolTip>
+        <Button.Style>
+          <Style TargetType="Button"
+                 BasedOn="{StaticResource ButtonSystemStyle}">
+            <Style.Triggers>
+              <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    To="Gold"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+
+        <Image Source="/resources;component/Resources/icon-money.png"></Image>
+      </Button>
+      <Button Grid.Column="2"
               Style="{StaticResource ButtonMinimizeStyle}"></Button>
-      <Button Grid.Column="5"
+      <Button Grid.Column="3"
               Style="{StaticResource ButtonCloseStyle}"></Button>
     </Grid>
     <TabControl Grid.Row="1"
@@ -676,7 +754,7 @@
                 <FlowDocument>
                   <Paragraph>帝国时代管家（amt.exe）是飞翔之鹰工作室为广大帝国玩家专门设计的一款游戏管理应用，界面美观，简单实用。它能帮助玩家免去游戏各类复杂的设置，能够轻松进行游戏一键游戏版本切换、更新、联机、作品共享和游戏高级开发等功能。不仅如此，玩家还能及时获取最新的帝国资讯、作品和开发成果。无论您是帝国时代系列的忠实粉丝还是刚刚接触这款经典游戏的新人玩家，帝国时代管家都将为您带来更极致、简单的帝国时代游戏体验！</Paragraph>
                   <Paragraph TextAlignment="Right">
-                    <Run Foreground="Brown">当前管家版本：3.4.4</Run> /
+                    <Run Foreground="Brown">当前管家版本：3.4.5</Run> /
                     <Hyperlink Command="local:Commands.Hyperlink"
                                CommandParameter="http://www.hawkaoc.net/hawkclient/changelog.txt">软件更新日志</Hyperlink> /
                     <Hyperlink Command="local:Commands.Hyperlink"

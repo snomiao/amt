@@ -23,7 +23,7 @@ namespace YTY.amt.Model
     /// </summary>
     private const int AGE2_WK = -3;
 
-    private const int WK_VERSION = 7;
+    private const int WK_VERSION = 8;
 
     private static readonly Regex regexXmlPath = new Regex(@"Games\\\w+\.xml", RegexOptions.IgnoreCase);
     private static readonly Regex regexExePath = new Regex(@"age2_x1\\\w+\.exe", RegexOptions.IgnoreCase);
