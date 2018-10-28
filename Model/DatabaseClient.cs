@@ -47,7 +47,7 @@ namespace YTY.amt.Model
       var ret = new ConfigModel();
       using (var connection = GetConnection())
       {
-        var dic = connection.Query<KeyValuePair<string, string>>("SELECT Key,Value FROM Config").ToDictionary(q => q.Key, q => q.Value);
+        var dic = connection.Query<KeyValuePair<string, string>>("SELECT `Key`,`Value` FROM `Config`").ToDictionary(q => q.Key, q => q.Value);
         ret.hawkempirePath = GetString(nameof(ConfigModel.HawkempirePath), (string)Util.GetAocRegistryValue("EXE Path") ?? string.Empty);
         ret.currentGame =
           ProgramModel.Games.First(m => m.Id == GetInt(nameof(ConfigModel.CurrentGame), -1));
@@ -84,7 +84,7 @@ namespace YTY.amt.Model
       {
         using (var connection = GetConnection())
         {
-          configs = connection.Query<KeyValuePair<string, string>>("SELECT Key,Value FROM Config").ToDictionary(q => q.Key, q => q.Value);
+          configs = connection.Query<KeyValuePair<string, string>>("SELECT `Key`,`Value` FROM `Config`").ToDictionary(q => q.Key, q => q.Value);
         }
       }
       return configs;
@@ -94,7 +94,7 @@ namespace YTY.amt.Model
     {
       using (var connection = GetConnection())
       {
-        connection.Execute("INSERT OR REPLACE INTO Config(Key,Value) VALUES(@Key,@Value)", new KeyValuePair<string, string>(key, value.ToString()));
+        connection.Execute("INSERT OR REPLACE INTO `Config`(`Key`,`Value`) VALUES(@Key,@Value)", new KeyValuePair<string, string>(key, value.ToString()));
       }
     }
 
@@ -104,13 +104,13 @@ namespace YTY.amt.Model
       {
 
         var dtos = connection.Query<WorkshopResourceDto>(@"
-SELECT r.Id,r.CreateDate,r.LastChangeDate,r.LastFileChangeDate,r.TotalSize,r.Rating,r.DownloadCount,r.AuthorId,r.AuthorName,r.Name,r.Description,r.GameVersion,r.SourceUrl,r.Type,r.Status,
-d.IsActivated,
-m.ExePath,m.XmlPath,m.FolderPath
-FROM Resource r
-LEFT JOIN Drs d ON r.Id=d.Id
-LEFT JOIN Mod m ON r.Id=m.Id
-ORDER BY d.Priority,m.`Index`");
+SELECT r.`Id`,r.`CreateDate`,r.`LastChangeDate`,r.`LastFileChangeDate`,r.`TotalSize`,r.`Rating`,r.`DownloadCount`,r.`AuthorId`,r.`AuthorName`,r.`Name`,r.`Description`,r.`GameVersion`,r.`SourceUrl`,r.`Type`,r.`Status`,
+d.`IsActivated`,
+m.`ExePath`,m.`XmlPath`,m.`FolderPath`
+FROM `Resource` r
+LEFT JOIN `Drs` d ON r.`Id`=d.`Id`
+LEFT JOIN `Mod` m ON r.`Id`=m.`Id`
+ORDER BY d.`Priority`,m.`Index`");
 
         foreach (var dto in dtos)
         {
@@ -142,12 +142,12 @@ ORDER BY d.Priority,m.`Index`");
       using (var transaction = GetTransaction())
       {
         transaction.Connection.Execute(@"
-INSERT OR REPLACE INTO Resource(Id,CreateDate,LastChangeDate,LastFileChangeDate,TotalSize,Rating,DownloadCount,AuthorId,AuthorName,Name,Description,GameVersion,SourceUrl,Type,Status)
+INSERT OR REPLACE INTO `Resource`(`Id`,`CreateDate`,`LastChangeDate`,`LastFileChangeDate`,`TotalSize`,`Rating`,`DownloadCount`,`AuthorId`,`AuthorName`,`Name`,`Description`,`GameVersion`,`SourceUrl`,`Type`,`Status`)
 VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status)",
           Mapper.Map<IEnumerable<WorkshopResourceModel>, IEnumerable<WorkshopResourceDto>>(resources), transaction);
-        transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id) VALUES(@Id)",
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `Drs`(`Id`) VALUES(@Id)",
            resources.OfType<DrsResourceModel>(), transaction);
-        transaction.Connection.Execute("INSERT OR REPLACE INTO Mod(Id) VALUES(@Id)",
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `Mod`(`Id`) VALUES(@Id)",
            resources.OfType<ModResourceModel>(), transaction);
         transaction.Commit();
       }
@@ -158,7 +158,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
       using (var connection = GetConnection())
       {
         return
-          connection.Query<ResourceFileModel>("SELECT Id,UpdateDate,Size,Path,Sha1,Status FROM File WHERE ResourceId=@resourceId",
+          connection.Query<ResourceFileModel>("SELECT `Id`,`UpdateDate`,`Size`,`Path`,`Sha1`,`Status` FROM `File` WHERE `ResourceId`=@resourceId",
             new { resourceId }).ToList();
       }
     }
@@ -167,7 +167,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("INSERT OR REPLACE INTO File(ResourceId,Id,Size,Path,UpdateDate,Sha1,Status) VALUES(@ResourceId,@Id,@Size,@Path,@UpdateDate,@Sha1,@Status)", models, transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `File`(`ResourceId`,`Id`,`Size`,`Path`,`UpdateDate`,`Sha1`,`Status`) VALUES(@ResourceId,@Id,@Size,@Path,@UpdateDate,@Sha1,@Status)", models, transaction);
         transaction.Commit();
       }
     }
@@ -176,7 +176,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("UPDATE Resource SET LastFileChangeDate=@lastFileChange WHERE Id=@id", new { lastFileChange, id }, transaction);
+        transaction.Connection.Execute("UPDATE `Resource` SET `LastFileChangeDate`=@lastFileChange WHERE `Id`=@id", new { lastFileChange, id }, transaction);
         transaction.Commit();
       }
     }
@@ -185,7 +185,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("UPDATE Resource SET Status=@status WHERE Id=@id", new { id, status }, transaction);
+        transaction.Connection.Execute("UPDATE `Resource` SET `Status`=@status WHERE `Id`=@id", new { id, status }, transaction);
         transaction.Commit();
       }
     }
@@ -194,7 +194,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("UPDATE File SET Status=@status WHERE Id=@id", new { id, status }, transaction);
+        transaction.Connection.Execute("UPDATE `File` SET `Status`=@status WHERE `Id`=@id", new { id, status }, transaction);
         transaction.Commit();
       }
     }
@@ -203,7 +203,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("UPDATE Chunk SET Finished=@finished WHERE FileId=@fileId AND Id=@id",
+        transaction.Connection.Execute("UPDATE `Chunk` SET `Finished`=@finished WHERE `FileId`=@fileId AND `Id`=@id",
            new { fileId, id, finished }, transaction);
         transaction.Commit();
       }
@@ -213,7 +213,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("DELETE FROM Chunk WHERE FileId=@fileId", new { fileId }, transaction);
+        transaction.Connection.Execute("DELETE FROM `Chunk` WHERE `FileId`=@fileId", new { fileId }, transaction);
         transaction.Commit();
       }
     }
@@ -222,7 +222,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var connection = GetConnection())
       {
-        return connection.Query<FileChunkModel>("SELECT Id,Finished FROM Chunk WHERE FileId=@fileId", new { fileId });
+        return connection.Query<FileChunkModel>("SELECT `Id`,`Finished` FROM `Chunk` WHERE `FileId`=@fileId", new { fileId });
       }
     }
 
@@ -230,7 +230,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("INSERT OR REPLACE INTO Chunk(FileId,Id,Finished) VALUES(@FileId,@Id,@Finished)", chunks, transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `Chunk`(`FileId`,`Id`,`Finished`) VALUES(@FileId,@Id,@Finished)", chunks, transaction);
         transaction.Commit();
       }
     }
@@ -239,7 +239,7 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("DELETE FROM File WHERE ResourceId=@resourceId", new { resourceId }, transaction);
+        transaction.Connection.Execute("DELETE FROM `File` WHERE `ResourceId`=@resourceId", new { resourceId }, transaction);
         transaction.Commit();
       }
     }
@@ -248,57 +248,57 @@ VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@D
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Config(
-Key TEXT PRIMARY KEY,
-Value TEXT NOT NULL)", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Resource(
-Id INTEGER PRIMARY KEY,
-CreateDate INTEGER NOT NULL,
-LastChangeDate INTEGER NOT NULL,
-LastFileChangeDate INTEGER NOT NULL,
-TotalSize INTEGER NOT NULL,
-Rating INTEGER NOT NULL,
-DownloadCount INTEGER NOT NULL,
-AuthorId INTEGER NOT NULL,
-AuthorName TEXT NOT NULL,
-Name TEXT NOT NULL,
-Description TEXT NOT NULL,
-GameVersion INTEGER NOT NULL,
-SourceUrl TEXT,
-Type INTEGER NOT NULL,
-Status INTEGER NOT NULL)", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS File(
-Id INTEGER PRIMARY KEY,
-ResourceId INTEGER NOT NULL,
-Size INTEGER NOT NULL,
-Path TEXT NOT NULL,
-UpdateDate INTEGER NOT NULL,
-Sha1 TEXT NOT NULL,
-Status INTEGER NOT NULL)", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Chunk(
-Id INTEGER NOT NULL,
-FileId INTEGER NOT NULL,
-Finished INTEGER NOT NULL,
-PRIMARY KEY(FileId,Id))", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Mod(
-Id INTEGER PRIMARY KEY,
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `Config`(
+`Key` TEXT PRIMARY KEY,
+`Value` TEXT NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `Resource`(
+`Id` INTEGER PRIMARY KEY,
+`CreateDate` INTEGER NOT NULL,
+`LastChangeDate` INTEGER NOT NULL,
+`LastFileChangeDate` INTEGER NOT NULL,
+`TotalSize` INTEGER NOT NULL,
+`Rating` INTEGER NOT NULL,
+`DownloadCount` INTEGER NOT NULL,
+`AuthorId` INTEGER NOT NULL,
+`AuthorName` TEXT NOT NULL,
+`Name` TEXT NOT NULL,
+`Description` TEXT NOT NULL,
+`GameVersion` INTEGER NOT NULL,
+`SourceUrl` TEXT,
+`Type` INTEGER NOT NULL,
+`Status` INTEGER NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `File`(
+`Id` INTEGER PRIMARY KEY,
+`ResourceId` INTEGER NOT NULL,
+`Size` INTEGER NOT NULL,
+`Path` TEXT NOT NULL,
+`UpdateDate` INTEGER NOT NULL,
+`Sha1` TEXT NOT NULL,
+`Status` INTEGER NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `Chunk`(
+`Id` INTEGER NOT NULL,
+`FileId` INTEGER NOT NULL,
+`Finished` INTEGER NOT NULL,
+PRIMARY KEY(`FileId`,`Id`))", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `Mod`(
+`Id` INTEGER PRIMARY KEY,
 `Index` INTEGER NOT NULL DEFAULT -1,
-ExePath TEXT NOT NULL DEFAULT '',
-XmlPath TEXT NOT NULL DEFAULT '',
-FolderPath TEXT NOT NULL DEFAULT '')", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Drs(
-Id INTEGER PRIMARY KEY,
-IsActivated INTEGER NOT NULL DEFAULT 0,
-Priority INTEGER NOT NULL DEFAULT -1)", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS ToolGroup(
-Id INTEGER PRIMARY KEY,
-Name TEXT NOT NULL)", transaction: transaction);
-        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS Tool(
-Id INTEGER PRIMARY KEY,
-Name TEXT NOT NULL,
-Path TEXT NOT NULL,
-IconPath TEXT NOT NULL,
-ToolTip TEXT NOT NULL)", transaction: transaction);
+`ExePath` TEXT NOT NULL DEFAULT '',
+`XmlPath` TEXT NOT NULL DEFAULT '',
+`FolderPath` TEXT NOT NULL DEFAULT '')", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `Drs`(
+`Id` INTEGER PRIMARY KEY,
+`IsActivated` INTEGER NOT NULL DEFAULT 0,
+`Priority` INTEGER NOT NULL DEFAULT -1)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `ToolGroup`(
+`Id` INTEGER PRIMARY KEY,
+`Name` TEXT NOT NULL)", transaction: transaction);
+        transaction.Connection.Execute(@"CREATE TABLE IF NOT EXISTS `Tool`(
+`Id` INTEGER PRIMARY KEY,
+`Name` TEXT NOT NULL,
+`Path` TEXT NOT NULL,
+`IconPath` TEXT NOT NULL,
+`ToolTip` TEXT NOT NULL)", transaction: transaction);
         transaction.Commit();
       }
     }
@@ -307,7 +307,7 @@ ToolTip TEXT NOT NULL)", transaction: transaction);
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)", drses, transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `Drs`(`Id`,`IsActivated`,`Priority`) VALUES(@Id,@IsActivated,@Priority)", drses, transaction);
         transaction.Commit();
       }
     }
@@ -316,7 +316,7 @@ ToolTip TEXT NOT NULL)", transaction: transaction);
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("INSERT OR REPLACE INTO Mod(Id,`Index`,ExePath,XmlPath,FolderPath) VALUES(@Id,@Index,@ExePath,@XmlPath,@FolderPath)", mods, transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `Mod`(`Id`,`Index`,`ExePath`,`XmlPath`,`FolderPath`) VALUES(@Id,@Index,@ExePath,@XmlPath,@FolderPath)", mods, transaction);
         transaction.Commit();
       }
     }
@@ -325,7 +325,7 @@ ToolTip TEXT NOT NULL)", transaction: transaction);
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("INSERT OR REPLACE INTO Drs(Id,IsActivated,Priority) VALUES(@Id,@IsActivated,@Priority)", drs, transaction);
+        transaction.Connection.Execute("INSERT OR REPLACE INTO `Drs`(`Id`,`IsActivated`,`Priority`) VALUES(@Id,@IsActivated,@Priority)", drs, transaction);
         transaction.Commit();
       }
     }
@@ -334,7 +334,7 @@ ToolTip TEXT NOT NULL)", transaction: transaction);
     {
       using (var transaction = GetTransaction())
       {
-        transaction.Connection.Execute("DELETE FROM File WHERE Id=@id", new { id }, transaction);
+        transaction.Connection.Execute("DELETE FROM `File` WHERE `Id`=@id", new { id }, transaction);
         transaction.Commit();
       }
     }

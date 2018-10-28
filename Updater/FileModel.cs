@@ -24,7 +24,7 @@ namespace YTY.amt
 
     public string FileName { get; private set; }
 
-    public string FullFileName => Util.MakeQualifiedPath(FileName);
+    public string FullFileName => Util.MakeQualifiedPath(Util.RenameSelfReferencedFile(FileName));
 
     public long Size
     {
@@ -102,7 +102,7 @@ namespace YTY.amt
 
         if (status == FileStatus.NotDownloaded)
         {
-          File.WriteAllText(FullFileName, string.Empty);
+          File.WriteAllText(FullFileName + ".downloading", string.Empty);
           UpdateStatus(FileStatus.Downloading);
           var numChunks = (Size + WebServiceClient.CHUNKSIZE - 1) / WebServiceClient.CHUNKSIZE;
           for (var i = 0; i < numChunks; i++)
@@ -122,7 +122,7 @@ namespace YTY.amt
         }
 
 
-        using (var fs = new FileStream(FullFileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
+        using (var fs = new FileStream(FullFileName+".downloading", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.RandomAccess))
         {
           var tasks = Chunks.Where(ch => ch.Status == ChunkStatus.New).Select(ch => WebServiceClient.GetChunk(this, ch.Id));
           var working = new List<Task<Tuple<int, byte[]>>>();
@@ -156,7 +156,7 @@ namespace YTY.amt
           }
         }
         DatabaseClient.DeleteChunks(Chunks);
-        if (Md5.Equals(Util.GetFileMd5(FullFileName), StringComparison.InvariantCultureIgnoreCase))
+        if (Md5.Equals(Util.GetFileMd5(FullFileName+".downloading"), StringComparison.InvariantCultureIgnoreCase))
         {
           UpdateStatus(FileStatus.Finished);
         }

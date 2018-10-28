@@ -108,7 +108,7 @@ namespace YTY.amt
       FrontPage = (FlowDocument)ProgramViewModel.App.FindResource("fdcFrontPageLoading");
       using (var wc = new WebClient())
       {
-        wc.BaseAddress = "http://www.hawkaoc.net/hawkclient/mainpage.xaml";
+        wc.BaseAddress = "http://www.hawkaoe.net/amt/mainpage.xaml";
         try
         {
           var s  = await wc.DownloadStringTaskAsync(string.Empty);

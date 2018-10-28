@@ -8,10 +8,10 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("帝国时代管家")]
-[assembly: AssemblyDescription("帝国时代管家")]
+[assembly: AssemblyDescription("amt")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("yty@翔鹰帝国网")]
-[assembly: AssemblyProduct("amt")]
+[assembly: AssemblyProduct("帝国时代管家")]
 [assembly: AssemblyCopyright("Copyright © 翔鹰帝国网 2014-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

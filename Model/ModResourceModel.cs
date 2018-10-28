@@ -23,7 +23,7 @@ namespace YTY.amt.Model
     /// </summary>
     private const int AGE2_WK = -3;
 
-    private const int WK_VERSION = 8;
+    private const int WK_VERSION = 9;
 
     private static readonly Regex regexXmlPath = new Regex(@"Games\\\w+\.xml", RegexOptions.IgnoreCase);
     private static readonly Regex regexExePath = new Regex(@"age2_x1\\\w+\.exe", RegexOptions.IgnoreCase);
@@ -108,7 +108,7 @@ namespace YTY.amt.Model
       File.Copy(IsBuiltIn ?
         ProgramModel.MakeExeRelativePath(ExePath) :
         ProgramModel.MakeHawkempirePath(ExePath),
-        ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe"), true);
+        ProgramModel.MakeHawkempirePath($@"age2_x1\{Path.GetFileName(ExePath)}"), true);
       if (new[] { -1, -3, -4, -5, -6 }.Contains(Id))
       {
         File.Copy(ProgramModel.MakeExeRelativePath(XmlPath),
@@ -119,21 +119,56 @@ namespace YTY.amt.Model
         foreach (var dir in Directory.GetDirectories(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*",
           SearchOption.AllDirectories))
         {
-          Directory.CreateDirectory(dir.Replace(ProgramModel.MakeExeRelativePath("builtin"),
-            ProgramModel.MakeHawkempirePath("games")));
+          try
+          {
+            Directory.CreateDirectory(dir.Replace(ProgramModel.MakeExeRelativePath("builtin"),
+              ProgramModel.MakeHawkempirePath("games")));
+          }
+          catch (IOException)
+          {
+
+          }
         }
         foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(@"builtin\WololoKingdoms"), "*",
           SearchOption.AllDirectories))
         {
-          File.Copy(file,
-            file.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")),
-            true);
+          try
+          {
+            File.Copy(file,
+              file.Replace(ProgramModel.MakeExeRelativePath("builtin"), ProgramModel.MakeHawkempirePath("games")),
+              true);
+          }
+          catch (IOException)
+          {
+
+          }
         }
-        Directory.CreateDirectory(ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data"));
-        File.Copy(ProgramModel.MakeExeRelativePath(@"dat\original\empires2_x1_p1_wk.dat"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\empires2_x1_p1.dat"), true);
-        File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_wk.drs"),
-          ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1.drs"), true);
+        try
+        {
+          Directory.CreateDirectory(ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data"));
+        }
+        catch (IOException)
+        {
+
+        }
+        try
+        {
+          File.Copy(ProgramModel.MakeExeRelativePath(@"dat\original\empires2_x1_p1_wk.dat"),
+            ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\empires2_x1_p1.dat"), true);
+        }
+        catch (IOException)
+        {
+
+        }
+        try
+        {
+          File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_wk.drs"),
+            ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\gamedata_x1.drs"), true);
+        }
+        catch (IOException)
+        {
+
+        }
         try
         {
           File.Copy(ProgramModel.MakeExeRelativePath(@"drs\gamedata_x1_p1_wk.drs"),
@@ -152,7 +187,7 @@ namespace YTY.amt.Model
     public void Run()
     {
       CopyExe();
-      var exePath = ProgramModel.MakeHawkempirePath(@"age2_x1\age2_x1.exe");
+      var exePath = ProgramModel.MakeHawkempirePath($@"age2_x1\{Path.GetFileName(ExePath)}");
       Process.Start(new ProcessStartInfo(exePath, ProgramModel.Config.Splash ? string.Empty : "nostartup")
       {
         WorkingDirectory = Path.GetDirectoryName(exePath),
@@ -167,9 +202,9 @@ namespace YTY.amt.Model
       {
         Id = -1,
         Name = "帝国时代Ⅱ 1.5",
-        ExePath = @"exe\age2_x1.4.exe",
-        FolderPath=@"Games\The Conquerors 1.4",
-        XmlPath=@"xml\age2_x1.4.xml",
+        ExePath = @"exe\age2_up.exe",
+        FolderPath=@"Games\UserPatch",
+        XmlPath=@"xml\age2_up.xml",
       },
       new ModResourceModel
       {
@@ -181,8 +216,8 @@ namespace YTY.amt.Model
       },
       new ModResourceModel
       {
-        Id = -3,
-        Name = "WololoKingdoms 5.7",
+        Id = AGE2_WK,
+        Name = "WololoKingdoms",
         ExePath = @"exe\age2_wk.exe",
         FolderPath=@"Games\WololoKingdoms",
         XmlPath=@"xml\age2_wk.xml",

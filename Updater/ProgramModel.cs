@@ -78,12 +78,19 @@ namespace YTY.amt
           }
         }
         DatabaseClient.SaveFiles(toSave.Select(n => n.ToDto()));
+        var toDownload = new List<FileModel>();
         foreach (var file in Files.Where(f => f.Status == FileStatus.NotDownloaded || f.Status == FileStatus.Downloading || f.Status == FileStatus.Error).ToList())
         {
+          toDownload.Add(file);
           await file.DownloadAsync();
         }
         if (Files.All(f => f.Status == FileStatus.Finished))
         {
+          foreach (var file in toDownload)
+          {
+            File.Delete(file.FullFileName);
+            File.Move(file.FullFileName + ".downloading", file.FullFileName);
+          }
           Build = UpdateServerModel.Build;
           UpdateServerModel.Status = UpdateServerStatus.UpToDate;
         }

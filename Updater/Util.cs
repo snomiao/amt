@@ -12,8 +12,15 @@ namespace YTY
 {
   public static class Util
   {
-    private static string thisExeFullPath;
+    private static readonly string thisExeFullPath;
     private static readonly MD5 md5 = MD5.Create();
+    private static readonly string[] SelfReferencedFiles = {
+      "Updater.exe",
+      "Dapper.dll",
+      "System.Data.SQLite.dll",
+      "x64\\SQLite.Interop.dll",
+      "x86\\SQLite.Interop.dll",
+    };
 
     static Util()
     {
@@ -29,6 +36,18 @@ namespace YTY
     public static string GetFileMd5(string fileName)
     {
       return BitConverter.ToString(md5.ComputeHash(File.ReadAllBytes(fileName))).Replace("-", string.Empty).ToLower();
+    }
+
+    public static string RenameSelfReferencedFile(string relativePath)
+    {
+      if (SelfReferencedFiles.Contains(relativePath))
+      {
+        return relativePath + ".rename";
+      }
+      else
+      {
+        return relativePath;
+      }
     }
 
     public static void CreateShortcut(string shortcutTarget,string lnkPath, string description)

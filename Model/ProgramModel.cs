@@ -58,7 +58,7 @@ namespace YTY.amt.Model
 
 
 
-    private static Lazy<ObservableCollection<TauntResourceModel>> taunts =
+    private static readonly Lazy<ObservableCollection<TauntResourceModel>> taunts =
       new Lazy<ObservableCollection<TauntResourceModel>>(
         () => new ObservableCollection<TauntResourceModel>(
           TauntResourceModel.BuiltInTaunts.Concat(Resources.OfType<TauntResourceModel>()

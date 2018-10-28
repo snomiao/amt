@@ -11,8 +11,8 @@ namespace YTY.amt.Model
 {
   internal static class WebServiceClient
   {
-    private static HttpClient client = new HttpClient();
-    private static Dictionary<string, WorkshopResourceType> dic_String_Type;
+    private static readonly HttpClient client = new HttpClient();
+    private static readonly Dictionary<string, WorkshopResourceType> dic_String_Type;
 
     static WebServiceClient()
     {
