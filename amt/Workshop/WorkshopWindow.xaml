@@ -305,12 +305,17 @@
                           Command="local:Commands.ShowSelectedResourceView"
                           CommandParameter="{Binding}"
                           BorderBrush="Transparent"
-                          BorderThickness="3">
+                          BorderThickness="3"
+                          ToolTip="本资源已从服务器删除，原因可能是资源无效或过时，建议卸载此资源。"
+                          ToolTipService.IsEnabled="{Binding Model.DeletePending}">
                     <Button.Style>
                       <Style TargetType="{x:Type Button}"
                              BasedOn="{StaticResource ButtonBaseNoneStyle}">
-                        <Setter Property="Background"
-                                Value="#3f3f3f3f"></Setter>
+                        <Setter Property="Background">
+                          <Setter.Value>
+                            <SolidColorBrush Color="{Binding ListItemBackground}"></SolidColorBrush>
+                          </Setter.Value>
+                        </Setter>
                         <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch"></Setter>
                         <Style.Triggers>

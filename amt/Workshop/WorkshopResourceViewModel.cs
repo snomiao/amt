@@ -41,6 +41,21 @@ namespace YTY.amt
       }
     }
 
+    public virtual Color ListItemBackground
+    {
+      get
+      {
+        if (Model.DeletePending)
+        {
+          return Colors.Red;
+        }
+        else
+        {
+          return Color.FromArgb(0x3f, 0x3f, 0x3f, 0x3f);
+        }
+      }
+    }
+
     public virtual Color ButtonBackground
     {
       get

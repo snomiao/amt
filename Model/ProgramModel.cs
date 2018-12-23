@@ -150,6 +150,21 @@ namespace YTY.amt.Model
           }
           resource.Status = WorkshopResourceStatus.NotInstalled;
           Resources.Add(resource);
+          toSave.Add(resource);
+        }
+        else if ((ResourceServerStatus)dto.Status == ResourceServerStatus.Deleted)
+        // resource has been deleted from server
+        {
+          if (resource.Status == WorkshopResourceStatus.NotInstalled)
+          {
+            DatabaseClient.DeleteResource(resource.Id);
+            Resources.Remove(resource);
+          }
+          else
+          {
+            resource.DeletePending = true;
+            toSave.Add(resource);
+          }
         }
         else
         // resource exists locally
@@ -170,14 +185,9 @@ namespace YTY.amt.Model
             resource.GameVersion = dto.GameVersion;
             resource.SourceUrl = dto.SourceUrl;
             resource.LastChangeDate = dto.LastChangeDate;
-            if ((ResourceServerStatus)dto.Status == ResourceServerStatus.Deleted)
-            // resource has been deleted from server
-            {
-              resource.Status = WorkshopResourceStatus.DeletePending;
-            }
           }
+          toSave.Add(resource);
         }
-        toSave.Add(resource);
       }
       DatabaseClient.SaveResources(toSave);
       Config.WorkshopTimestamp = timestamp;

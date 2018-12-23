@@ -32,6 +32,7 @@ namespace YTY.amt.Model
     private string sourceUrl;
     private WorkshopResourceStatus status;
     private bool begunGettingImages;
+    private bool deletePending;
     #endregion
 
     #region PROTECTED PROPERTIES
@@ -183,6 +184,16 @@ namespace YTY.amt.Model
       {
         sourceUrl = value;
         OnPropertyChanged(nameof(SourceUrl));
+      }
+    }
+
+    public bool DeletePending
+    {
+      get { return deletePending; }
+      set
+      {
+        deletePending = value;
+        OnPropertyChanged(nameof(DeletePending));
       }
     }
 
@@ -338,7 +349,15 @@ namespace YTY.amt.Model
       }
       DatabaseClient.DeleteResourceFiles(Id);
       Files.Clear();
-      UpdateStatus(WorkshopResourceStatus.NotInstalled);
+      if (DeletePending)
+      {
+        ProgramModel.Resources.Remove(this);
+        DatabaseClient.DeleteResource(Id);
+      }
+      else
+      {
+        UpdateStatus(WorkshopResourceStatus.NotInstalled);
+      }
     }
     #endregion
 
@@ -442,8 +461,6 @@ namespace YTY.amt.Model
     Paused,
     Installed,
     NeedUpdate,
-    DeletePending,
-    Deleted,
     Failed,
   }
 

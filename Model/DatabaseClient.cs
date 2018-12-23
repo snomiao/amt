@@ -30,6 +30,7 @@ namespace YTY.amt.Model
         cfg.CreateMap<WorkshopResourceModel, WorkshopResourceDto>();
       });
       InitializeDatabase();
+      UpdateSchema();
     }
 
     private static SQLiteConnection GetConnection()
@@ -104,7 +105,7 @@ namespace YTY.amt.Model
       {
 
         var dtos = connection.Query<WorkshopResourceDto>(@"
-SELECT r.`Id`,r.`CreateDate`,r.`LastChangeDate`,r.`LastFileChangeDate`,r.`TotalSize`,r.`Rating`,r.`DownloadCount`,r.`AuthorId`,r.`AuthorName`,r.`Name`,r.`Description`,r.`GameVersion`,r.`SourceUrl`,r.`Type`,r.`Status`,
+SELECT r.`Id`,r.`CreateDate`,r.`LastChangeDate`,r.`LastFileChangeDate`,r.`TotalSize`,r.`Rating`,r.`DownloadCount`,r.`AuthorId`,r.`AuthorName`,r.`Name`,r.`Description`,r.`GameVersion`,r.`SourceUrl`,r.`Type`,r.`Status`,r.`DeletePending`,
 d.`IsActivated`,
 m.`ExePath`,m.`XmlPath`,m.`FolderPath`
 FROM `Resource` r
@@ -142,8 +143,8 @@ ORDER BY d.`Priority`,m.`Index`");
       using (var transaction = GetTransaction())
       {
         transaction.Connection.Execute(@"
-INSERT OR REPLACE INTO `Resource`(`Id`,`CreateDate`,`LastChangeDate`,`LastFileChangeDate`,`TotalSize`,`Rating`,`DownloadCount`,`AuthorId`,`AuthorName`,`Name`,`Description`,`GameVersion`,`SourceUrl`,`Type`,`Status`)
-VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status)",
+INSERT OR REPLACE INTO `Resource`(`Id`,`CreateDate`,`LastChangeDate`,`LastFileChangeDate`,`TotalSize`,`Rating`,`DownloadCount`,`AuthorId`,`AuthorName`,`Name`,`Description`,`GameVersion`,`SourceUrl`,`Type`,`Status`,`DeletePending`)
+VALUES(@Id,@CreateDate,@LastFileChangeDate,@LastChangeDate,@TotalSize,@Rating,@DownloadCount,@AuthorId,@AuthorName,@Name,@Description,@GameVersion,@SourceUrl,@Type,@Status,@DeletePending)",
           Mapper.Map<IEnumerable<WorkshopResourceModel>, IEnumerable<WorkshopResourceDto>>(resources), transaction);
         transaction.Connection.Execute("INSERT OR REPLACE INTO `Drs`(`Id`) VALUES(@Id)",
            resources.OfType<DrsResourceModel>(), transaction);
@@ -303,6 +304,20 @@ PRIMARY KEY(`FileId`,`Id`))", transaction: transaction);
       }
     }
 
+    private static void UpdateSchema()
+    {
+      using (var c = GetConnection())
+      {
+        var ver = c.ExecuteScalar<int>("PRAGMA user_version;");
+        if (ver == 0)
+        {
+          ver = 1;
+          c.Execute("ALTER TABLE `Resource` ADD COLUMN `DeletePending` INTEGER NOT NULL DEFAULT 0");
+        }
+       c.Execute($"PRAGMA user_version={ver}");
+      }
+    }
+
     public static void SaveDrses(IEnumerable<DrsResourceModel> drses)
     {
       using (var transaction = GetTransaction())
@@ -335,6 +350,15 @@ PRIMARY KEY(`FileId`,`Id`))", transaction: transaction);
       using (var transaction = GetTransaction())
       {
         transaction.Connection.Execute("DELETE FROM `File` WHERE `Id`=@id", new { id }, transaction);
+        transaction.Commit();
+      }
+    }
+
+    public static void DeleteResource(int id)
+    {
+      using (var transaction = GetTransaction())
+      {
+        transaction.Connection.Execute("DELETE FROM `Resource` WHERE `Id`=@id", new {id}, transaction);
         transaction.Commit();
       }
     }

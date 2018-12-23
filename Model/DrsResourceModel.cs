@@ -79,7 +79,7 @@ namespace YTY.amt.Model
           var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
           var id = int.Parse(Path.GetFileNameWithoutExtension(file.Path));
           var drsName = Path.GetFileName(Path.GetDirectoryName(file.Path)).ToLowerInvariant();
-          dic[drs.MapDrsName(drsName)][(DrsTableClass)Array.IndexOf(drsTables, extension)][id] = File.ReadAllBytes(file.FullPathName);
+          dic[drs.MapDrsName(drsName)].GetOrAdd((DrsTableClass)Array.IndexOf(drsTables, extension))[id] = File.ReadAllBytes(file.FullPathName);
         }
       }
       foreach (var pair in dic)

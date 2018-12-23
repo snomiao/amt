@@ -32,6 +32,8 @@
 
     public int Status { get; set; }
 
+    public bool DeletePending { get; set; }
+
     public bool IsActivated { get; set; }
 
     public string ExePath { get; set; }

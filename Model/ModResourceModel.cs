@@ -23,7 +23,7 @@ namespace YTY.amt.Model
     /// </summary>
     private const int AGE2_WK = -3;
 
-    private const int WK_VERSION = 9;
+    private const int WK_VERSION = 10;
 
     private static readonly Regex regexXmlPath = new Regex(@"Games\\\w+\.xml", RegexOptions.IgnoreCase);
     private static readonly Regex regexExePath = new Regex(@"age2_x1\\\w+\.exe", RegexOptions.IgnoreCase);
@@ -105,10 +105,11 @@ namespace YTY.amt.Model
 
     public void CopyExe()
     {
-      File.Copy(IsBuiltIn ?
-        ProgramModel.MakeExeRelativePath(ExePath) :
-        ProgramModel.MakeHawkempirePath(ExePath),
-        ProgramModel.MakeHawkempirePath($@"age2_x1\{Path.GetFileName(ExePath)}"), true);
+      if (IsBuiltIn)
+      {
+        File.Copy(ProgramModel.MakeExeRelativePath(ExePath),
+          ProgramModel.MakeHawkempirePath($@"age2_x1\{Path.GetFileName(ExePath)}"), true);
+      }
       if (new[] { -1, -3, -4, -5, -6 }.Contains(Id))
       {
         File.Copy(ProgramModel.MakeExeRelativePath(XmlPath),
@@ -234,9 +235,9 @@ namespace YTY.amt.Model
       {
         Id = -5,
         Name = "WAIFor 触发扩展版",
-        ExePath = @"exe\age2_wtep.exe",
-        FolderPath=@"Games\ETP",
-        XmlPath=@"xml\age2_wtep.xml",
+        ExePath = @"exe\age2_w1.exe",
+        FolderPath=@"Games\AGE2_W1",
+        XmlPath=@"xml\age2_w1.xml",
       },
       new ModResourceModel
       {

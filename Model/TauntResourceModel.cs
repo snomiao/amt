@@ -13,9 +13,9 @@ namespace YTY.amt.Model
 
     public void Activate()
     {
+      var tauntPath = ProgramModel.MakeHawkempirePath("taunt");
       if (IsBuiltIn)
       {
-        var tauntPath = ProgramModel.MakeHawkempirePath("taunt");
         foreach (var file in Directory.GetFiles(ProgramModel.MakeExeRelativePath(Path)))
         {
           File.Copy(file, System.IO.Path.Combine(tauntPath, System.IO.Path.GetFileName(file)), true);
@@ -23,7 +23,10 @@ namespace YTY.amt.Model
       }
       else
       {
-
+        foreach (var file in Files)
+        {
+          File.Copy(file.FullPathName, System.IO.Path.Combine(tauntPath, System.IO.Path.GetFileName(file.Path)), true);
+        }
       }
     }
 
