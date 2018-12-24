@@ -13,11 +13,11 @@ namespace YTY.amt.Model
 
     public string Name { get; set; }
 
-    public ObservableCollection<ToolModel> Tools { get; } 
+    public ObservableCollection<ToolModel> Tools { get; }
 
     internal ToolGroupModel()
     {
-      Tools= new ObservableCollection<ToolModel>();
+      Tools = new ObservableCollection<ToolModel>();
     }
 
     private ToolGroupModel(IEnumerable<ToolModel> initial)
@@ -142,18 +142,18 @@ namespace YTY.amt.Model
         new ToolModel
         {
           Id=-1,
-          Name="高级数据编辑器2017.11.7(英文)",
+          Name="高级数据编辑器20171006(英文)",
           Path=@"AGE\AdvancedGenieEditor3.exe",
           IconPath="/resources;component/Resources/AGE.png",
-          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 2017.11.7 版。\n该程序可以修改帝国时代的数据库DAT文件。",
+          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 20171006 版。\n该程序可以修改帝国时代的数据库DAT文件。",
         },
         new ToolModel
         {
           Id=-1,
-          Name="高级数据编辑器2015(汉化)",
-          Path=@"AGE\AdvancedGenieEditor3CHS.exe",
+          Name="高级数据编辑器20171006(汉化)",
+          Path=@"AGE\AdvancedGenieEditor3_CHS.exe",
           IconPath="/resources;component/Resources/AGE2.png",
-          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 2015 (汉化)版。\n该程序可以修改帝国时代的数据库DAT文件。",
+          ToolTip="打开【高级数据编辑器】(Advanced Genie Editor，AGE) 20171006 (汉化)版。\n该程序可以修改帝国时代的数据库DAT文件。",
         },
         new ToolModel
         {
@@ -171,7 +171,15 @@ namespace YTY.amt.Model
           IconPath="/resources;component/Resources/ID修改器.png",
           ToolTip="打开【单位 ID 对应表】Excel 文档。\n该表包括帝国时代单位名称、内部名称、单位ID。",
         },
-      })
+        new ToolModel
+        {
+          Id=-1,
+          Name="WK单位ID对应表",
+          Path=@"wkunit.chm",
+          IconPath="/resources;component/Resources/ID修改器2.png",
+          ToolTip="打开【WK 单位 ID 对应表】chm 帮助文档。\n该文档列出了 WololoKingdoms 单位名称、内部名称、单位ID。",
+        },
+})
       {
         Id=-2,
         Name="MOD",
@@ -208,5 +216,5 @@ namespace YTY.amt.Model
         Name="录像及其他",
       },
     };
-}
+  }
 }
