@@ -1,7 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Data.SQLite;
 using Dapper;
 using AutoMapper;
@@ -68,12 +68,15 @@ namespace YTY.amt.Model
         ret.NumericAge = GetBool(nameof(ConfigModel.NumericAge), true);
         ret.hiddenCivs = GetBool(nameof(ConfigModel.HiddenCivs), false);
         ret.WkVersion = GetInt(nameof(ConfigModel.WkVersion), 0);
+        ret.isSteamHDInstalled =(SteamHDInstallStatus) GetInt(nameof(ConfigModel.IsSteamHDInstalled), (int)SteamHDInstallStatus.NotInstalled);
+        ret.steamHDInstallCheckDate = GetDateTime(nameof(ConfigModel.SteamHDInstallCheckDate), DateTime.Now);
 
         string GetString(string key, string defaultValue) => dic.TryGetValue(key, out var s) ? s : defaultValue;
         bool GetBool(string key, bool defaultValue) => dic.TryGetValue(key, out var s) && bool.TryParse(s, out var b) ? b : defaultValue;
         int GetInt(string key, int defaultValue)
           => dic.TryGetValue(key, out var s) ? int.TryParse(s, out var i) ? i : defaultValue : defaultValue;
         Size GetSize(string key, Size defaultValue) => dic.TryGetValue(key, out var s) ? Size.Parse(s) : defaultValue;
+        DateTime GetDateTime(string key, DateTime defaultValue) => dic.TryGetValue(key, out var s) && DateTime.TryParse(s, out var d) ? d : defaultValue;
       }
       return ret;
     }

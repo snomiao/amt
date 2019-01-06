@@ -86,10 +86,13 @@ namespace YTY.amt
         }
         if (Files.All(f => f.Status == FileStatus.Finished))
         {
-          foreach (var file in toDownload)
+          foreach (var file in Files)
           {
-            File.Delete(file.FullFileName);
-            File.Move(file.FullFileName + ".downloading", file.FullFileName);
+            if (File.Exists(file.FullFileName + ".downloading"))
+            {
+              File.Delete(file.FullFileName);
+              File.Move(file.FullFileName + ".downloading", file.FullFileName);
+            }
           }
           Build = UpdateServerModel.Build;
           UpdateServerModel.Status = UpdateServerStatus.UpToDate;

@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Windows;
 using YTY.amt.Model;
+using Microsoft.Win32;
 
 namespace YTY.amt
 {
@@ -55,6 +56,10 @@ namespace YTY.amt
       return folders.SelectMany(f => Directory.GetFiles(f, "*.hki", SearchOption.TopDirectoryOnly));
     }
 
+    public static bool IsAGE2HDInstalled()
+    {
+      return Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\221380") != null;
+    }
     [StructLayout(LayoutKind.Sequential)]
     private struct DEVMODE
     {

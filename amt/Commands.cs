@@ -221,6 +221,39 @@ namespace YTY.amt
       public void Execute(object parameter)
       {
         var game = parameter as ModResourceModel;
+        if(game.Id==ModResourceModel.AGE2_WK)
+        {
+          if(ProgramModel.Config.IsSteamHDInstalled== SteamHDInstallStatus.NotInstalled
+            ||(ProgramModel.Config.IsSteamHDInstalled== SteamHDInstallStatus.Trial
+            &&(DateTime.Now- ProgramModel.Config.SteamHDInstallCheckDate).TotalDays>=30))
+          {
+            if(MessageBox.Show("若你没有帝国时代 2 HD版，你将无法通过翔鹰帝国管家更新与启动 WololoKingdoms。\n\n你是否已经购买帝国时代2 HD版？", "正版验证", MessageBoxButton.YesNo,MessageBoxImage.Question)== MessageBoxResult.Yes)
+            {
+              if (Util.IsAGE2HDInstalled())
+              {
+                ProgramModel.Config.IsSteamHDInstalled =  SteamHDInstallStatus.Permanent;
+              }
+              else
+              {
+                MessageBox.Show("管家无法找到你购买帝国时代2 HD版的记录，请确定你已经正确在电脑上安装Steam平台与帝国时代2 HD版。","验证失败",MessageBoxButton.OK, MessageBoxImage.Warning);
+                Promise();
+              }
+            }
+            else
+            {
+              if (Util.IsAGE2HDInstalled())
+              {
+                MessageBox.Show("管家检查到你已经购买帝国时代2 HD版，管家仍然会提供 WololoKingdoms 版本的更新与启动服务。", "验证成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                ProgramModel.Config.IsSteamHDInstalled =  SteamHDInstallStatus.Permanent;
+              }
+              else
+              {
+                Promise();
+              }
+            }
+          }
+        }
+
         try
         {
           ProgramModel.Config.CurrentGame = game;
@@ -229,6 +262,19 @@ namespace YTY.amt
         catch (IOException ex)
         {
           MessageBox.Show(ex.Message);
+        }
+      }
+
+      void Promise()
+      {
+        if (MessageBox.Show("如果你打算在未来30天购买帝国时代2 HD版，管家仍然能暂时提供相关服务充当其试玩版体验。\n期限到达之后，管家将会再次自动进行这次检测。\n\n你是否承诺会在未来30天内购买帝国时代2 HD版？", "询问", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+          ProgramModel.Config.IsSteamHDInstalled =  SteamHDInstallStatus.Trial;
+          ProgramModel.Config.SteamHDInstallCheckDate = DateTime.Now;
+        }
+        else
+        {
+          ProgramModel.Config.IsSteamHDInstalled = SteamHDInstallStatus.NotInstalled;
         }
       }
     }

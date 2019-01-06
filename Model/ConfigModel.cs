@@ -1,7 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
-using System.Collections.Generic;
-using Microsoft.Win32;
 using System.IO;
 using System.Linq;
 
@@ -31,6 +30,8 @@ namespace YTY.amt.Model
     internal bool numericAge;
     internal bool hiddenCivs;
     internal int wkVersion;
+    internal SteamHDInstallStatus isSteamHDInstalled;
+    internal DateTime steamHDInstallCheckDate;
 
     public string HawkempirePath
     {
@@ -279,6 +280,28 @@ namespace YTY.amt.Model
       }
     }
 
+    public SteamHDInstallStatus IsSteamHDInstalled
+    {
+      get => isSteamHDInstalled;
+      set
+      {
+        isSteamHDInstalled = value;
+        DatabaseClient.SaveConfigEntry(nameof(IsSteamHDInstalled), (int)isSteamHDInstalled);
+        OnPropertyChanged(nameof(IsSteamHDInstalled));
+      }
+    }
+
+    public DateTime SteamHDInstallCheckDate
+    {
+      get => steamHDInstallCheckDate;
+      set
+      {
+        steamHDInstallCheckDate = value;
+        DatabaseClient.SaveConfigEntry(nameof(SteamHDInstallCheckDate), value);
+        OnPropertyChanged(nameof(SteamHDInstallCheckDate));
+      }
+    }
+
     internal ConfigModel() { }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -288,5 +311,12 @@ namespace YTY.amt.Model
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+  }
+
+  public enum SteamHDInstallStatus
+  {
+    NotInstalled,
+    Trial,
+    Permanent,
   }
 }

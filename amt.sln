@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "amtLauncher", "amtLauncher\amtLauncher.csproj", "{C6BE17BE-BA25-4274-82D0-BC296AF0A64C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "age2_wk_nohd", "age2_wk_nohd\age2_wk_nohd.csproj", "{5FAB1E3E-7E41-468C-AF62-29A11370F7B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{C6BE17BE-BA25-4274-82D0-BC296AF0A64C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6BE17BE-BA25-4274-82D0-BC296AF0A64C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6BE17BE-BA25-4274-82D0-BC296AF0A64C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FAB1E3E-7E41-468C-AF62-29A11370F7B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FAB1E3E-7E41-468C-AF62-29A11370F7B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FAB1E3E-7E41-468C-AF62-29A11370F7B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FAB1E3E-7E41-468C-AF62-29A11370F7B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,7 +21,7 @@ namespace YTY.amt.Model
     /// <summary>
     /// Dummy ID for age2_wk.exe
     /// </summary>
-    private const int AGE2_WK = -3;
+    public const int AGE2_WK = -3;
 
     private const int WK_VERSION = 10;
 
@@ -182,6 +182,17 @@ namespace YTY.amt.Model
         File.Copy(ProgramModel.MakeExeRelativePath(@"dll\zh\language_x1_p1_wk.dll"),
             ProgramModel.MakeHawkempirePath(@"games\WololoKingdoms\data\language_x1_p1.dll"), true);
         ProgramModel.Config.WkVersion = WK_VERSION;
+      }
+      if(Id== AGE2_WK && ProgramModel.Config.IsSteamHDInstalled== SteamHDInstallStatus.NotInstalled)
+      {
+        try
+        {
+          File.Copy(ProgramModel.MakeExeRelativePath(@"exe\age2_wk_nohd.exe"), ProgramModel.MakeHawkempirePath(@"age2_x1\age2_wk.exe"),true);
+        }
+        catch(IOException)
+        {
+
+        }
       }
     }
 
