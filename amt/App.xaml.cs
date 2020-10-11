@@ -5,12 +5,15 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Threading;
 
 namespace YTY.amt
 {
   public partial class App : Application
   {
+    private const string MUTEXNAME = "amtMainMutex";
 
+    private Mutex lifetimeMutex;
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -18,41 +21,17 @@ namespace YTY.amt
       if (e.ChangedButton == MouseButton.Left)
         (sender as Window).DragMove();
     }
-  }
 
-  public static class My
-  {
-    public static App App => Application.Current as App;
-
-    public static Workshop WorkshopWindow
+    private void Application_Exit(object sender, ExitEventArgs e)
     {
-      get
-      {
-        var workshop = App.FindResource(nameof(WorkshopWindow)) as Workshop;
-        return workshop;
-      }
+      lifetimeMutex.ReleaseMutex();
+      lifetimeMutex.Close();
     }
 
-    public static WorkshopWindowViewModel WorkshopWindowViewModel
+    private void Application_Startup(object sender, StartupEventArgs e)
     {
-      get
-      {
-        return App.FindResource(nameof(WorkshopWindowViewModel)) as WorkshopWindowViewModel;
-      }
+      Environment.CurrentDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+      lifetimeMutex = new Mutex(true, MUTEXNAME);
     }
-
-    public static ShowResourceListViewCommand ShowResourceListViewCommand => App.FindResource(nameof(ShowResourceListViewCommand)) as ShowResourceListViewCommand;
-
-    public static MainWindowViewModel MainWindowViewModel
-    {
-      get
-      {
-        return App.FindResource(nameof(MainWindowViewModel)) as MainWindowViewModel;
-      }
-    }
-
-    public static CreateProcessCommand CreateProcessCommand => App.FindResource(nameof(CreateProcessCommand)) as CreateProcessCommand;
-
-    public static ByteCountToTextConverter ByteCountToTextConverter => App.FindResource(nameof(ByteCountToTextConverter)) as ByteCountToTextConverter;
   }
 }

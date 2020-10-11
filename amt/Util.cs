@@ -1,75 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Windows;
+using YTY.amt.Model;
+using Microsoft.Win32;
 
 namespace YTY.amt
 {
   public static class Util
   {
-    private const string CSIDDIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!-._~";
-    private static int NUMCSIDDIGITS;
-    private static DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
-    private static List<ResolutionModel> screenResolutions;
-
-    static Util()
-    {
-      NUMCSIDDIGITS = CSIDDIGITS.Length;
-    }
+    private static readonly DateTime UNIXTIMESTAMPBASE = new DateTime(1970, 1, 1, 0, 0, 0);
+    private static readonly int NUMCSIDDIGITS;
 
     public static DateTime FromUnixTimestamp(int unixTimestamp)
     {
       return UNIXTIMESTAMPBASE + TimeSpan.FromSeconds(unixTimestamp);
     }
 
-    public static List<ResolutionModel> GetScreenResolutions()
+    public static IEnumerable<Size> GetScreenResolutions()
     {
-      if (screenResolutions == null)
+      return Inner().Distinct().OrderByDescending(s => s.Width).ThenByDescending(s => s.Height);
+
+      IEnumerable<Size> Inner()
       {
-        var temp = new List<ResolutionModel>();
         var dm = new DEVMODE();
         var i = 0;
         while (EnumDisplaySettings(null, i++, ref dm))
-        {
-          temp.Add(new ResolutionModel { X = dm.dmPelsWidth, Y = dm.dmPelsHeight });
-        }
-        screenResolutions = temp.Distinct().OrderBy(s => s.X).ThenBy(s => s.Y).ToList();
+          yield return new Size(dm.dmPelsWidth, dm.dmPelsHeight);
       }
-      return screenResolutions;
     }
 
-    public static uint CSID2Int(string csid)
+    public static IEnumerable<DependencyObject> GetDescendants(DependencyObject obj)
     {
-      int weight = 1;
-      return (uint)csid.Aggregate(0, (sum, digit) =>
+      foreach (object child in LogicalTreeHelper.GetChildren(obj))
       {
-        sum += CSIDDIGITS.IndexOf(digit) * weight;
-        weight *= NUMCSIDDIGITS;
-        return sum;
-      });
+        if (child is DependencyObject d)
+        {
+          yield return d;
+          foreach (var child2 in GetDescendants(d))
+          {
+            yield return child2;
+          }
+        }
+      }
     }
 
-    public static string Int2CSID(int value)
+    public static IEnumerable<string> EnumerateHkiFiles()
     {
-      var ret = string.Empty;
-      do
-      {
-        ret += CSIDDIGITS[value % NUMCSIDDIGITS];
-        value = value / NUMCSIDDIGITS;
-      } while (value > 0);
-      return ret;
+      var folders = Directory.GetDirectories(ProgramModel.MakeHawkempirePath("Games"))
+        .Concat(new[] {ProgramModel.MakeHawkempirePath(string.Empty)});
+      return folders.SelectMany(f => Directory.GetFiles(f, "*.hki", SearchOption.TopDirectoryOnly));
     }
 
-    public static string EscapeSqliteString(string toEscape)
+    public static bool IsAGE2HDInstalled()
     {
-      return toEscape.Replace("'", "''");
+      return Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\221380") != null;
     }
-
-
     [StructLayout(LayoutKind.Sequential)]
     private struct DEVMODE
     {
@@ -111,6 +101,5 @@ namespace YTY.amt
 
     [DllImport("user32")]
     private static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
-
   }
 }

@@ -21,6 +21,7 @@
 bld/
 [Bb]in/
 [Oo]bj/
+[Tt]est/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -157,6 +158,8 @@ publish/
 # NuGet v3's project.json files produces more ignoreable files
 *.nuget.props
 *.nuget.targets
+# yty
+!**/packages/*.dll
 
 # Microsoft Azure Build Output
 csx/

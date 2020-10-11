@@ -5,92 +5,122 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YTY.amt"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="帝国时代管家更新程序"
         Height="600"
         Width="900"
         Loaded="Window_Loaded">
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="auto"></RowDefinition>
-      <RowDefinition Height="*"></RowDefinition>
-      <RowDefinition Height="auto"></RowDefinition>
-    </Grid.RowDefinitions>
-    <ScrollViewer Grid.Row="1"
-                  VerticalScrollBarVisibility="Auto">
-      <ItemsControl x:Name="lbxMain"
-                    ItemsSource="{Binding Source={StaticResource MainViewModel},Path=LocalFilesView}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <Border BorderThickness="0,0,0,1"
-                    BorderBrush="Gray"
-                    Margin="10,5">
-              <StackPanel>
-                <TextBlock Text="{Binding Path=FileName}"></TextBlock>
-                <TextBlock Text="{Binding Path=Status}"></TextBlock>
-                <Grid>
-                  <ItemsControl ItemsSource="{Binding Path=Chunks}">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"></WrapPanel>
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate>
-                        <Rectangle Width="6"
-                                   Height="6"
-                                   Margin="0.4"
-                                   Opacity="0.8">
-                          <Rectangle.Style>
-                            <Style TargetType="{x:Type Rectangle}">
-                              <Setter Property="Fill">
-                                <Setter.Value>
-                                  <SolidColorBrush Color="Yellow"></SolidColorBrush>
-                                </Setter.Value>
-                              </Setter>
-                              <Style.Triggers>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Done">
-                                  <DataTrigger.EnterActions>
-                                    <BeginStoryboard>
-                                      <Storyboard>
-                                        <ColorAnimation To="Green"
-                                                        Storyboard.TargetProperty="Fill.(SolidColorBrush.Color)"
-                                                        Duration="0:0:0.5"></ColorAnimation>
-                                      </Storyboard>
-                                    </BeginStoryboard>
-                                  </DataTrigger.EnterActions>
-                                </DataTrigger>
-                              </Style.Triggers>
-                            </Style>
-                          </Rectangle.Style>
-                        </Rectangle>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                  <TextBlock FontSize="20"
-                             Opacity="0.7"
-                             Foreground="DarkBlue"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center">
-                    <TextBlock.Text>
-                      <MultiBinding StringFormat="{}{0} / {1}">
-                        <Binding Path="FinishedSize"
-                                 Converter="{StaticResource ByteCountToTextConverter}"></Binding>
-                        <Binding Path="Size"
-                                 Converter="{StaticResource ByteCountToTextConverter}"></Binding>
-                      </MultiBinding>
-                    </TextBlock.Text>
-                  </TextBlock>
-                </Grid>
-              </StackPanel>
-            </Border>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
-    <StatusBar Grid.Row="2">
-      <TextBlock DataContext="{StaticResource UpdateServerViewModel}"
-                 Text="{Binding Path=Status}"></TextBlock>
-    </StatusBar>
+  <Grid DataContext="{Binding Source={StaticResource MainViewModel}}">
+    <Viewbox Visibility="{Binding IsGetting,Converter={x:Static local:Converters.BoolToVisibility}}" MaxWidth="400">
+      <TextBlock Text="正在检查更新..."></TextBlock>
+    </Viewbox>
+    <Grid Visibility="{Binding IsUpToDate,Converter={x:Static local:Converters.BoolToVisibility}}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"></RowDefinition>
+        <RowDefinition Height="*"></RowDefinition>
+      </Grid.RowDefinitions>
+      <Viewbox Grid.Row="0" MaxWidth="400">
+        <TextBlock Text="已经更新到最新版本"></TextBlock>
+      </Viewbox>
+      <Button Grid.Row="1" Margin="50" Command="local:Commands.ShutdownAndRunAmt">
+        <Viewbox MaxWidth="800">
+          <TextBlock Text="点此关闭更新程序并打开帝国时代管家"></TextBlock>
+        </Viewbox>
+      </Button>
+    </Grid>
+    <Grid Visibility="{Binding IsDisconnected,Converter={x:Static local:Converters.BoolToVisibility}}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"></RowDefinition>
+        <RowDefinition Height="*"></RowDefinition>
+      </Grid.RowDefinitions>
+      <Viewbox Grid.Row="0" MaxWidth="400">
+        <TextBlock Text="网络故障，无法连接至服务器"></TextBlock>
+      </Viewbox>
+      <Button Grid.Row="1" Margin="50" Command="local:Commands.RetryConnect">
+        <Viewbox MaxWidth="500">
+          <TextBlock Text="点此重试连接"></TextBlock>
+        </Viewbox>
+      </Button>
+    </Grid>
+    <Viewbox Visibility="{Binding IsServerError,Converter={x:Static local:Converters.BoolToVisibility}}" MaxWidth="1000">
+      <TextBlock Text="翔鹰服务器故障，请关闭程序并以后重试"></TextBlock>
+    </Viewbox>
+    <Grid Visibility="{Binding IsDownloading,Converter={x:Static local:Converters.BoolToVisibility}}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="auto"></RowDefinition>
+        <RowDefinition Height="*"></RowDefinition>
+      </Grid.RowDefinitions>
+      <ScrollViewer Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Path=FilesView}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border BorderThickness="0,0,0,1"
+                      BorderBrush="Gray"
+                      Margin="10,5">
+                <StackPanel>
+                  <TextBlock Text="{Binding Path=Model.FileName}"></TextBlock>
+                  <TextBlock Text="{Binding Path=Status}"></TextBlock>
+                  <Grid>
+                    <ItemsControl ItemsSource="{Binding Path=Model.Chunks}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel Orientation="Horizontal"></WrapPanel>
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Rectangle Width="6"
+                                     Height="6"
+                                     Margin="0.4"
+                                     Opacity="0.8">
+                            <Rectangle.Style>
+                              <Style TargetType="{x:Type Rectangle}">
+                                <Setter Property="Fill">
+                                  <Setter.Value>
+                                    <SolidColorBrush Color="Yellow"></SolidColorBrush>
+                                  </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                  <DataTrigger Binding="{Binding Status}"
+                                               Value="Done">
+                                    <DataTrigger.EnterActions>
+                                      <BeginStoryboard>
+                                        <Storyboard>
+                                          <ColorAnimation To="Green"
+                                                          Storyboard.TargetProperty="Fill.(SolidColorBrush.Color)"
+                                                          Duration="0:0:0.5"></ColorAnimation>
+                                        </Storyboard>
+                                      </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                  </DataTrigger>
+                                </Style.Triggers>
+                              </Style>
+                            </Rectangle.Style>
+                          </Rectangle>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock FontSize="20"
+                               Opacity="0.7"
+                               Foreground="DarkBlue"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center">
+                      <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} / {1}">
+                          <Binding Path="Model.FinishedSize"
+                                   Converter="{StaticResource ByteCountToTextConverter}"></Binding>
+                          <Binding Path="Model.Size"
+                                   Converter="{StaticResource ByteCountToTextConverter}"></Binding>
+                        </MultiBinding>
+                      </TextBlock.Text>
+                    </TextBlock>
+                  </Grid>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
   </Grid>
 </Window>

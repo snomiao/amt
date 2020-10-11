@@ -1,0 +1,631 @@
+﻿<Window x:Class="YTY.amt.WorkshopWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:YTY.amt"
+        xmlns:wag="http://wpfanimatedgif.codeplex.com"
+        mc:Ignorable="d"
+        Title="翔鹰帝国创意工坊"
+        Height="610"
+        Width="990"
+        Style="{StaticResource WindowGeneralStyle}"
+        x:Name="wnd"
+        Loaded="wnd_Loaded"
+        DataContext="{x:Static local:ProgramViewModel.WorkshopViewModel}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="138"></RowDefinition>
+      <RowDefinition Height="*"></RowDefinition>
+    </Grid.RowDefinitions>
+    <Grid.Resources>
+      <Style x:Key="ButtonBaseResourceStyle"
+             TargetType="ButtonBase"
+             BasedOn="{StaticResource ButtonBaseNoneStyle}">
+        <Setter Property="Foreground"
+                Value="White"></Setter>
+        <Setter Property="CommandParameter"
+                Value="{Binding Model}"></Setter>
+        <Setter Property="Background">
+          <Setter.Value>
+            <SolidColorBrush Color="{Binding ButtonBackground}"></SolidColorBrush>
+          </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+          <EventTrigger RoutedEvent="MouseEnter">
+            <BeginStoryboard>
+              <Storyboard>
+                <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                By="DarkGray"
+                                Duration="0:0:0.2"></ColorAnimation>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger>
+          <EventTrigger RoutedEvent="MouseLeave">
+            <BeginStoryboard>
+              <Storyboard>
+                <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                Duration="0:0:0.2"></ColorAnimation>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger>
+        </Style.Triggers>
+      </Style>
+
+      <Style x:Key="ButtonResourceExecuterStyle"
+             TargetType="{x:Type Button}"
+             BasedOn="{StaticResource ButtonBaseResourceStyle}">
+        <Setter Property="Width"
+                Value="90"></Setter>
+        <Setter Property="Height"
+                Value="35"></Setter>
+        <Setter Property="Content"
+                Value="{Binding ButtonText}"></Setter>
+        <Setter Property="Command"
+                Value="{Binding Command}"></Setter>
+        <Setter Property="BorderThickness"
+                Value="0,0,1,0"></Setter>
+        <Setter Property="BorderBrush"
+                Value="Transparent"></Setter>
+      </Style>
+
+      <Style x:Key="ToggleButtonResourceMoreStyle"
+             TargetType="{x:Type ToggleButton}"
+             BasedOn="{StaticResource ButtonBaseResourceStyle}">
+        <Setter Property="Width"
+                Value="35"></Setter>
+        <Setter Property="Height"
+                Value="35"></Setter>
+        <Setter Property="Margin"
+                Value="0,0,10,0"></Setter>
+        <Setter Property="ContentTemplate">
+          <Setter.Value>
+            <DataTemplate>
+              <Polyline Points="0,0 7,6 14,0"
+                        StrokeThickness="1"
+                        Stroke="White"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"></Polyline>
+            </DataTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <Style TargetType="Button"
+             BasedOn="{StaticResource ButtonBaseResourceStyle}"
+             x:Key="ButtonResourceCommandListStyle">
+        <Setter Property="Width"
+                Value="125"></Setter>
+        <Setter Property="Height"
+                Value="30"></Setter>
+        <Setter Property="BorderThickness"
+                Value="0,1,0,0"></Setter>
+        <Setter Property="BorderBrush"
+                Value="SeaShell"></Setter>
+      </Style>
+    </Grid.Resources>
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="*"></ColumnDefinition>
+      </Grid.ColumnDefinitions>
+      <Grid.Background>
+        <LinearGradientBrush>
+          <GradientStop Color="DarkGreen"
+                        Offset="0"></GradientStop>
+          <GradientStop Color="YellowGreen"
+                        Offset="1"></GradientStop>
+        </LinearGradientBrush>
+      </Grid.Background>
+      <Image Grid.Column="0"
+             Source="/resources;component/Resources/logogreen.png"
+             Width="100"
+             Height="100"
+             Margin="30,0,0,0"
+             VerticalAlignment="Center"
+             RenderOptions.BitmapScalingMode="Fant"></Image>
+      <Image Grid.Column="1"
+             Source="/resources;component/Resources/workshoptitle.png"
+             Width="255"
+             Height="87"
+             Margin="15,10,15,0"
+             VerticalAlignment="Center"></Image>
+      <StackPanel Grid.Column="2"
+                  Orientation="Horizontal">
+        <StackPanel.Resources>
+          <Style TargetType="{x:Type Image }">
+            <Setter Property="Width"
+                    Value="50"></Setter>
+            <Setter Property="Height"
+                    Value="50"></Setter>
+            <Setter Property="Margin"
+                    Value="0,0,0,5"></Setter>
+            <Setter Property="RenderOptions.BitmapScalingMode"
+                    Value="Fant"></Setter>
+          </Style>
+          <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="HorizontalAlignment"
+                    Value="Center"></Setter>
+            <Setter Property="FontSize"
+                    Value="12"></Setter>
+            <Setter Property="Foreground"
+                    Value="White"></Setter>
+          </Style>
+          <Style TargetType="{x:Type Button }"
+                 BasedOn="{StaticResource ButtonBaseNoneStyle}">
+            <Setter Property="Background"
+                    Value="Transparent"></Setter>
+            <Setter Property="VerticalAlignment"
+                    Value="Center"></Setter>
+            <Setter Property="Margin"
+                    Value="0,18,1,0"></Setter>
+            <Setter Property="Command"
+                    Value="local:Commands.FilterResourceByType"></Setter>
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="LightSeaGreen"
+                                      Duration="0:0:0.2">
+                      </ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2">
+                      </ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </StackPanel.Resources>
+        <Button CommandParameter="All">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/0.png"></Image>
+            <TextBlock>全部资源</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Drs">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/resdrs.png"></Image>
+            <TextBlock>DIY</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Campaign">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/rescpx.png"></Image>
+            <TextBlock>战役</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Scenario">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/resscx.png"></Image>
+            <TextBlock>联机场景</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="RandomMap">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/resrms.png"></Image>
+            <TextBlock>随机地图</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Replay">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/resmgx.png"></Image>
+            <TextBlock>录像</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Mod">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/resmod.png"></Image>
+            <TextBlock>MOD</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Ai">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/resai.png"></Image>
+            <TextBlock>AI</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Taunt">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/1.png"></Image>
+            <TextBlock>嘲讽</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button CommandParameter="Language">
+          <StackPanel>
+            <Image Source="/resources;component/Resources/2.png"></Image>
+            <TextBlock>语言</TextBlock>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+      <Grid Grid.Column="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"></ColumnDefinition>
+          <ColumnDefinition Width="auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0"
+                Style="{StaticResource ButtonMinimizeStyle}"></Button>
+        <Button Grid.Column="1"
+                Style="{StaticResource ButtonCloseStyle}"></Button>
+      </Grid>
+    </Grid>
+    <Image Grid.Row="1"
+           Source="/resources;component/Resources/aboutbg.png"></Image>
+    <TabControl Grid.Row="1"
+                Style="{StaticResource TabControlMainStyle}"
+                SelectedIndex="{Binding CurrentTab,Mode=TwoWay}">
+      <TabItem Header="资源列表页">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+          </Grid.RowDefinitions>
+          <Grid Grid.Row="0"
+                Background="LightGray">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="auto"
+                                MinWidth="100"></ColumnDefinition>
+              <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0">
+              <TextBox.InputBindings>
+                <KeyBinding Key="Return"
+                            Command="local:Commands.FilterResourceByContent"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TextBox},Path=Text}"></KeyBinding>
+              </TextBox.InputBindings>
+            </TextBox>
+            <TextBlock Grid.Column="1"
+                       Text="回车键搜索"></TextBlock>
+          </Grid>
+          <ScrollViewer Grid.Row="1">
+            <ItemsControl x:Name="itc"
+                          ItemsSource="{Binding ResourcesView}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="2"
+                               Margin="10"
+                               VerticalAlignment="Top"></UniformGrid>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Margin="10"
+                          Height="80"
+                          Command="local:Commands.ShowSelectedResourceView"
+                          CommandParameter="{Binding}"
+                          BorderBrush="Transparent"
+                          BorderThickness="3"
+                          ToolTip="本资源已从服务器删除，原因可能是资源无效或过时，建议卸载此资源。"
+                          ToolTipService.IsEnabled="{Binding Model.DeletePending}">
+                    <Button.Style>
+                      <Style TargetType="{x:Type Button}"
+                             BasedOn="{StaticResource ButtonBaseNoneStyle}">
+                        <Setter Property="Background">
+                          <Setter.Value>
+                            <SolidColorBrush Color="{Binding ListItemBackground}"></SolidColorBrush>
+                          </Setter.Value>
+                        </Setter>
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch"></Setter>
+                        <Style.Triggers>
+                          <EventTrigger RoutedEvent="MouseEnter">
+                            <BeginStoryboard>
+                              <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color"
+                                                To="LightCoral"
+                                                Duration="0:0:0.2"></ColorAnimation>
+                              </Storyboard>
+                            </BeginStoryboard>
+                          </EventTrigger>
+                          <EventTrigger RoutedEvent="MouseLeave">
+                            <BeginStoryboard>
+                              <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color"
+                                                Duration="0:0:0.2"></ColorAnimation>
+                              </Storyboard>
+                            </BeginStoryboard>
+                          </EventTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </Button.Style>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                      </Grid.ColumnDefinitions>
+                      <Image Grid.Column="0"
+                             Width="50"
+                             Height="50"
+                             Margin="20,0,0,0"
+                             RenderOptions.BitmapScalingMode="Fant"
+                             Source="{Binding Image}">
+                      </Image>
+                      <TextBlock Grid.Column="1"
+                                 VerticalAlignment="Center"
+                                 FontSize="14"
+                                 Margin="20,0,0,0"
+                                 Text="{Binding Model.Name}"
+                                 TextWrapping="Wrap">
+                      </TextBlock>
+                      <!--<TextBlock Grid.Column="2"
+                                 VerticalAlignment="Center"
+                                 FontSize="14"
+                                 Margin="0,0,10,0"
+                                 Text="{Binding Model.Rating}"></TextBlock>-->
+                      <Button Grid.Column="3"
+                              Style="{StaticResource ButtonResourceExecuterStyle}"
+                              x:Name="button">
+                      </Button>
+                      <ToggleButton Grid.Column="4"
+                                    x:Name="toggle"
+                                    Style="{StaticResource ToggleButtonResourceMoreStyle}">
+                      </ToggleButton>
+                      <Popup IsOpen="{Binding ElementName=toggle,Path=IsChecked}"
+                             StaysOpen="False"
+                             PlacementTarget="{Binding ElementName=button}"
+                             AllowsTransparency="True">
+                        <StackPanel>
+                          <StackPanel.Resources>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource ButtonResourceCommandListStyle}"></Style>
+                          </StackPanel.Resources>
+                          <Button Content="查看原帖"
+                                  Command="local:Commands.Hyperlink"
+                                  CommandParameter="{Binding Model.SourceUrl}"></Button>
+                          <Button Content="删除资源"
+                                  Command="local:Commands.DeleteResource"></Button>
+                        </StackPanel>
+                      </Popup>
+                    </Grid>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </TabItem>
+      <TabItem Header="资源详情页">
+        <Grid DataContext="{Binding Path=SelectedItem}"
+              Margin="20">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+          </Grid.RowDefinitions>
+          <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="auto"></ColumnDefinition>
+              <ColumnDefinition Width="*"></ColumnDefinition>
+              <ColumnDefinition Width="auto"></ColumnDefinition>
+              <ColumnDefinition Width="auto"></ColumnDefinition>
+              <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0"
+                   Width="100"
+                   Height="100"
+                   Source="{Binding Image}"
+                   Margin="0,0,20,0"></Image>
+            <Grid Grid.Column="1">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+              </Grid.RowDefinitions>
+              <TextBlock Grid.Row="0"
+                         FontSize="30">                  
+            <Hyperlink Command="local:Commands.Hyperlink"
+                       CommandParameter="{Binding Model.SourceUrl}">
+              <Run Text="{Binding Model.Name,Mode=OneWay}"></Run>
+            </Hyperlink>
+              </TextBlock>
+              <TextBlock Grid.Row="1"
+                         FontSize="16">
+                <TextBlock.Text>
+                  <MultiBinding StringFormat="作者：{0} 更新时间：{1:d}">
+                    <Binding Path="Model.AuthorName"></Binding>
+                    <Binding Path="UpdateDate"></Binding>
+                  </MultiBinding>
+                </TextBlock.Text>
+              </TextBlock>
+              <TextBlock Grid.Row="2"
+                         FontSize="16">
+                <TextBlock.Text>
+                  <MultiBinding StringFormat="大小：{0} 游戏版本：{1} 下载量：{2}">
+                    <Binding Path="Model.TotalSize"
+                             Converter="{x:Static local:Converters.ByteCountToText}"></Binding>
+                    <Binding Path="GameVersion"></Binding>
+                    <Binding Path="Model.DownloadCount"></Binding>
+                  </MultiBinding>
+                </TextBlock.Text>
+              </TextBlock>
+            </Grid>
+            <!--<TextBlock Grid.Column="2"
+                       Text="{Binding Model.Rating}"></TextBlock>-->
+            <Button Grid.Column="3"
+                    x:Name="button"
+                    Style="{StaticResource ButtonResourceExecuterStyle}"></Button>
+            <ToggleButton Grid.Column="4"
+                          x:Name="toggle"
+                          Style="{StaticResource ToggleButtonResourceMoreStyle}"></ToggleButton>
+            <Popup IsOpen="{Binding ElementName=toggle,Path=IsChecked}"
+                   StaysOpen="False"
+                   PlacementTarget="{Binding ElementName=button}"
+                   AllowsTransparency="True">
+              <StackPanel>
+                <StackPanel.Resources>
+                  <Style TargetType="Button"
+                         BasedOn="{StaticResource ButtonResourceCommandListStyle}"></Style>
+                </StackPanel.Resources>
+                <Button Content="查看原帖"
+                        Command="local:Commands.Hyperlink"
+                        CommandParameter="{Binding Model.SourceUrl}"></Button>
+                <Button Content="删除资源"
+                        Command="local:Commands.DeleteResource"></Button>
+              </StackPanel>
+            </Popup>
+          </Grid>
+          <ScrollViewer Grid.Row="1"
+                        Margin="0,20,0,0"
+                        VerticalScrollBarVisibility="Auto">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+              </Grid.RowDefinitions>
+              <ScrollViewer Grid.Row="0"
+                            HorizontalScrollBarVisibility="Auto"
+                            VerticalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Model.Images}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal"></StackPanel>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton Style="{StaticResource ToggleButtonNoneStyle}"
+                                    Cursor="Hand"
+                                    ToolTip="点击放大">
+                        <Grid>
+                          <Image wag:ImageBehavior.AnimatedSource="{Binding}"
+                                 Height="110"
+                                 RenderOptions.BitmapScalingMode="Fant"></Image>
+                          <Popup IsOpen="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton},Path=IsChecked,Mode=TwoWay}"
+                                 StaysOpen="False"
+                                 PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                                 Placement="Center"
+                                 PopupAnimation="Fade"
+                                 AllowsTransparency="True">
+                            <ToggleButton Style="{StaticResource ToggleButtonNoneStyle}"
+                                          Cursor="Hand"
+                                          BorderThickness="2"
+                                          BorderBrush="BlueViolet"
+                                          IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Popup},Path=IsOpen,Mode=TwoWay}">
+                              <Image wag:ImageBehavior.AnimatedSource="{Binding}"></Image>
+                            </ToggleButton>
+                          </Popup>
+                        </Grid>
+                      </ToggleButton>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+              <TextBlock Grid.Row="1"
+                         FontSize="16"
+                         TextWrapping="Wrap"
+                         LineHeight="24"
+                         Text="{Binding Model.Description}"></TextBlock>
+            </Grid>
+          </ScrollViewer>
+        </Grid>
+      </TabItem>
+      <TabItem Header="资源下载页">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding DownloadingResourcesView}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border BorderThickness="1"
+                        BorderBrush="Blue"
+                        Margin="5">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="auto"></RowDefinition>
+                      <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <ProgressBar Grid.Row="0"
+                                 Maximum="{Binding Model.TotalSize}"
+                                 Value="{Binding Model.FinishedSize,Mode=OneWay}"></ProgressBar>
+                    <Grid Grid.Row="0">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0"
+                                 Text="{Binding ProgressText}"></TextBlock>
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding Model.Name}"
+                                 FontSize="16"
+                                 HorizontalAlignment="Center"></TextBlock>
+                    </Grid>
+                    <ItemsControl Grid.Row="1"
+                                  ItemsSource="{Binding DownloadingFilesView}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Border Margin="5,0"
+                                  BorderThickness="0,0,0,1"
+                                  BorderBrush="LightGray">
+                            <Grid>
+                              <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                              </Grid.RowDefinitions>
+                              <TextBlock Grid.Row="0"
+                                         Text="{Binding Model.Path}"></TextBlock>
+                              <ItemsControl Grid.Row="1"
+                                            ItemsSource="{Binding Model.Chunks}">
+                                <ItemsControl.ItemsPanel>
+                                  <ItemsPanelTemplate>
+                                    <WrapPanel></WrapPanel>
+                                  </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <Rectangle Width="6"
+                                               Height="6"
+                                               Margin="0.4"
+                                               Opacity="0.8">
+                                      <Rectangle.Style>
+                                        <Style TargetType="{x:Type Rectangle}">
+                                          <Setter Property="Fill">
+                                            <Setter.Value>
+                                              <SolidColorBrush Color="Yellow"></SolidColorBrush>
+                                            </Setter.Value>
+                                          </Setter>
+                                          <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Finished}"
+                                                         Value="True">
+                                              <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                  <Storyboard>
+                                                    <ColorAnimation To="Green"
+                                                                    Storyboard.TargetProperty="(Rectangle.Fill).(SolidColorBrush.Color)"
+                                                                    Duration="0:0:0.5"></ColorAnimation>
+                                                  </Storyboard>
+                                                </BeginStoryboard>
+                                              </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                          </Style.Triggers>
+                                        </Style>
+                                      </Rectangle.Style>
+                                    </Rectangle>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>

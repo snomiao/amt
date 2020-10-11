@@ -1,0 +1,772 @@
+﻿<Window x:Class="YTY.amt.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:YTY.amt"
+        xmlns:model="clr-namespace:YTY.amt.Model;assembly=Model"
+        mc:Ignorable="d"
+        Title="帝国时代管家"
+        Height="530"
+        Width="850"
+        Style="{StaticResource WindowGeneralStyle}"
+        DataContext="{x:Static local:ProgramViewModel.MainWindowViewModel}"
+        Loaded="Window_Loaded">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="135"></RowDefinition>
+      <RowDefinition Height="*"></RowDefinition>
+    </Grid.RowDefinitions>
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="*"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+      </Grid.ColumnDefinitions>
+      <Grid.Background>
+        <LinearGradientBrush>
+          <GradientStop Color="#0076da"
+                        Offset="0"></GradientStop>
+          <GradientStop Color="#5799dc"
+                        Offset="1"></GradientStop>
+        </LinearGradientBrush>
+      </Grid.Background>
+      <Image Grid.Column="0"
+             Source="/resources;component/Resources/logo.png"
+             Width="100"
+             Height="100"
+             Margin="33,0,0,0"
+             RenderOptions.BitmapScalingMode="Fant"></Image>
+      <Image Grid.Column="1"
+             Source="/resources;component/Resources/帝国时代管家.png"
+             Width="334"
+             Height="82"
+             HorizontalAlignment="Left"
+             Margin="0,2,0,0"></Image>
+      <Button Grid.Column="2"
+              x:Name="btnStartGame"
+              Height="50"
+              Width="165"
+              FontSize="24"
+              Margin="80,0,0,0"
+              Foreground="White"
+              Command="local:Commands.SwitchAndRunGame"
+              CommandParameter="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame}"
+              IsEnabled="{Binding IsValidHawkempirePath}">
+        <Button.Style>
+          <Style TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource ButtonBaseNoneStyle}">
+            <Setter Property="Background"
+                    Value="LimeGreen"></Setter>
+            <Style.Triggers>
+              <Trigger Property="IsEnabled"
+                       Value="False">
+                <Setter Property="Background"
+                        Value="Gray"></Setter>
+              </Trigger>
+              <Trigger Property="IsMouseOver"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="Lime"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+        启动游戏
+      </Button>
+      <ToggleButton Grid.Column="3"
+                    Height="50"
+                    Width="20"
+                    Margin="1,0,70,0"
+                    IsEnabled="{Binding IsValidHawkempirePath}"
+                    IsChecked="{Binding ElementName=pppGameList,Path=IsOpen,Mode=TwoWay}">
+        <ToggleButton.Style>
+          <Style TargetType="{x:Type ToggleButton}"
+                 BasedOn="{StaticResource ToggleButtonNoneStyle}">
+            <Setter Property="Background"
+                    Value="DarkSeaGreen"></Setter>
+            <Style.Triggers>
+              <Trigger Property="IsEnabled"
+                       Value="False">
+                <Setter Property="Background"
+                        Value="Gray"></Setter>
+              </Trigger>
+              <Trigger Property="IsMouseOver"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="Lime"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsChecked"
+                       Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      To="DarkGreen"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                      Duration="0:0:0.2"></ColorAnimation>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </ToggleButton.Style>
+        <Polyline Points="0,0 6,5 12,0"
+                  Stroke="White"
+                  StrokeThickness="1"></Polyline>
+      </ToggleButton>
+      <Popup x:Name="pppGameList"
+             StaysOpen="False"
+             Placement="Bottom"
+             PlacementTarget="{Binding ElementName=btnStartGame}"
+             Width="186"
+             AllowsTransparency="True">
+        <ItemsControl ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button BorderThickness="0,1,0,0"
+                      BorderBrush="SeaShell"
+                      Padding="0,5"
+                      Foreground="White"
+                      FontSize="14"
+                      Command="local:Commands.SwitchAndRunGame"
+                      CommandParameter="{Binding}"
+                      Content="{Binding Name}">
+                <Button.Style>
+                  <Style TargetType="{x:Type Button}"
+                         BasedOn="{StaticResource ButtonBaseNoneStyle}">
+                    <Setter Property="Background"
+                            Value="DarkSeaGreen"></Setter>
+                    <Style.Triggers>
+                      <Trigger Property="IsMouseOver"
+                               Value="True">
+                        <Trigger.EnterActions>
+                          <BeginStoryboard>
+                            <Storyboard>
+                              <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                              To="Lime"
+                                              Duration="0:0:0.2"></ColorAnimation>
+                            </Storyboard>
+                          </BeginStoryboard>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                          <BeginStoryboard>
+                            <Storyboard>
+                              <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                              Duration="0:0:0.2"></ColorAnimation>
+                            </Storyboard>
+                          </BeginStoryboard>
+                        </Trigger.ExitActions>
+                      </Trigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Popup>
+      <TextBlock Grid.Column="2"
+                 Grid.ColumnSpan="2"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Center"
+                 FontSize="16"
+                 Foreground="White"
+                 Margin="0,0,0,10"
+                 Text="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame.Name,StringFormat=当前游戏版本：{0}}"></TextBlock>
+    </Grid>
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+        <ColumnDefinition Width="auto"></ColumnDefinition>
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0"
+              ToolTip="加入翔鹰帝国QQ群"
+              Width="30"
+              Height="30"
+              Command="{x:Static local:Commands.Hyperlink}"
+              CommandParameter="https://jq.qq.com/?_wv=1027&amp;k=5FIyjil">
+        <Button.Style>
+          <Style TargetType="Button"
+                 BasedOn="{StaticResource ButtonSystemStyle}">
+            <Style.Triggers>
+              <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    To="Coral"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+        <Image Source="/resources;component/Resources/qq.png"></Image>
+      </Button>
+      <Button Grid.Column="1"
+              Width="30"
+              Height="30"
+              ToolTipService.ShowDuration="100000"
+              ToolTipService.PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+              ToolTipService.Placement="Center"
+              ToolTipService.InitialShowDelay="0">
+        <Button.ToolTip>
+          <Image Source="/resources;component/Resources/donate.png"
+                 Width="400"
+                 Height="400"></Image>
+        </Button.ToolTip>
+        <Button.Style>
+          <Style TargetType="Button"
+                 BasedOn="{StaticResource ButtonSystemStyle}">
+            <Style.Triggers>
+              <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    To="Gold"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Storyboard.TargetProperty="Background.Color"
+                                    Duration="0:0:0.2"></ColorAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+
+        <Image Source="/resources;component/Resources/icon-money.png"></Image>
+      </Button>
+      <Button Grid.Column="2"
+              Style="{StaticResource ButtonMinimizeStyle}"></Button>
+      <Button Grid.Column="3"
+              Style="{StaticResource ButtonCloseStyle}"></Button>
+    </Grid>
+    <TabControl Grid.Row="1"
+                Style="{StaticResource TabControlMainStyle}">
+      <TabControl.Background>
+        <ImageBrush ImageSource="/resources;component/Resources/aboutbg.png"></ImageBrush>
+      </TabControl.Background>
+      <TabItem Header="启动界面">
+        <FlowDocumentScrollViewer Document="{Binding FrontPage}"></FlowDocumentScrollViewer>
+      </TabItem>
+      <TabItem Header="游戏设置"
+               IsEnabled="{Binding IsValidHawkempirePath}">
+        <TabControl Style="{StaticResource TabControlSubStyle}">
+          <TabItem Header="内容">
+            <ScrollViewer>
+              <StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">版本切换</TextBlock>
+                <TextBlock>单击按钮，切换游戏版本并不启动游戏。</TextBlock>
+                <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                         ItemsSource="{Binding Source={x:Static model:ProgramModel.Games}}"
+                         SelectedItem="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentGame,Mode=TwoWay}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"
+                                    Content="{Binding Name}">
+                      </ToggleButton>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <Button HorizontalAlignment="Right"
+                        Opacity="0.7"
+                        Content="运行帝国时代Ⅱ 1.0A版"
+                        Command="local:Commands.CreateProcessRelativePath"
+                        CommandParameter="hawk:age2_x1a\age2_x1.exe">
+                  <Button.LayoutTransform>
+                    <ScaleTransform  ScaleX="0.7"
+                                     ScaleY="0.7"></ScaleTransform>
+                  </Button.LayoutTransform>
+                </Button>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">打开目录</TextBlock>
+                <TextBlock>单击按钮，打开当前版本的特定目录。</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}"
+                           BasedOn="{StaticResource ButtonSettingStyle}">
+                      <Setter Property="Command"
+                              Value="local:Commands.OpenFolder"></Setter>
+                    </Style>
+                  </StackPanel.Resources>
+                  <Button CommandParameter="Campaign">战役</Button>
+                  <Button CommandParameter="Scenario">场景</Button>
+                  <Button CommandParameter="Ai">AI</Button>
+                  <Button CommandParameter="SaveGame">存档/录像</Button>
+                  <Button CommandParameter="ScenarioSound">场景音效</Button>
+                  <Button CommandParameter="Data">数据</Button>
+                  <Button CommandParameter="Rms">随机地图</Button>
+                  <Button CommandParameter="Screenshot">截屏</Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">1000人口上限功能</TextBlock>
+                <TextBlock Foreground="Red">注：多人联机的各玩家，此设置必须相同。</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=PopulationLimit,Mode=TwoWay}">开启1000人口上限</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=PopulationLimit,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭1000人口上限</ToggleButton>
+                </StackPanel>
+                <!--<TextBlock Style="{StaticResource TextBlockHeaderStyle}">多队列训练</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay}">开启多队列训练</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=MultipleQueue,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭多队列训练</ToggleButton>
+                </StackPanel>-->
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">快捷键</TextBlock>
+                <DockPanel>
+                  <Button Command="local:Commands.ApplyHotkey"
+                          CommandParameter="c">使用C版默认快捷键</Button>
+                  <Button Command="local:Commands.ApplyHotkey"
+                          CommandParameter="fe">使用AoFE默认快捷键</Button>
+                  <Button Visibility="Collapsed">帝国时代用户管理器</Button>
+                  <Button HorizontalAlignment="Right"
+                          Visibility="Collapsed">热键编辑器</Button>
+                </DockPanel>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="界面">
+            <ScrollViewer>
+              <StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">视觉MOD管理</TextBlock>
+                <TextBlock>若启用的多个视觉MOD影响到相同的游戏图像，可在此处设置视觉MOD的优先级，以决定游戏内最终使用的图像。</TextBlock>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                  </Grid.ColumnDefinitions>
+                  <ListBox Grid.Column="0"
+                           x:Name="lbxActiveDrses"
+                           ItemsSource="{Binding Source={x:Static model:ProgramModel.ActiveDrses}}"
+                           DisplayMemberPath="Name"></ListBox>
+                  <StackPanel Grid.Column="1">
+                    <Button CommandParameter="{Binding ElementName=lbxActiveDrses,Path=SelectedItem}"
+                            Command="local:Commands.MoveUpDrs">↑提高优先度</Button>
+                    <Button CommandParameter="{Binding ElementName=lbxActiveDrses,Path=SelectedItem}"
+                            Command="local:Commands.MoveDownDrs">↓降低优先度</Button>
+                  </StackPanel>
+                  <Button Grid.Column="2"
+                          Command="local:Commands.ApplyDrses"
+                          FontSize="20"
+                          VerticalAlignment="Center">点此应用优先度设置</Button>
+                </Grid>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏界面语言</TextBlock>
+                <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                         ItemsSource="{Binding Source={x:Static model:ProgramModel.Languages}}"
+                         SelectedItem="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=CurrentLanguage,Mode=TwoWay}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton Style="{StaticResource ToggleButtonSettingStyle}"
+                                    Content="{Binding Name}"
+                                    IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"></ToggleButton>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <Border BorderThickness="2"
+                        BorderBrush="LightCoral"
+                        Margin="5,0"
+                        Padding="0">
+                  <StackPanel>
+                    <TextBlock FontSize="12"
+                               Text="自定义界面语言字符串的步骤："></TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                      <Button Content="1.点此编辑ini文件"
+                              Command="local:Commands.CreateProcessRelativePath"
+                              CommandParameter="manager:dll\ini\language.dll.ini"></Button>
+                      <Button Content="2.点此生成自定义语言dll"
+                              Command="local:Commands.GenerateDllFromIni"></Button>
+                      <TextBlock FontSize="16"
+                                 Text="3.在上方【游戏界面语言】中选择【自定义】按钮"
+                                 VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">开场影片</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=Splash,Mode=TwoWay}">开场影片开启</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=Splash,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">开场影片关闭</ToggleButton>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏分辨率</TextBlock>
+                <TextBlock>请选择或输入自定义数值。</TextBlock>
+                <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                         ItemsSource="{Binding ScreenResolutions}"
+                         SelectedValue="{Binding Source={x:Static model:ProgramModel.Config},Path=Resolution,Mode=TwoWay}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}">
+                        <ToggleButton.Content>
+                          <TextBlock>
+                            <TextBlock.Text>
+                              <MultiBinding StringFormat="{}{0}×{1}">
+                                <Binding Path="Width"></Binding>
+                                <Binding Path="Height"></Binding>
+                              </MultiBinding>
+                            </TextBlock.Text></TextBlock>
+                        </ToggleButton.Content>
+                      </ToggleButton>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Orientation="Horizontal">
+                  <StackPanel.Resources>
+                    <Style TargetType="{x:Type TextBlock}">
+                      <Setter Property="VerticalAlignment"
+                              Value="Center"></Setter>
+                    </Style>
+                    <Style TargetType="{x:Type TextBox}">
+                      <Setter Property="VerticalAlignment"
+                              Value="Center"></Setter>
+                      <Setter Property="Padding"
+                              Value="10,10"></Setter>
+                      <Setter Property="Validation.ErrorTemplate">
+                        <Setter.Value>
+                          <ControlTemplate>
+                            <Border BorderThickness="3"
+                                    BorderBrush="red"
+                                    Opacity="1">
+                              <Border.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                  <BeginStoryboard>
+                                    <Storyboard>
+                                      <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                       To="0"
+                                                       Duration="0:0:0.2"
+                                                       AutoReverse="True"
+                                                       RepeatBehavior="Forever"></DoubleAnimation>
+                                    </Storyboard>
+                                  </BeginStoryboard>
+                                </EventTrigger>
+                              </Border.Triggers>
+                              <AdornedElementPlaceholder></AdornedElementPlaceholder>
+                            </Border>
+                          </ControlTemplate>
+                        </Setter.Value>
+                      </Setter>
+                    </Style>
+                  </StackPanel.Resources>
+                  <ToggleButton IsChecked="{Binding FullScreen,Mode=TwoWay}">全屏</ToggleButton>
+                  <ToggleButton IsChecked="{Binding WorkingArea,Mode=TwoWay}">窗口化全屏</ToggleButton>
+                  <TextBlock>自定义：</TextBlock>
+                  <TextBox>
+                    <TextBox.Text>
+                      <Binding Source="{x:Static model:ProgramModel.Config}"
+                               Path="Resolution"
+                               Mode="TwoWay"
+                               UpdateSourceTrigger="PropertyChanged">
+                      </Binding>
+                    </TextBox.Text>
+                  </TextBox>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">数字时代显示</TextBlock>
+                <TextBlock>开启此选项后，游戏及播放录像时，界面右下角分数显示区域的“xx时代”字样会替换为数字1~4。<LineBreak></LineBreak>
+                  某些玩家对于数字的敏感度可能高于文字，这样在战斗中可以更加迅速地判断当前局势。</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=NumericAge,Mode=TwoWay}">时代显示为数字</ToggleButton>
+                  <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=NumericAge,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">时代显示为文字</ToggleButton>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockHeaderStyle}">重组资料库</TextBlock>
+                <TextBlock>开启某版本的重组资料库后，地图编辑器中所有单位可见。</TextBlock>
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                  </Grid.ColumnDefinitions>
+                  <Grid.Resources>
+                    <Style TargetType="{x:Type ToggleButton}"
+                           BasedOn="{StaticResource ToggleButtonOnOffStyle}">
+                      <Setter Property="Margin"
+                              Value="5"></Setter>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                      <Setter Property="VerticalAlignment"
+                              Value="Center"></Setter>
+                    </Style>
+                  </Grid.Resources>
+                  <TextBlock Grid.Row="0"
+                             Grid.Column="0">1.5 版</TextBlock>
+                  <TextBlock Grid.Row="1"
+                             Grid.Column="0">1.0C 版</TextBlock>
+                  <TextBlock Grid.Row="2"
+                             Grid.Column="0">被遗忘的帝国</TextBlock>
+                  <TextBlock Grid.Row="3"
+                             Grid.Column="0">1.0A 版</TextBlock>
+                  <ToggleButton Grid.Row="0"
+                                Grid.Column="1"
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_Aoc15}"></ToggleButton>
+                  <ToggleButton Grid.Row="1"
+                                Grid.Column="1"
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_AocC}"></ToggleButton>
+                  <ToggleButton Grid.Row="2"
+                                Grid.Column="1"
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_AoFE}"></ToggleButton>
+                  <ToggleButton Grid.Row="3"
+                                Grid.Column="1"
+                                IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=AllShown_AocA}"></ToggleButton>
+                </Grid>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem x:Name="tabSound"
+                   Header="声音">
+            <StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">背景音乐</TextBlock>
+              <StackPanel Orientation="Horizontal">
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=BackgroundMusic,Mode=TwoWay}">开启背景音乐</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=BackgroundMusic,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">关闭背景音乐</ToggleButton>
+              </StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">战役语音语言</TextBlock>
+              <StackPanel Orientation="Horizontal">
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=IsEnglishCampaignNarration,Mode=TwoWay}">英文战役语音</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel},Path=IsEnglishCampaignNarration,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">中文战役语音</ToggleButton>
+              </StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">嘲讽音效语言</TextBlock>
+              <ListBox Style="{StaticResource ListBoxNoneStyle}"
+                       ItemsSource="{Binding Source={x:Static model:ProgramModel.Taunts}}"
+                       SelectedItem="{Binding Source={x:Static local:ProgramViewModel.ConfigViewModel} ,Path=CurrentTaunt,Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <ToggleButton Content="{Binding Name}"
+                                  IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Mode=TwoWay}"></ToggleButton>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </StackPanel>
+          </TabItem>
+          <TabItem Header="联机">
+            <StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">修复补丁</TextBlock>
+              <StackPanel Orientation="Horizontal">
+                <Button Command="local:Commands.CreateProcessRelativePath"
+                        CommandParameter="manager:tools\setupipx.exe">
+                  <Button.ToolTip>
+                    <TextBlock TextWrapping="Wrap"
+                               MaxWidth="200">使用腾讯、浩方对战平台需要IPX协议，在Win7以上系统当中并没有该协议，翔鹰版在安装时已经默认安装了该协议。</TextBlock>
+                  </Button.ToolTip>
+                  IPX 补丁
+                </Button>
+                <Button Command="local:Commands.CreateProcessRelativePath"
+                        CommandParameter="hawk:setupreg.exe">
+                  <Button.ToolTip>
+                    <TextBlock TextWrapping="Wrap"
+                               MaxWidth="200">使用安装版帝国时代时，程序路径储存在注册表中，如果你的帝国时代是拷贝得来，那么注册表中并没有帝国时代路径信息。Voobly平台通过注册表来识别帝国时代路径。</TextBlock>
+                  </Button.ToolTip>
+                  修复注册表
+                </Button>
+              </StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}"
+                         ToolTip="{StaticResource ttpPortForwarding}">联机优化</TextBlock>
+              <StackPanel Orientation="Horizontal"
+                          ToolTip="{StaticResource ttpPortForwarding}">
+                <Button>关闭联机优化</Button>
+                <Button>开启联机优化</Button>
+              </StackPanel>
+              <TextBlock Style="{StaticResource TextBlockHeaderStyle}">隐藏民族</TextBlock>
+              <TextBlock>开启后，多人联机大厅界面中，若玩家选择随机类以外的民族，则其他玩家看到他所选的民族将是“未知”字样。</TextBlock>
+              <TextBlock Foreground="Red">必须由创建房间的主机玩家开启此选项才有效。</TextBlock>
+              <StackPanel Orientation="Horizontal">
+                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=HiddenCivs,Mode=TwoWay}">隐藏民族开启</ToggleButton>
+                <ToggleButton IsChecked="{Binding Source={x:Static model:ProgramModel.Config},Path=HiddenCivs,Mode=TwoWay,Converter={x:Static local:Converters.NegateBoolean}}">隐藏民族关闭</ToggleButton>
+              </StackPanel>
+            </StackPanel>
+          </TabItem>
+        </TabControl>
+      </TabItem>
+      <TabItem Header="创意工坊"
+               IsSelected="{Binding Path=WorkshopShown,Mode=OneWayToSource}"
+               IsEnabled="{Binding IsValidHawkempirePath}"></TabItem>
+      <TabItem Header="开发工具">
+        <TabItem.Resources>
+          <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment"
+                    Value="Center"></Setter>
+            <Setter Property="TextWrapping"
+                    Value="Wrap"></Setter>
+          </Style>
+        </TabItem.Resources>
+        <ScrollViewer>
+          <ItemsControl ItemsSource="{Binding Source={x:Static model:ProgramModel.ToolGroups}}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <StackPanel>
+                  <TextBlock Style="{StaticResource TextBlockHeaderStyle}"
+                             Text="{Binding Name}"></TextBlock>
+                  <ItemsControl ItemsSource="{Binding Tools}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel></WrapPanel>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button ToolTip="{Binding ToolTip}"
+                                Command="local:Commands.OpenTool"
+                                CommandParameter="{Binding}">
+                          <StackPanel>
+                            <Image Source="{Binding IconPath}"
+                                   Width="36"
+                                   Margin="3"
+                                   RenderOptions.BitmapScalingMode="Fant"></Image>
+                            <TextBlock Text="{Binding Name}"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"></TextBlock>
+                          </StackPanel>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="控制面板">
+        <TabControl Style="{StaticResource TabControlSubStyle}">
+          <TabItem Header="设置">
+            <ScrollViewer>
+              <StackPanel>
+                <StackPanel>
+                  <TextBlock Style="{StaticResource TextBlockHeaderStyle}">游戏路径</TextBlock>
+                  <StackPanel Orientation="Horizontal">
+                    <Button Click="btnSetHawkempirePath_Click">设置游戏路径</Button>
+                    <TextBlock x:Name="txbHawkempirePath"
+                               VerticalAlignment="Center"
+                               Text="{Binding Source={x:Static model:ProgramModel.Config},Path=HawkempirePath,Mode=TwoWay}"></TextBlock>
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel>
+                  <TextBlock Style="{StaticResource TextBlockHeaderStyle}">MOD 顺序设置</TextBlock>
+                  <TextBlock>在这里可以设置已经安装的 MOD 在“启动游戏”下拉菜单及“游戏设置-内容-版本切换”中的显示顺序。</TextBlock>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="auto"></ColumnDefinition>
+                      <ColumnDefinition Width="auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="lstMods"
+                             Grid.Column="0"
+                             ItemsSource="{Binding Source={x:Static model:ProgramModel.Mods}}"
+                             DisplayMemberPath="Name"></ListBox>
+                    <StackPanel Grid.Column="1">
+                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}"
+                              Command="local:Commands.MoveUpMod">↑上移</Button>
+                      <Button CommandParameter="{Binding ElementName=lstMods,Path=SelectedItem}"
+                              Command="local:Commands.MoveDownMod">↓下移</Button>
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="关于与升级">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+              </Grid.ColumnDefinitions>
+              <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="auto"></RowDefinition>
+                  <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Image x:Name="imgAbout"
+                       Grid.Row="0"
+                       Source="/resources;component/Resources/abouthawk.png"
+                       Width="385"
+                       Height="208"
+                       VerticalAlignment="Top"
+                       Margin="0,10,0,5"
+                       Cursor="Hand">
+                  <Image.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="local:Commands.Hyperlink"
+                                  CommandParameter="http://www.hawkaoe.net/"></MouseBinding>
+                  </Image.InputBindings>
+                </Image>
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal">
+                  <Button HorizontalAlignment="Left"
+                          Content="检查更新"
+                          Command="local:Commands.CheckUpdate"
+                          CommandParameter="True"></Button>
+                  <TextBlock></TextBlock>
+                </StackPanel>
+              </Grid>
+              <FlowDocumentScrollViewer Grid.Column="1"
+                                        VerticalScrollBarVisibility="Disabled">
+                <FlowDocument>
+                  <Paragraph>帝国时代管家（amt.exe）是飞翔之鹰工作室为广大帝国玩家专门设计的一款游戏管理应用，界面美观，简单实用。它能帮助玩家免去游戏各类复杂的设置，能够轻松进行游戏一键游戏版本切换、更新、联机、作品共享和游戏高级开发等功能。不仅如此，玩家还能及时获取最新的帝国资讯、作品和开发成果。无论您是帝国时代系列的忠实粉丝还是刚刚接触这款经典游戏的新人玩家，帝国时代管家都将为您带来更极致、简单的帝国时代游戏体验！</Paragraph>
+                  <Paragraph TextAlignment="Right">
+                    <Run Foreground="Brown">当前管家版本：3.5.3</Run> /
+                    <Hyperlink Command="local:Commands.Hyperlink"
+                               CommandParameter="http://www.hawkaoe.net/amt/changelog.txt">软件更新日志</Hyperlink> /
+                    <Hyperlink Command="local:Commands.Hyperlink"
+                               CommandParameter="http://121.42.152.168/website/">了解制作团队</Hyperlink>
+                  </Paragraph>
+                </FlowDocument>
+              </FlowDocumentScrollViewer>
+            </Grid>
+          </TabItem>
+        </TabControl>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>
